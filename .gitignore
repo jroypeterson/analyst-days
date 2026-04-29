@@ -1,0 +1,35 @@
+# Secrets / local config
+.env
+*.env
+credentials.json
+.ticker_cik_cache.json
+
+# State (rebuilt from CI artifact in production; local sandbox in dev)
+data/events.db
+data/events.db-journal
+data/events.db-wal
+data/events.db-shm
+
+# Universe snapshot (regenerated from CM exports each run)
+data/universe.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+logs/

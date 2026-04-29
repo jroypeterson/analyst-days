@@ -1,0 +1,144 @@
+# analyst-days — Claude notes
+
+Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and selected industry conferences across the coverage universe. Discovery runs weekly; output goes to Slack `#analyst-days`, Google Calendar, TickTick, and email.
+
+## Three systems of record
+
+- **Coverage Manager** = universe + tier assignment (which tickers to track). Consumed via local Dropbox path (`COVERAGE_MANAGER_PATH`) for dev or sparse-checkout of `jroypeterson/Coverage-Manager/exports/` in CI.
+- **Google Calendar** = published event state (the same calendar `earnings_agent` writes to; titles prefixed with event type).
+- **SQLite (`data/events.db`)** = workflow state + historical memory + source provenance.
+
+## CLI modes
+
+```
+python -m src.cli --discover              # Pull EDGAR 8-Ks + Tavily; classify; insert/update events
+python -m src.cli --remind                # T-30 / T-7 / day-of pings for confirmed events
+python -m src.cli --digest                # Weekly Monday digest: forward 30-day + 7-day views
+python -m src.cli --weekly                # discover → remind → digest in sequence (the cron entry point)
+python -m src.cli --dry-run               # Preview; no Slack/Calendar/TickTick/Email writes
+python -m src.cli --backlog-conferences   # Backlog task: research + add additional conferences beyond JPM
+python -m src.cli --status                # Print upcoming events + DB stats
+```
+
+## Tier semantics (phase plan)
+
+- **Phase 1** (current) — core watchlist only. ~22 tickers from `Coverage Manager/exports/watchlist.csv` where `Core=Y`.
+- **Phase 2** — expand to HC Services + MedTech sectors from `universe_metadata.json`.
+- **Phase 3** — full coverage universe (~1094).
+- **Phase 4** — 10-year historical backfill: sweep all 8-Ks per ticker for past investor/analyst/R&D days, populate as `status=historical`.
+
+## Event lifecycle (state machine)
+
+```
+discovered → tentative   (imprecise date, Slack/email mention only)
+            → confirmed   (precise date, single authoritative source)
+              → reminded_30
+                → reminded_7
+                  → day_of
+                    → completed
+```
+
+- **Tentative** events are surfaced in Slack + email but never get Calendar / TickTick.
+- **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site).
+- **Confidence threshold** for auto-confirm: `>=0.80` from Claude classifier on a precise date string.
+- **Reminders** fire from `confirmed` only. Each transition is one-shot — once `reminded_30` is set it never re-pings.
+
+## Output formatting
+
+| Channel | Title format | Behavior |
+|---|---|---|
+| Slack | `:calendar: New {Event Type}: {TICKER}` (bold) + date + multi-day flag + source link | Per-confirm ping; Monday digest summary |
+| Calendar | `Investor Day: TICKER` / `Analyst Day: TICKER` / `R&D Day: TICKER` / `Capital Markets Day: TICKER` / `Conference: TICKER @ JPM Healthcare 2027` | Multi-day → multi-day all-day block |
+| TickTick | `[Event Type] TICKER` in **"Analyst Days" list** (auto-create on first run); description includes company name + source URL + multi-day flag | Due date = event start |
+| Email | Weekly Monday digest: forward 30-day + 7-day view tables | SMTP via Gmail app password |
+
+## Discovery flow (per ticker)
+
+```python
+edgar_hits  = scan_8k_recent(ticker, lookback=14d, triggers=PHRASES)
+tavily_hits = tavily_search(f'"{company}" "investor day" OR "analyst day" OR "R&D day" OR "capital markets day" {YEAR}')
+candidates  = claude_extract(edgar_hits + tavily_hits)
+    # → [{event_type, start_date, end_date, multi_day, source_url, source_type, confidence, raw_evidence}]
+for c in candidates:
+    if dup_in_db(c): merge_source_provenance(c)
+    elif c.confidence >= 0.80 and c.date.precise:
+        insert_confirmed(c)  # → slack + cal + ticktick
+    elif c.date.imprecise:
+        insert_tentative(c)  # → slack + email mention only
+```
+
+Conferences are a parallel iterator over `data/conferences.csv` (JPM Healthcare seeded for now).
+
+## Cadence (single weekly fire)
+
+| Workflow | Cron (UTC) | Local ET | Purpose |
+|---|---|---|---|
+| `weekly.yml` | `0 12 * * 1` | Monday ~07:00 ET | discover → remind → digest in one run |
+
+No daily reminder cron. Reminders are checked once per week against current date — events crossing the T-30 or T-7 thresholds in the past 7 days are pinged on the Monday fire. Day-of pings cover anything happening this week.
+
+## Required secrets (GitHub Actions)
+
+| Secret | Source | Purpose |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | New | Claude API for classify.py |
+| `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Web search per ticker |
+| `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
+| `GOOGLE_CALENDAR_ID` | Reused (earnings_agent) | Same calendar as earnings |
+| `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
+| `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
+| `GMAIL_APP_PASSWORD` | New | SMTP send for weekly digest email |
+| `GMAIL_SENDER` | New | "from" address for SMTP |
+| `EMAIL_TO` | Reused/new | "to" address — `jroypeterson@gmail.com` |
+| `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
+
+CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot.
+
+## Local `.env`
+
+Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json`) instead of JSON blob; `COVERAGE_MANAGER_PATH=C:/Users/jroyp/Dropbox/Claude Folder/Coverage Manager`.
+
+## Module map (target)
+
+- `src/cli.py` — CLI entry + top-level flows (`run_discover`, `run_remind`, `run_digest`, `run_weekly`).
+- `src/universe.py` — Load core watchlist from CM exports; schema version assert.
+- `src/discovery/scan_8k.py` — EDGAR 8-K Item 7.01/8.01 fetch + trigger-phrase pre-filter.
+- `src/discovery/scan_tavily.py` — Tavily search per ticker.
+- `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
+- `src/discovery/conferences.py` — Parallel discovery for seeded conferences.
+- `src/state/schema.py` — SQLite schema + migrations.
+- `src/state/events_repo.py` — insert/update/dedupe/source-provenance.
+- `src/outputs/slack.py` — `#analyst-days` webhook poster.
+- `src/outputs/gcal.py` — Calendar CRUD with type-prefixed titles, multi-day support.
+- `src/outputs/ticktick.py` — "Analyst Days" list management.
+- `src/outputs/gmail.py` — SMTP send (Gmail app password).
+- `src/digest.py` — forward 30/7-day views, HTML + Slack blocks.
+- `src/reminders.py` — T-30 / T-7 / day-of state machine.
+
+## Confidence thresholds
+
+| Source pattern | Auto-confirm |
+|---|---|
+| 8-K Item 7.01/8.01 with explicit precise date | Yes (≥0.85) |
+| IR page / press release with explicit precise date | Yes (≥0.85) |
+| Tavily hit corroborated by 8-K | Yes (≥0.90) |
+| Tavily hit only, precise date, reputable source | Conditional (≥0.80) |
+| Imprecise date ("Q3 2026", "Fall 2026") | Tentative (no Calendar) |
+| Conflicting dates across sources | Tentative + flag for manual review |
+
+## Backlog (not in v1)
+
+- **Conference list expansion** beyond JPM Healthcare (ASCO, AACR, RSNA, HIMSS, ITC, HLTH, etc.).
+- **10-year historical backfill** of past analyst days.
+- **Webcast / replay link capture** at announcement time.
+- **Slack-reply commands** (`lock`, `snooze`, `ignore`) — would require migrating from webhook to bot token + `conversations.history` scope.
+- **Per-company conference slot detection** ("MRNA presenting at JPM 2027 on Day 2 at 14:30").
+- **Reverse-channel to Coverage Manager**: surface tickers with no IR website populated in CM.
+
+## Testing
+
+`python -m pytest tests/ -q` before pushing. Tests should cover schema migrations, dedup logic, date precision parsing, and reminder state transitions.
+
+## Git workflow
+
+After making code changes, commit and push to GitHub (`origin master`). Follow the same "let's finish" pattern as Coverage Manager / earnings_agent / sigma-alert: save memory, update docs, run tests, commit, push.
