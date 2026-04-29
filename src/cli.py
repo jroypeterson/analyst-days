@@ -34,6 +34,7 @@ from src.outputs import slack as slack_out
 from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
+    recompute_statuses,
     upcoming_events,
     upsert_event,
     tentative_events,
@@ -210,7 +211,15 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     Idempotent — uses the events.{slack_posted_at, calendar_event_id,
     ticktick_task_id} columns to skip already-fanned-out events. A
     failed channel will simply be retried on the next run.
+
+    Runs recompute_statuses() first so events that newly clear their
+    per-type threshold (e.g. after a threshold change) get fanned out
+    on this run rather than waiting for the next discover.
     """
+    promoted = recompute_statuses(conn)
+    if promoted:
+        print(f"[fan-out] promoted {promoted} discovered/tentative -> confirmed")
+
     placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
     rows = conn.execute(
         f"SELECT * FROM events WHERE status IN ({placeholders}) "

@@ -5,6 +5,15 @@ Dedup rule: a candidate event is a duplicate if (ticker, event_type, start_date)
 already exists. On duplicate, source rows are merged (ON CONFLICT DO NOTHING on
 (event_id, source_url)) and last_seen_at is bumped. Confidence is taken as the
 max of stored vs. incoming.
+
+Confidence thresholds are per-event-type:
+  - investor / analyst / R&D / capital markets days: 0.85 (high bar; these are
+    headline events that drive prep and shouldn't be auto-confirmed on weak
+    signal)
+  - conferences: 0.70 (consistently rated lower because Tavily snippets are
+    the typical signal — failure mode is an extra calendar entry, not a
+    wrong-date confirmation)
+  - default for unknown types: 0.80
 """
 from __future__ import annotations
 
@@ -12,6 +21,20 @@ import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
+
+
+EVENT_TYPE_THRESHOLDS: dict[str, float] = {
+    "investor_day": 0.85,
+    "analyst_day": 0.85,
+    "rd_day": 0.85,
+    "capital_markets_day": 0.85,
+    "conference": 0.70,
+}
+DEFAULT_CONFIDENCE_THRESHOLD = 0.80
+
+
+def threshold_for(event_type: str) -> float:
+    return EVENT_TYPE_THRESHOLDS.get(event_type, DEFAULT_CONFIDENCE_THRESHOLD)
 
 
 def _utcnow() -> str:
@@ -56,9 +79,13 @@ def find_event(
 def upsert_event(
     conn: sqlite3.Connection,
     candidate: CandidateEvent,
-    confidence_threshold: float = 0.80,
+    confidence_threshold: Optional[float] = None,
 ) -> tuple[int, str, bool]:
     """Insert or merge a candidate event.
+
+    `confidence_threshold` defaults to the per-event-type threshold from
+    EVENT_TYPE_THRESHOLDS; pass an explicit value to override (mostly useful
+    in tests).
 
     Returns (event_id, status, is_new) where:
       - event_id: int
@@ -66,6 +93,11 @@ def upsert_event(
       - is_new: True if this insert created a new event row, False on merge
     """
     now = _utcnow()
+    threshold = (
+        confidence_threshold
+        if confidence_threshold is not None
+        else threshold_for(candidate.event_type)
+    )
     existing = find_event(
         conn, candidate.ticker, candidate.event_type, candidate.start_date
     )
@@ -73,13 +105,14 @@ def upsert_event(
     if existing:
         new_confidence = max(existing["confidence"] or 0.0, candidate.confidence)
         new_status = existing["status"]
-        # An imprecise tentative can be promoted to confirmed if a precise
-        # corroborating source arrives.
+        # Promote on merge: discovered/tentative -> confirmed when the
+        # combined confidence now clears the per-type bar AND the date is
+        # precise.
         if (
-            existing["status"] == "tentative"
+            existing["status"] in ("discovered", "tentative")
             and not candidate.date_imprecise
             and candidate.start_date
-            and new_confidence >= confidence_threshold
+            and new_confidence >= threshold
         ):
             new_status = "confirmed"
 
@@ -108,7 +141,7 @@ def upsert_event(
     else:
         if candidate.date_imprecise or candidate.start_date is None:
             status = "tentative"
-        elif candidate.confidence >= confidence_threshold:
+        elif candidate.confidence >= threshold:
             status = "confirmed"
         else:
             status = "discovered"
@@ -190,6 +223,37 @@ def event_sources(conn: sqlite3.Connection, event_id: int) -> list[sqlite3.Row]:
         "SELECT * FROM event_sources WHERE event_id = ? ORDER BY retrieved_at ASC",
         (event_id,),
     ).fetchall()
+
+
+def recompute_statuses(conn: sqlite3.Connection) -> int:
+    """Walk all events and promote discovered/tentative -> confirmed where
+    the stored confidence + per-type threshold now warrants it.
+
+    Idempotent. Promotion-only (never demotes) so events that have already
+    been fanned out stay confirmed even if you tighten thresholds later.
+
+    Returns count of events promoted.
+    """
+    now = _utcnow()
+    rows = conn.execute(
+        "SELECT id, event_type, confidence, status, start_date, date_imprecise "
+        "FROM events WHERE status IN ('discovered','tentative')"
+    ).fetchall()
+    promoted = 0
+    for r in rows:
+        threshold = threshold_for(r["event_type"])
+        precise = bool(r["start_date"]) and not r["date_imprecise"]
+        if precise and (r["confidence"] or 0.0) >= threshold:
+            conn.execute(
+                "UPDATE events SET status = 'confirmed', "
+                "confirmed_at = COALESCE(confirmed_at, ?) "
+                "WHERE id = ?",
+                (now, r["id"]),
+            )
+            promoted += 1
+    if promoted:
+        conn.commit()
+    return promoted
 
 
 def mark_status(

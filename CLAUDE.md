@@ -119,16 +119,22 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/digest.py` — forward 30/7-day views, HTML + Slack blocks.
 - `src/reminders.py` — T-30 / T-7 / day-of state machine.
 
-## Confidence thresholds
+## Confidence thresholds (per event type)
 
-| Source pattern | Auto-confirm |
-|---|---|
-| 8-K Item 7.01/8.01 with explicit precise date | Yes (≥0.85) |
-| IR page / press release with explicit precise date | Yes (≥0.85) |
-| Tavily hit corroborated by 8-K | Yes (≥0.90) |
-| Tavily hit only, precise date, reputable source | Conditional (≥0.80) |
-| Imprecise date ("Q3 2026", "Fall 2026") | Tentative (no Calendar) |
-| Conflicting dates across sources | Tentative + flag for manual review |
+`src/state/events_repo.py` holds the type-specific bar at which `discovered` / `tentative` events promote to `confirmed` and fan out to Slack / Calendar / TickTick.
+
+| Event type | Threshold | Rationale |
+|---|---|---|
+| Investor Day | **0.85** | Headline event; high bar — wrong-date confirms drive prep on the wrong day |
+| Analyst Day | **0.85** | Same |
+| R&D Day | **0.85** | Same |
+| Capital Markets Day | **0.85** | Same |
+| Conference | **0.70** | Tavily snippets are the typical signal; failure mode is an extra calendar entry, not a wrong-date confirmation |
+| (default for unknown types) | 0.80 | |
+
+`recompute_statuses(conn)` is run at the start of `--fanout` (and at end of `--discover`). It's promotion-only — events that have already been fanned out stay confirmed even if you tighten thresholds later. Tighten the universe by deleting a row, not by demoting status.
+
+Imprecise dates ("Q3 2026", "Fall 2026") never auto-confirm regardless of threshold — they stay `tentative` and surface in the Friday Radar (Slack/email mention only) without Calendar / TickTick fan-out until a precise corroborating source arrives.
 
 ## Backlog (not in v1)
 
