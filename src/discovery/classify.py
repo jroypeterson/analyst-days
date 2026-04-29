@@ -6,6 +6,10 @@ prompt caching kicks in across the per-ticker calls in a single weekly run
 (Sonnet 4.6 minimum cacheable prefix is 2048 tokens; we comfortably clear
 that with the schema + few-shot block).
 
+Today's date is injected into the user message (NOT the system prompt) so
+the system prefix stays bit-stable for caching. The classifier uses today's
+date to filter past events.
+
 Effort is `low` and thinking is disabled — this is mechanical extraction,
 not reasoning. We escalate to Sonnet 4.6's defaults only if the v1 quality
 proves insufficient.
@@ -15,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from datetime import date
 from typing import Literal, Optional
 
 import anthropic
@@ -77,7 +82,7 @@ Your job: read the bundled hits below (SEC 8-K filings + Tavily web search resul
 
 ## Hard rules
 
-1. **Future events only.** If the source describes a past event ("we held our investor day on March 15, 2025"), exclude it. Use the source's own filing/publication date as a cue: an 8-K filed on 2026-03-20 mentioning an event on 2026-09-12 is future; the same event mentioned in an 8-K filed in 2027 is past.
+1. **Future events only.** The user bundle ALWAYS includes a `Today's date:` line at the top. An event is future if `start_date > today` (precise) or if the imprecise hint clearly refers to a future window (e.g. today is 2026-04-29 and the hint is "Q3 2026" — future; today is 2026-04-29 and the hint is "Q1 2026" — past). Exclude past events entirely. If you cannot determine recency from the bundle plus today's date, default to excluding.
 2. **One event per output item.** If the bundle describes the same event from multiple sources (e.g. an 8-K + a Tavily hit corroborating it), emit ONE event and pick the highest-confidence source URL.
 3. **Date precision.**
    - Precise: full date or month-day-year ("September 12, 2026") → fill `start_date` as ISO `YYYY-MM-DD`, set `date_imprecise=false`.
@@ -229,8 +234,12 @@ def _bundle_user_message(
     company_name: str,
     edgar_hits: list[dict],
     tavily_hits: list[dict],
+    today_iso: str,
 ) -> str:
-    parts: list[str] = [f"# Ticker: {ticker} ({company_name})\n"]
+    parts: list[str] = [
+        f"Today's date: {today_iso}\n",
+        f"# Ticker: {ticker} ({company_name})\n",
+    ]
 
     parts.append("## EDGAR 8-K hits")
     if edgar_hits:
@@ -266,10 +275,16 @@ def classify_ticker(
     company_name: str,
     edgar_hits: list[dict],
     tavily_hits: list[dict],
+    today_iso: Optional[str] = None,
 ) -> ExtractionResult:
-    """Bundle hits for one ticker and run the structured-output extractor."""
+    """Bundle hits for one ticker and run the structured-output extractor.
+
+    `today_iso` is injected into the user message so the classifier can
+    filter past events. Defaults to today.
+    """
+    today_iso = today_iso or date.today().isoformat()
     user_content = _bundle_user_message(
-        ticker, company_name, edgar_hits, tavily_hits
+        ticker, company_name, edgar_hits, tavily_hits, today_iso
     )
 
     # Stable system block — cache_control on the system text holds the prompt
