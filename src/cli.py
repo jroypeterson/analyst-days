@@ -27,7 +27,7 @@ from src.discovery.classify import (
     classify_ticker,
     get_client,
 )
-from src.discovery.scan_8k import scan_ticker as edgar_scan
+from src.discovery.scan_edgar import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
 from src.outputs import gcal as gcal_out
 from src.outputs import slack as slack_out

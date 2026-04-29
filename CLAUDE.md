@@ -106,7 +106,7 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 
 - `src/cli.py` — CLI entry + top-level flows (`run_discover`, `run_remind`, `run_digest`, `run_weekly`).
 - `src/universe.py` — Load core watchlist from CM exports; schema version assert.
-- `src/discovery/scan_8k.py` — EDGAR 8-K Item 7.01/8.01 fetch + trigger-phrase pre-filter.
+- `src/discovery/scan_edgar.py` — EDGAR scanner via edgartools. Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
 - `src/discovery/scan_tavily.py` — Tavily search per ticker.
 - `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
 - `src/discovery/conferences.py` — Parallel discovery for seeded conferences.
