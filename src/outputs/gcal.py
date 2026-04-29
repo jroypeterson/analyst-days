@@ -173,7 +173,18 @@ def upsert_calendar_event(
 
     Returns the Google Calendar event ID. Also persists it on
     events.calendar_event_id so subsequent runs update in place.
+
+    Conferences are tracked but not pushed — caller should filter on
+    PUSHABLE_EVENT_TYPES before calling this; this function will raise
+    if asked to write a non-pushable event (defense in depth).
     """
+    from src.state.events_repo import is_pushable
+
+    if not is_pushable(event_row["event_type"]):
+        raise ValueError(
+            f"Refusing to post non-pushable event_type={event_row['event_type']!r} "
+            "to Google Calendar"
+        )
     if not event_row["start_date"]:
         raise ValueError("Cannot post imprecise event to Calendar — start_date is null")
 

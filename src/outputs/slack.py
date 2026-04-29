@@ -17,6 +17,8 @@ from typing import Iterable, Optional
 
 import requests
 
+from src.state.events_repo import PUSHABLE_EVENT_TYPES
+
 WEBHOOK_ENV = "SLACK_WEBHOOK_ANALYST_DAYS"
 
 # Friendly display names (sortable on the wire as the keys)
@@ -77,9 +79,12 @@ def _post(payload: dict) -> None:
 def post_confirmed(event_row) -> None:
     """Per-event ping fired when status flips to confirmed.
 
+    Conferences are tracked but not pushed — silently skipped here.
     `event_row` is a sqlite3.Row (or any mapping) from the events table.
     """
     e = event_row
+    if e["event_type"] not in PUSHABLE_EVENT_TYPES:
+        return
     type_label = EVENT_TYPE_LABELS.get(e["event_type"], e["event_type"])
     when_str = e["start_date"] or "(date TBD)"
     if e["multi_day"] and e["end_date"]:
@@ -172,9 +177,15 @@ def _grouped_table(rows, today_iso: str) -> str:
 
 
 def _query_radar(conn, today_iso: str) -> list:
-    """All future events (confirmed + discovered + tentative) joined with primary source type."""
+    """All future pushable events (confirmed + discovered + tentative).
+
+    Conferences are excluded — they're tracked in the DB but the user
+    explicitly opted them out of the Slack signal.
+    """
+    type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
+    pushable_types = sorted(PUSHABLE_EVENT_TYPES)
     return conn.execute(
-        """
+        f"""
         SELECT
             e.id, e.ticker, e.company_name, e.event_type,
             e.start_date, e.end_date, e.multi_day,
@@ -185,13 +196,14 @@ def _query_radar(conn, today_iso: str) -> list:
         FROM events e
         WHERE e.status IN ('confirmed','discovered','tentative',
                            'reminded_30','reminded_7','day_of')
+          AND e.event_type IN ({type_placeholders})
           AND (e.start_date IS NULL OR e.start_date >= ?)
         ORDER BY
-          CASE WHEN e.start_date IS NULL THEN 1 ELSE 0 END,  -- precise dates first
+          CASE WHEN e.start_date IS NULL THEN 1 ELSE 0 END,
           e.start_date ASC,
           e.ticker ASC
         """,
-        (today_iso,),
+        (*pushable_types, today_iso),
     ).fetchall()
 
 
@@ -245,20 +257,23 @@ def post_friday_digest(conn, today_iso: Optional[str] = None) -> int:
 
 def post_monday_digest(conn, today_iso: Optional[str] = None) -> int:
     today_iso = today_iso or date.today().isoformat()
+    type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
+    pushable_types = sorted(PUSHABLE_EVENT_TYPES)
     in_30 = conn.execute(
-        """
+        f"""
         SELECT e.id, e.ticker, e.event_type, e.start_date, e.end_date,
                e.multi_day, e.imprecise_hint, e.status, e.confidence,
                (SELECT s.source_type FROM event_sources s
                  WHERE s.event_id = e.id ORDER BY s.id ASC LIMIT 1) AS primary_source
         FROM events e
         WHERE e.status IN ('confirmed','reminded_30','reminded_7','day_of')
+          AND e.event_type IN ({type_placeholders})
           AND e.start_date IS NOT NULL
           AND e.start_date >= ?
           AND e.start_date <= date(?, '+30 days')
         ORDER BY e.start_date ASC
         """,
-        (today_iso, today_iso),
+        (*pushable_types, today_iso, today_iso),
     ).fetchall()
 
     in_7 = [r for r in in_30 if r["start_date"] <= _date_plus(today_iso, 7)]

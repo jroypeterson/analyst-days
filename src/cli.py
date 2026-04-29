@@ -34,6 +34,7 @@ from src.outputs import slack as slack_out
 from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
+    PUSHABLE_EVENT_TYPES,
     recompute_statuses,
     upcoming_events,
     upsert_event,
@@ -220,11 +221,14 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     if promoted:
         print(f"[fan-out] promoted {promoted} discovered/tentative -> confirmed")
 
-    placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
+    status_placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
+    type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
+    pushable_types = sorted(PUSHABLE_EVENT_TYPES)
     rows = conn.execute(
-        f"SELECT * FROM events WHERE status IN ({placeholders}) "
+        f"SELECT * FROM events WHERE status IN ({status_placeholders}) "
+        f"AND event_type IN ({type_placeholders}) "
         "AND start_date IS NOT NULL ORDER BY start_date ASC",
-        CONFIRMED_STATUSES,
+        (*CONFIRMED_STATUSES, *pushable_types),
     ).fetchall()
 
     if not rows:
@@ -335,6 +339,10 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Verify Google Calendar auth + access (no writes)")
     mode.add_argument("--fanout", action="store_true",
                       help="Re-run output fan-out without scanning (retries Slack/Calendar)")
+    mode.add_argument("--prune-non-pushable", action="store_true",
+                      help="Delete Calendar entries + clear slack_posted_at "
+                           "for non-pushable types (e.g. conferences) "
+                           "after a policy change. Idempotent.")
     mode.add_argument("--remind", action="store_true",
                       help="(TODO) Reminder fan-out (T-30 / T-7 / day-of)")
 
@@ -408,6 +416,69 @@ def cmd_fanout(args: argparse.Namespace) -> int:
         conn.close()
 
 
+def cmd_prune_non_pushable(args: argparse.Namespace) -> int:
+    """Clean up Calendar entries (and reset slack_posted_at) for events
+    whose event_type is no longer in PUSHABLE_EVENT_TYPES.
+
+    Use after a policy change — e.g. when conferences moved from pushable
+    to tracked-only.
+    """
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
+        pushable_types = sorted(PUSHABLE_EVENT_TYPES)
+        # Find non-pushable events that have artifacts attached.
+        rows = conn.execute(
+            f"SELECT id, ticker, event_type, calendar_event_id, slack_posted_at "
+            f"FROM events WHERE event_type NOT IN ({type_placeholders}) "
+            "AND (calendar_event_id IS NOT NULL OR slack_posted_at IS NOT NULL) "
+            "ORDER BY id",
+            pushable_types,
+        ).fetchall()
+
+        if not rows:
+            print("Nothing to prune.")
+            return 0
+
+        gcal_service = None
+        gcal_deleted = 0
+        slack_cleared = 0
+        for r in rows:
+            print(f"  {r['ticker']:6}  {r['event_type']:14}  "
+                  f"gcal={'Y' if r['calendar_event_id'] else 'N'}  "
+                  f"slack_posted={'Y' if r['slack_posted_at'] else 'N'}")
+            if r["calendar_event_id"]:
+                if gcal_service is None:
+                    try:
+                        gcal_service = gcal_out.get_service()
+                    except Exception as exc:
+                        print(f"    Calendar auth failed: {exc}")
+                        gcal_service = False
+                if gcal_service:
+                    if gcal_out.delete_calendar_event(gcal_service, conn, r["id"]):
+                        gcal_deleted += 1
+                        print("    -> deleted from Calendar")
+        # Wipe slack_posted_at on all non-pushable rows in one shot
+        slack_cleared = conn.execute(
+            f"UPDATE events SET slack_posted_at = NULL "
+            f"WHERE event_type NOT IN ({type_placeholders}) "
+            "AND slack_posted_at IS NOT NULL",
+            pushable_types,
+        ).rowcount
+        conn.commit()
+        print(f"\nPruned {gcal_deleted} calendar event(s); "
+              f"cleared slack_posted_at on {slack_cleared} row(s).")
+        print("Note: Slack messages already in #analyst-days history can't be "
+              "deleted via webhook. Delete manually or ignore.")
+        return 0
+    finally:
+        conn.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
     args = build_parser().parse_args(argv)
@@ -425,6 +496,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_gcal_test(args)
     if args.fanout:
         return cmd_fanout(args)
+    if args.prune_non_pushable:
+        return cmd_prune_non_pushable(args)
     if args.remind:
         print("Mode not yet implemented (Phase 1 ships --discover, --status, --friday-digest, --monday-digest, --slack-test).")
         return 2

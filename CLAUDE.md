@@ -119,6 +119,20 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/digest.py` — forward 30/7-day views, HTML + Slack blocks.
 - `src/reminders.py` — T-30 / T-7 / day-of state machine.
 
+## Pushable vs tracked-only event types
+
+`PUSHABLE_EVENT_TYPES` in `src/state/events_repo.py` controls which event types fan out to Slack / Google Calendar / TickTick. Currently:
+
+| Event type | Tracked in DB | Pushed to Slack | On Calendar | In digests |
+|---|---|---|---|---|
+| Investor Day | ✓ | ✓ | ✓ | ✓ |
+| Analyst Day | ✓ | ✓ | ✓ | ✓ |
+| R&D Day | ✓ | ✓ | ✓ | ✓ |
+| Capital Markets Day | ✓ | ✓ | ✓ | ✓ |
+| Conference | ✓ | — | — | — |
+
+Conferences are still discovered, classified, and stored — visible via `--status` — but they don't drive prep, so they're kept off the user-facing channels. To change the policy, edit `PUSHABLE_EVENT_TYPES` then run `python -m src.cli --prune-non-pushable` to clean up calendar entries / slack-posted markers for the now-excluded types.
+
 ## Confidence thresholds (per event type)
 
 `src/state/events_repo.py` holds the type-specific bar at which `discovered` / `tentative` events promote to `confirmed` and fan out to Slack / Calendar / TickTick.

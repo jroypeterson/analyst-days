@@ -33,6 +33,22 @@ EVENT_TYPE_THRESHOLDS: dict[str, float] = {
 DEFAULT_CONFIDENCE_THRESHOLD = 0.80
 
 
+# Event types that get pushed to Slack / Google Calendar / TickTick.
+# Conferences are intentionally excluded — we track them in the DB (visible
+# via --status) but they don't generate per-event pings, calendar entries,
+# or digest table rows. The user's view: only analyst-style days drive prep.
+PUSHABLE_EVENT_TYPES: set[str] = {
+    "investor_day",
+    "analyst_day",
+    "rd_day",
+    "capital_markets_day",
+}
+
+
+def is_pushable(event_type: str) -> bool:
+    return event_type in PUSHABLE_EVENT_TYPES
+
+
 def threshold_for(event_type: str) -> float:
     return EVENT_TYPE_THRESHOLDS.get(event_type, DEFAULT_CONFIDENCE_THRESHOLD)
 
