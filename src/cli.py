@@ -29,6 +29,7 @@ from src.discovery.classify import (
 )
 from src.discovery.scan_8k import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
+from src.outputs import slack as slack_out
 from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
@@ -182,6 +183,23 @@ def cmd_discover(args: argparse.Namespace) -> int:
                 summary["events_merged"] += 1
             print(f"     -> DB event_id={event_id} status={status} "
                   f"{'(new)' if is_new else '(merged)'}")
+
+            # On first-time confirmation, ping Slack. Skip if --no-slack
+            # or if this was a merge into an already-confirmed row.
+            if (
+                is_new
+                and status == "confirmed"
+                and not args.no_slack
+                and not args.dry_run
+            ):
+                try:
+                    row = conn.execute(
+                        "SELECT * FROM events WHERE id = ?", (event_id,)
+                    ).fetchone()
+                    slack_out.post_confirmed(row)
+                    print("     -> Slack: posted #analyst-days confirmation")
+                except Exception as exc:
+                    print(f"     -> Slack post failed: {type(exc).__name__}: {exc}")
         print()
 
     if conn is not None:
@@ -246,15 +264,19 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Scan EDGAR + Tavily, classify, upsert events")
     mode.add_argument("--status", action="store_true",
                       help="Print DB stats + upcoming events")
+    mode.add_argument("--friday-digest", action="store_true",
+                      help="Post Friday 'on the radar' digest to #analyst-days")
+    mode.add_argument("--monday-digest", action="store_true",
+                      help="Post Monday 'forward 30/7' digest to #analyst-days")
+    mode.add_argument("--slack-test", action="store_true",
+                      help="Post a sanity ping to #analyst-days")
     mode.add_argument("--remind", action="store_true",
                       help="(TODO) Reminder fan-out (T-30 / T-7 / day-of)")
-    mode.add_argument("--digest", action="store_true",
-                      help="(TODO) Weekly Monday digest")
-    mode.add_argument("--weekly", action="store_true",
-                      help="(TODO) discover → remind → digest in sequence")
 
     p.add_argument("--dry-run", action="store_true",
                    help="No DB writes / no fan-out; prints proposed actions")
+    p.add_argument("--no-slack", action="store_true",
+                   help="Skip Slack posts even outside --dry-run")
     p.add_argument("--lookback", type=int, default=DEFAULT_LOOKBACK_DAYS,
                    help="EDGAR lookback window in days (default 14)")
     p.add_argument("--tavily-results", type=int, default=5,
@@ -266,6 +288,40 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def cmd_friday_digest(args: argparse.Namespace) -> int:
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}. Run --discover first.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        n = slack_out.post_friday_digest(conn)
+        print(f"Friday digest posted to #analyst-days  ({n} events)")
+        return 0
+    finally:
+        conn.close()
+
+
+def cmd_monday_digest(args: argparse.Namespace) -> int:
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}. Run --discover first.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        n = slack_out.post_monday_digest(conn)
+        print(f"Monday digest posted to #analyst-days  ({n} events in 30d)")
+        return 0
+    finally:
+        conn.close()
+
+
+def cmd_slack_test(args: argparse.Namespace) -> int:
+    slack_out.post_test()
+    print("Slack sanity ping posted to #analyst-days")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
     args = build_parser().parse_args(argv)
@@ -273,8 +329,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_discover(args)
     if args.status:
         return cmd_status(args)
-    if args.remind or args.digest or args.weekly:
-        print("Mode not yet implemented (Phase 1 ships --discover and --status).")
+    if args.friday_digest:
+        return cmd_friday_digest(args)
+    if args.monday_digest:
+        return cmd_monday_digest(args)
+    if args.slack_test:
+        return cmd_slack_test(args)
+    if args.remind:
+        print("Mode not yet implemented (Phase 1 ships --discover, --status, --friday-digest, --monday-digest, --slack-test).")
         return 2
     return 1
 

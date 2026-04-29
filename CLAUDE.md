@@ -69,13 +69,18 @@ for c in candidates:
 
 Conferences are a parallel iterator over `data/conferences.csv` (JPM Healthcare seeded for now).
 
-## Cadence (single weekly fire)
+## Cadence (two weekly fires)
 
 | Workflow | Cron (UTC) | Local ET | Purpose |
 |---|---|---|---|
-| `weekly.yml` | `0 12 * * 1` | Monday ~07:00 ET | discover → remind → digest in one run |
+| `monday.yml` | `0 12 * * 1` | Monday ~07:00 ET | discover → remind → Monday "forward 30/7" digest |
+| `friday.yml` | `0 12 * * 5` | Friday ~07:00 ET | Friday "on the radar" digest (read-only — no discovery) |
 
 No daily reminder cron. Reminders are checked once per week against current date — events crossing the T-30 or T-7 thresholds in the past 7 days are pinged on the Monday fire. Day-of pings cover anything happening this week.
+
+**Two distinct digest shapes** in `#analyst-days`:
+- **Monday Outlook** — what's *imminent*. Forward 30-day + forward 7-day tables. Drives prep.
+- **Friday Radar** — *all* future events on the watchlist (confirmed + suspected, precise + imprecise). Wider inventory snapshot for the weekend reading window. Compact monospace table sorted by date.
 
 ## Required secrets (GitHub Actions)
 
