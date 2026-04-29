@@ -110,7 +110,11 @@ def post_confirmed(event_row) -> None:
 
 
 def _format_row(row, today_iso: str) -> str:
-    """One line in the monospace digest table."""
+    """One line in the monospace digest sub-table.
+
+    Status column is dropped — we split into 'Confirmed' / 'Suspected'
+    sub-tables in the digest, so per-row status is redundant.
+    """
     ticker = (row["ticker"] or "")[:6]
     type_label = EVENT_TYPE_LABELS.get(row["event_type"], row["event_type"])[:18]
 
@@ -119,18 +123,52 @@ def _format_row(row, today_iso: str) -> str:
         if row["multi_day"] and row["end_date"]:
             when = f"{row['start_date']}+"
     elif row["imprecise_hint"]:
-        when = (row["imprecise_hint"] or "")[:10]
+        when = (row["imprecise_hint"] or "")[:11]
     else:
         when = "TBD"
 
     conf = f"{(row['confidence'] or 0.0):.2f}"
-    status = STATUS_LABELS.get(row["status"], row["status"])
 
     src_summary = ""
-    if "primary_source" in row.keys():
-        src_summary = SOURCE_LABELS.get(row["primary_source"] or "", row["primary_source"] or "")[:4]
+    try:
+        src_summary = SOURCE_LABELS.get(row["primary_source"] or "", (row["primary_source"] or ""))[:4]
+    except (IndexError, KeyError):
+        pass
 
-    return f"{when:11} {ticker:6}  {type_label:18}  {conf:4}  {status:9}  {src_summary}"
+    return f"{when:11} {ticker:6}  {type_label:18}  {conf:4}  {src_summary}"
+
+
+def _month_label(iso_date: str) -> str:
+    from datetime import date as _d
+    return _d.fromisoformat(iso_date).strftime("%B %Y")
+
+
+def _grouped_table(rows, today_iso: str) -> str:
+    """Code-block table with month dividers. Imprecise rows go under 'Date TBD'."""
+    if not rows:
+        return "_(none)_"
+
+    header = f"{'DATE':11} {'TICKER':6}  {'TYPE':18}  {'CONF':4}  SRC"
+    sep = "-" * len(header)
+
+    precise = [r for r in rows if r["start_date"]]
+    imprecise = [r for r in rows if not r["start_date"]]
+
+    body: list[str] = []
+    last_month = None
+    for r in precise:
+        m = _month_label(r["start_date"])
+        if m != last_month:
+            body.append(f"── {m} ──")
+            last_month = m
+        body.append(_format_row(r, today_iso))
+
+    if imprecise:
+        body.append("── Date TBD ──")
+        for r in imprecise:
+            body.append(_format_row(r, today_iso))
+
+    return "```\n" + header + "\n" + sep + "\n" + "\n".join(body) + "\n```"
 
 
 def _query_radar(conn, today_iso: str) -> list:
@@ -157,40 +195,41 @@ def _query_radar(conn, today_iso: str) -> list:
     ).fetchall()
 
 
-def _radar_table(rows, today_iso: str) -> str:
-    if not rows:
-        return "_(no events on the radar yet)_"
-    header = f"{'DATE':11} {'TICKER':6}  {'TYPE':18}  {'CONF':4}  {'STATUS':9}  SRC"
-    sep = "-" * len(header)
-    body = "\n".join(_format_row(r, today_iso) for r in rows)
-    return "```\n" + header + "\n" + sep + "\n" + body + "\n```"
-
-
 def post_friday_digest(conn, today_iso: Optional[str] = None) -> int:
     """Post the Friday 'on the radar' digest. Returns the number of events posted."""
     today_iso = today_iso or date.today().isoformat()
     rows = _query_radar(conn, today_iso)
 
-    n_confirmed = sum(1 for r in rows if r["status"] in ("confirmed", "reminded_30", "reminded_7", "day_of"))
-    n_suspected = sum(1 for r in rows if r["status"] in ("discovered", "tentative"))
+    confirmed = [r for r in rows if r["status"] in
+                 ("confirmed", "reminded_30", "reminded_7", "day_of")]
+    suspected = [r for r in rows if r["status"] in ("discovered", "tentative")]
 
     summary = (
         f":calendar: *Analyst Days — Friday Radar* ({today_iso})  |  "
         f"*{len(rows)}* future events  ·  "
-        f"{n_confirmed} confirmed  ·  {n_suspected} suspected"
+        f"{len(confirmed)} confirmed  ·  {len(suspected)} suspected"
     )
 
-    table = _radar_table(rows, today_iso)
-    blocks = [
+    blocks: list[dict] = [
         {"type": "section", "text": {"type": "mrkdwn", "text": summary}},
-        {"type": "section", "text": {"type": "mrkdwn", "text": table}},
-        {"type": "context", "elements": [{
-            "type": "mrkdwn",
-            "text": "_Confirmed = single authoritative source w/ precise date "
-                    "above 0.80. Suspected = below threshold or imprecise date. "
-                    "Run discovery weekly._",
-        }]},
     ]
+    if confirmed:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*Confirmed ({len(confirmed)})*\n"
+                    + _grouped_table(confirmed, today_iso)}})
+    if suspected:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*Suspected ({len(suspected)})*\n"
+                    + _grouped_table(suspected, today_iso)}})
+    if not rows:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "_(nothing on the radar — run --discover)_"}})
+
+    blocks.append({"type": "context", "elements": [{
+        "type": "mrkdwn",
+        "text": "_Confirmed = single authoritative source w/ precise date "
+                "≥0.80 confidence. Suspected = below threshold or imprecise date._",
+    }]})
 
     _post({
         "text": f"Analyst Days Friday radar — {len(rows)} events",
@@ -232,9 +271,11 @@ def post_monday_digest(conn, today_iso: Optional[str] = None) -> int:
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": summary}},
         {"type": "section", "text": {"type": "mrkdwn",
-            "text": "*Next 7 days*\n" + _radar_table(in_7, today_iso)}},
+            "text": f"*Next 7 days ({len(in_7)})*\n"
+                    + _grouped_table(in_7, today_iso)}},
         {"type": "section", "text": {"type": "mrkdwn",
-            "text": "*Next 30 days*\n" + _radar_table(in_30, today_iso)}},
+            "text": f"*Next 30 days ({len(in_30)})*\n"
+                    + _grouped_table(in_30, today_iso)}},
     ]
     _post({
         "text": f"Analyst Days Monday outlook — {len(in_30)} in 30d / {len(in_7)} in 7d",
