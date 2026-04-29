@@ -50,7 +50,7 @@ discovered → tentative   (imprecise date, Slack/email mention only)
 | Slack | `:calendar: New {Event Type}: {TICKER}` (bold) + date + multi-day flag + source link | Per-confirm ping; Monday digest summary |
 | Calendar | `Investor Day: TICKER` / `Analyst Day: TICKER` / `R&D Day: TICKER` / `Capital Markets Day: TICKER` / `Conference: TICKER @ JPM Healthcare 2027` | Multi-day → multi-day all-day block |
 | TickTick | `[Event Type] TICKER` in **"Analyst Days" list** (auto-create on first run); description includes company name + source URL + multi-day flag | Due date = event start |
-| Email | Weekly Monday digest: forward 30-day + 7-day view tables | SMTP via Gmail app password |
+| Email | Weekly Monday digest: forward 30-day + 7-day view tables | Gmail API via OAuth (reuses daily-reads token) |
 
 ## Discovery flow (per ticker)
 
@@ -87,9 +87,8 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `GOOGLE_CALENDAR_ID` | Reused (earnings_agent) | Same calendar as earnings |
 | `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
 | `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
-| `GMAIL_APP_PASSWORD` | New | SMTP send for weekly digest email |
-| `GMAIL_SENDER` | New | "from" address for SMTP |
-| `EMAIL_TO` | Reused/new | "to" address — `jroypeterson@gmail.com` |
+| `GMAIL_OAUTH_JSON` | Reused (daily-reads) | Full token JSON content; reuses `gmail.send` scope. Locally use `GMAIL_OAUTH_JSON_PATH` instead. |
+| `EMAIL_TO` | New | "to" address — `jroypeterson@gmail.com` |
 | `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
 
 CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot.
@@ -111,7 +110,7 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/outputs/slack.py` — `#analyst-days` webhook poster.
 - `src/outputs/gcal.py` — Calendar CRUD with type-prefixed titles, multi-day support.
 - `src/outputs/ticktick.py` — "Analyst Days" list management.
-- `src/outputs/gmail.py` — SMTP send (Gmail app password).
+- `src/outputs/gmail.py` — Gmail API send via OAuth (`get_gmail_service()` reads `GMAIL_OAUTH_JSON` in CI or `GMAIL_OAUTH_JSON_PATH` locally; mirrors `daily-reads/gmail_reader.py`).
 - `src/digest.py` — forward 30/7-day views, HTML + Slack blocks.
 - `src/reminders.py` — T-30 / T-7 / day-of state machine.
 
