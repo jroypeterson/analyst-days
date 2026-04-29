@@ -31,6 +31,7 @@ from src.discovery.scan_8k import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
 from src.outputs import gcal as gcal_out
 from src.outputs import slack as slack_out
+from src.outputs import ticktick as ticktick_out
 from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
@@ -232,12 +233,15 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     ).fetchall()
 
     if not rows:
-        return {"fanout_slack": 0, "fanout_gcal": 0}
+        return {"fanout_slack": 0, "fanout_gcal": 0, "fanout_ticktick": 0}
 
     slack_posted = 0
     gcal_posted = 0
+    ticktick_posted = 0
 
     gcal_service = None
+    ticktick_list_id: Optional[str] = None
+    ticktick_disabled = False  # set true on auth/list failure to stop retrying
     print(f"[fan-out] {len(rows)} confirmed event(s) to evaluate")
 
     for row in rows:
@@ -272,7 +276,31 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
                 except Exception as exc:
                     print(f"  Calendar: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
 
-    return {"fanout_slack": slack_posted, "fanout_gcal": gcal_posted}
+        # TickTick
+        if not row["ticktick_task_id"] and not args.no_ticktick and not ticktick_disabled:
+            if ticktick_list_id is None:
+                try:
+                    ticktick_list_id = ticktick_out.find_or_create_list()
+                except Exception as exc:
+                    print(f"  TickTick: auth/list FAILED "
+                          f"({type(exc).__name__}: {exc}); skipping fan-out")
+                    ticktick_disabled = True
+            if ticktick_list_id and not ticktick_disabled:
+                try:
+                    ticktick_out.upsert_event_task(conn, row, ticktick_list_id)
+                    ticktick_posted += 1
+                    print(f"  TickTick: {row['ticker']} {row['event_type']} -> posted")
+                except ticktick_out.TickTickTokenExpired:
+                    print("  TickTick: token expired — skipping rest")
+                    ticktick_disabled = True
+                except Exception as exc:
+                    print(f"  TickTick: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+
+    return {
+        "fanout_slack": slack_posted,
+        "fanout_gcal": gcal_posted,
+        "fanout_ticktick": ticktick_posted,
+    }
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -337,6 +365,8 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Post a sanity ping to #analyst-days")
     mode.add_argument("--gcal-test", action="store_true",
                       help="Verify Google Calendar auth + access (no writes)")
+    mode.add_argument("--ticktick-test", action="store_true",
+                      help="Verify TickTick auth and find/create the Analyst Days list")
     mode.add_argument("--fanout", action="store_true",
                       help="Re-run output fan-out without scanning (retries Slack/Calendar)")
     mode.add_argument("--prune-non-pushable", action="store_true",
@@ -352,6 +382,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Skip Slack posts even outside --dry-run")
     p.add_argument("--no-gcal", action="store_true",
                    help="Skip Google Calendar posts even outside --dry-run")
+    p.add_argument("--no-ticktick", action="store_true",
+                   help="Skip TickTick posts even outside --dry-run")
     p.add_argument("--lookback", type=int, default=DEFAULT_LOOKBACK_DAYS,
                    help="EDGAR lookback window in days (default 14)")
     p.add_argument("--tavily-results", type=int, default=5,
@@ -399,6 +431,11 @@ def cmd_slack_test(args: argparse.Namespace) -> int:
 
 def cmd_gcal_test(args: argparse.Namespace) -> int:
     gcal_out.smoke_test()
+    return 0
+
+
+def cmd_ticktick_test(args: argparse.Namespace) -> int:
+    ticktick_out.smoke_test()
     return 0
 
 
@@ -494,6 +531,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_slack_test(args)
     if args.gcal_test:
         return cmd_gcal_test(args)
+    if args.ticktick_test:
+        return cmd_ticktick_test(args)
     if args.fanout:
         return cmd_fanout(args)
     if args.prune_non_pushable:
