@@ -29,6 +29,7 @@ from src.discovery.classify import (
 )
 from src.discovery.scan_8k import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
+from src.outputs import gcal as gcal_out
 from src.outputs import slack as slack_out
 from src.state.events_repo import (
     CandidateEvent,
@@ -39,6 +40,13 @@ from src.state.events_repo import (
 )
 from src.state.schema import init_db, schema_version, CURRENT_SCHEMA_VERSION
 from src.universe import Ticker, load_core_watchlist
+
+
+CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
+
+
+def _utcnow() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 DEFAULT_DB = "data/events.db"
@@ -183,31 +191,75 @@ def cmd_discover(args: argparse.Namespace) -> int:
                 summary["events_merged"] += 1
             print(f"     -> DB event_id={event_id} status={status} "
                   f"{'(new)' if is_new else '(merged)'}")
-
-            # On first-time confirmation, ping Slack. Skip if --no-slack
-            # or if this was a merge into an already-confirmed row.
-            if (
-                is_new
-                and status == "confirmed"
-                and not args.no_slack
-                and not args.dry_run
-            ):
-                try:
-                    row = conn.execute(
-                        "SELECT * FROM events WHERE id = ?", (event_id,)
-                    ).fetchone()
-                    slack_out.post_confirmed(row)
-                    print("     -> Slack: posted #analyst-days confirmation")
-                except Exception as exc:
-                    print(f"     -> Slack post failed: {type(exc).__name__}: {exc}")
         print()
 
-    if conn is not None:
+    # End-of-run fan-out: idempotent, retries failures next run.
+    if conn is not None and not args.dry_run:
+        fan_summary = _fan_out_confirmed(conn, args)
+        summary.update(fan_summary)
         conn.close()
 
     print("---")
     print(f"summary: {json.dumps(summary, indent=2)}")
     return 0
+
+
+def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
+    """Post any confirmed event missing slack/calendar/ticktick output rows.
+
+    Idempotent — uses the events.{slack_posted_at, calendar_event_id,
+    ticktick_task_id} columns to skip already-fanned-out events. A
+    failed channel will simply be retried on the next run.
+    """
+    placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
+    rows = conn.execute(
+        f"SELECT * FROM events WHERE status IN ({placeholders}) "
+        "AND start_date IS NOT NULL ORDER BY start_date ASC",
+        CONFIRMED_STATUSES,
+    ).fetchall()
+
+    if not rows:
+        return {"fanout_slack": 0, "fanout_gcal": 0}
+
+    slack_posted = 0
+    gcal_posted = 0
+
+    gcal_service = None
+    print(f"[fan-out] {len(rows)} confirmed event(s) to evaluate")
+
+    for row in rows:
+        # Slack
+        if not row["slack_posted_at"] and not args.no_slack:
+            try:
+                slack_out.post_confirmed(row)
+                conn.execute(
+                    "UPDATE events SET slack_posted_at = ? WHERE id = ?",
+                    (_utcnow(), row["id"]),
+                )
+                conn.commit()
+                slack_posted += 1
+                print(f"  Slack: {row['ticker']} {row['event_type']} -> posted")
+            except Exception as exc:
+                print(f"  Slack: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+
+        # Calendar
+        if not row["calendar_event_id"] and not args.no_gcal:
+            if gcal_service is None:
+                try:
+                    gcal_service = gcal_out.get_service()
+                except Exception as exc:
+                    print(f"  Calendar: auth FAILED ({type(exc).__name__}: {exc}); "
+                          "skipping calendar fan-out")
+                    gcal_service = False  # sentinel: don't retry auth this run
+            if gcal_service:
+                try:
+                    gcal_out.upsert_calendar_event(gcal_service, conn, row)
+                    gcal_posted += 1
+                    print(f"  Calendar: {row['ticker']} {row['event_type']} -> posted")
+                except Exception as exc:
+                    print(f"  Calendar: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+
+    return {"fanout_slack": slack_posted, "fanout_gcal": gcal_posted}
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -270,6 +322,10 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Post Monday 'forward 30/7' digest to #analyst-days")
     mode.add_argument("--slack-test", action="store_true",
                       help="Post a sanity ping to #analyst-days")
+    mode.add_argument("--gcal-test", action="store_true",
+                      help="Verify Google Calendar auth + access (no writes)")
+    mode.add_argument("--fanout", action="store_true",
+                      help="Re-run output fan-out without scanning (retries Slack/Calendar)")
     mode.add_argument("--remind", action="store_true",
                       help="(TODO) Reminder fan-out (T-30 / T-7 / day-of)")
 
@@ -277,6 +333,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="No DB writes / no fan-out; prints proposed actions")
     p.add_argument("--no-slack", action="store_true",
                    help="Skip Slack posts even outside --dry-run")
+    p.add_argument("--no-gcal", action="store_true",
+                   help="Skip Google Calendar posts even outside --dry-run")
     p.add_argument("--lookback", type=int, default=DEFAULT_LOOKBACK_DAYS,
                    help="EDGAR lookback window in days (default 14)")
     p.add_argument("--tavily-results", type=int, default=5,
@@ -322,6 +380,25 @@ def cmd_slack_test(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gcal_test(args: argparse.Namespace) -> int:
+    gcal_out.smoke_test()
+    return 0
+
+
+def cmd_fanout(args: argparse.Namespace) -> int:
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        result = _fan_out_confirmed(conn, args)
+        print(f"summary: {json.dumps(result, indent=2)}")
+        return 0
+    finally:
+        conn.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
     args = build_parser().parse_args(argv)
@@ -335,6 +412,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_monday_digest(args)
     if args.slack_test:
         return cmd_slack_test(args)
+    if args.gcal_test:
+        return cmd_gcal_test(args)
+    if args.fanout:
+        return cmd_fanout(args)
     if args.remind:
         print("Mode not yet implemented (Phase 1 ships --discover, --status, --friday-digest, --monday-digest, --slack-test).")
         return 2
