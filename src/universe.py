@@ -94,7 +94,15 @@ def _row_to_ticker(row: dict) -> Ticker:
 
 
 def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
-    """Return all watchlist rows where Core == 'Y'."""
+    """Return all watchlist rows where Core == 'Y'.
+
+    Continues to read `exports/watchlist.csv`, which Coverage Manager Phase B
+    keeps writing as a derived back-compat view of `positions_and_researching.csv`
+    for one cycle. This loader returns the union of Portfolio + Researching ∩ Core.
+
+    For the explicit Portfolio-only or Researching-only split, use
+    `load_portfolio()` and `load_researching()`.
+    """
     cm_root = _resolve_cm_path(cm_path)
     _assert_schema(cm_root)
 
@@ -106,6 +114,51 @@ def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
             if (row.get("Core") or "").strip().upper() == "Y":
                 out.append(_row_to_ticker(row))
     return out
+
+
+def _load_position_json(cm_root: Path, filename: str) -> list[Ticker]:
+    """Load tickers from exports/portfolio.json or exports/researching.json,
+    filtered to Core == 'Y'."""
+    path = cm_root / "exports" / filename
+    if not path.exists():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        return []
+    out: list[Ticker] = []
+    for ticker, row in data.items():
+        if not isinstance(row, dict):
+            continue
+        if (row.get("Core") or "").strip().upper() != "Y":
+            continue
+        # The JSON entries carry both legacy flat keys and raw universe columns.
+        # _row_to_ticker reads the raw universe column names (e.g. "Company Name"),
+        # so fall back to the legacy key ("name") when the raw column is absent.
+        merged = dict(row)
+        merged.setdefault("Ticker", ticker)
+        merged.setdefault("Company Name", row.get("name", ""))
+        merged.setdefault("Sector (JP)", row.get("sector", ""))
+        merged.setdefault("Subsector (JP)", row.get("subsector", ""))
+        merged.setdefault("Sub-subsector (JP)", row.get("sub_subsector", ""))
+        out.append(_row_to_ticker(merged))
+    return out
+
+
+def load_portfolio(cm_path: Optional[str | Path] = None) -> list[Ticker]:
+    """Return Position == 'Portfolio' rows where Core == 'Y' — names the user
+    actively covers AND owns. Subset of `load_core_watchlist()`."""
+    cm_root = _resolve_cm_path(cm_path)
+    _assert_schema(cm_root)
+    return _load_position_json(cm_root, "portfolio.json")
+
+
+def load_researching(cm_path: Optional[str | Path] = None) -> list[Ticker]:
+    """Return Position == 'Researching' rows where Core == 'Y' — names the user
+    actively covers AND is building a thesis to buy. Subset of
+    `load_core_watchlist()`."""
+    cm_root = _resolve_cm_path(cm_path)
+    _assert_schema(cm_root)
+    return _load_position_json(cm_root, "researching.json")
 
 
 def load_by_sectors(
