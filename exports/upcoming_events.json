@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source": "analyst-days",
+  "generated_at": "2026-05-08T00:28:37Z",
+  "window": {
+    "start": "2026-05-07",
+    "end": "2026-07-07"
+  },
+  "counts": {
+    "events": 3
+  },
+  "events": [
+    {
+      "ticker": "AFRM",
+      "company_name": "Affirm Holdings Inc",
+      "event_type": "investor_day",
+      "start_date": "2026-05-12",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "WST",
+      "company_name": "West Pharmaceutical Services Inc",
+      "event_type": "conference",
+      "start_date": "2026-05-12",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "WST",
+      "company_name": "West Pharmaceutical Services Inc",
+      "event_type": "conference",
+      "start_date": "2026-06-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    }
+  ]
+}
