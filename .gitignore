@@ -33,3 +33,6 @@ dist/
 # Logs
 *.log
 logs/
+
+# Edit-tool atomic-write leftovers (Windows + Dropbox race)
+*.tmp.*
