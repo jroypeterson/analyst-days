@@ -5,7 +5,7 @@ Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and
 ## Three systems of record
 
 - **Coverage Manager** = universe + tier assignment (which tickers to track). Consumed via local Dropbox path (`COVERAGE_MANAGER_PATH`) for dev or sparse-checkout of `jroypeterson/Coverage-Manager/exports/` in CI.
-- **Google Calendar** = published event state (the same calendar `earnings_agent` writes to; titles prefixed with event type).
+- **Google Calendar** = published event state. Dedicated "Other Investing" calendar in `floridabusinessman@gmail.com` (split off the legacy shared earnings calendar 2026-05-28; titles prefixed with event type). Auth via the shared earnings-agent service account.
 - **SQLite (`data/events.db`)** = workflow state + historical memory + source provenance.
 
 ## CLI modes
@@ -89,7 +89,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `ANTHROPIC_API_KEY` | New | Claude API for classify.py |
 | `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Web search per ticker |
 | `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
-| `GOOGLE_CALENDAR_ID` | Reused (earnings_agent) | Same calendar as earnings |
+| `GOOGLE_CALENDAR_ID` | Dedicated "Other Investing" calendar (floridabusinessman) | Separate from earnings since 2026-05-28 |
 | `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
 | `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
 | `GMAIL_OAUTH_JSON` | Reused (daily-reads) | Full token JSON content; reuses `gmail.send` scope. Locally use `GMAIL_OAUTH_JSON_PATH` instead. |

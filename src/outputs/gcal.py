@@ -1,9 +1,10 @@
 """Google Calendar output.
 
-Writes confirmed events to the same calendar earnings_agent uses (set via
-GOOGLE_CALENDAR_ID). Each analyst-days event is an ALL-DAY block with a
-type-prefixed title so it's distinguishable from earnings entries on the
-same calendar:
+Writes confirmed events to the dedicated "Other Investing" calendar in
+floridabusinessman@gmail.com (set via GOOGLE_CALENDAR_ID; split off the
+legacy shared earnings calendar on 2026-05-28). Auth is the shared
+earnings-agent service account. Each analyst-days event is an ALL-DAY block
+with a type-prefixed title:
 
   Investor Day: AFRM
   Analyst Day: TICKER
