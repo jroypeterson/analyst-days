@@ -12,6 +12,7 @@ All three post to SLACK_WEBHOOK_ANALYST_DAYS via Slack's incoming-webhook API
 from __future__ import annotations
 
 import os
+import time
 from datetime import date
 from typing import Iterable, Optional
 
@@ -20,6 +21,9 @@ import requests
 from src.state.events_repo import PUSHABLE_EVENT_TYPES
 
 WEBHOOK_ENV = "SLACK_WEBHOOK_ANALYST_DAYS"
+
+# Transient-network resilience: retry the Slack POST on momentary DNS/socket blips.
+_RETRY_BACKOFF = (5, 15, 30)  # seconds to wait BEFORE retry attempts 2..N
 
 # Friendly display names (sortable on the wire as the keys)
 EVENT_TYPE_LABELS = {
@@ -64,7 +68,23 @@ def _webhook_url() -> str:
 
 def _post(payload: dict) -> None:
     url = _webhook_url()
-    r = requests.post(url, json=payload, timeout=15)
+    # Retry only on transient transport errors (network/DNS blip); a successful
+    # POST with a bad status is NOT retried and falls through to the checks below.
+    attempts = 1 + len(_RETRY_BACKOFF)
+    last_exc = None
+    r = None
+    for i in range(attempts):
+        try:
+            r = requests.post(url, json=payload, timeout=15)
+            break
+        except requests.exceptions.RequestException as exc:
+            last_exc = exc
+            if i < attempts - 1:
+                delay = _RETRY_BACKOFF[i]
+                if not os.environ.get("PYTEST_CURRENT_TEST"):
+                    time.sleep(delay)
+    if r is None:
+        raise last_exc
     r.raise_for_status()
     # Slack returns plain "ok" body on success
     if r.text.strip() != "ok":
