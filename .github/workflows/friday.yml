@@ -1,0 +1,98 @@
+name: analyst-days — Friday radar
+
+# Read-only Friday "on the radar" digest — ALL future watchlist events
+# (confirmed + suspected). No discovery, no DB writes; just renders the
+# current DB to Slack #analyst-days for the weekend reading window.
+#   12:13 UTC Friday ~= 7:13 AM ET (EST) / 8:13 AM ET (EDT).
+# Manual run: the workflow_dispatch button, or `python -m src.cli
+# --friday-digest` locally.
+
+on:
+  schedule:
+    - cron: "13 12 * * 5"  # Friday 12:13 UTC
+  workflow_dispatch:
+
+# Share the writer group so a Friday read can't overlap a long Monday write.
+concurrency:
+  group: analyst-days-db-writer
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout analyst-days
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Read the DB the Monday run persisted. If it's missing the digest has
+      # nothing to show — surfaced as an empty radar, not a hard failure.
+      - name: Restore events database
+        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11  # v6
+        with:
+          name: analyst-days-db
+          search_artifacts: true
+          workflow_search: true
+          workflow_conclusion: success
+          branch: master
+          if_no_artifact_found: warn
+          path: data
+
+      - name: Post Friday radar digest
+        env:
+          SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
+        run: |
+          if [ ! -f data/events.db ]; then
+            echo "No events.db restored — posting nothing (Monday run hasn't seeded it yet)."
+            exit 0
+          fi
+          python -m src.cli --friday-digest
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK_ANALYST_DAYS" ]; then
+            curl -sS -X POST -H 'Content-Type: application/json' \
+              --data "{\"text\":\":rotating_light: *analyst-days Friday radar* failed — <${RUN_URL}|run details>\"}" \
+              "$SLACK_WEBHOOK_ANALYST_DAYS"
+          fi
+
+      - name: Email backup on failure
+        if: failure()
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_EMAIL_TO: jroypeterson+alerts@gmail.com
+          ALERT_SUBJECT: "analyst-days: Friday radar failed"
+          ALERT_BODY: "The analyst-days Friday radar workflow failed (Slack alerting may be down). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          python3 - <<'PY'
+          import os, smtplib
+          from email.mime.text import MIMEText
+          addr = os.environ.get("GMAIL_ADDRESS", "").strip()
+          pw = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+          to = os.environ.get("ALERT_EMAIL_TO", "jroypeterson+alerts@gmail.com").strip()
+          if not addr or not pw:
+              print("email backup: GMAIL creds unset - skipping"); raise SystemExit(0)
+          msg = MIMEText(os.environ.get("ALERT_BODY", "") or os.environ.get("ALERT_SUBJECT", ""), "plain")
+          msg["Subject"] = os.environ.get("ALERT_SUBJECT", "analyst-days alert")
+          msg["From"] = addr; msg["To"] = to
+          with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+              s.login(addr, pw); s.send_message(msg)
+          print(f"email backup: sent to {to}")
+          PY

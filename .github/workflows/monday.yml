@@ -1,0 +1,168 @@
+name: analyst-days — Monday weekly
+
+# Weekly discovery + reminders + Monday "forward 30/7" digest.
+#   13:13 UTC Monday ~= 7:13 AM ET (EST) / 8:13 AM ET (EDT).
+# Off-:00 minute deliberately — top-of-hour crons get delayed/skipped under
+# GitHub Actions load. Manual run: the workflow_dispatch button below, or
+# `python -m src.cli --weekly` locally.
+
+on:
+  schedule:
+    - cron: "13 12 * * 1"  # Monday 12:13 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no DB writes / no Slack / no Calendar / no email)"
+        required: false
+        default: "false"
+        type: string
+
+# Serialize with the Friday radar so a long Monday run can't race the DB.
+concurrency:
+  group: analyst-days-db-writer
+  cancel-in-progress: false
+
+# contents:write for the exports/upcoming_events.json commit-back (the
+# published interface sa-monitor Phase 2 fetches via raw.githubusercontent.com).
+permissions:
+  contents: write
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout analyst-days
+        uses: actions/checkout@v5
+
+      # Coverage Manager is public — clone its exports for the core watchlist.
+      - name: Checkout Coverage Manager exports
+        uses: actions/checkout@v5
+        with:
+          repository: jroypeterson/Coverage-Manager
+          path: coverage-manager
+          sparse-checkout: |
+            exports
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Cross-run artifact restore (default download-artifact only sees the
+      # same run). warn-if-missing: a first run / lost artifact rebuilds the
+      # DB from discovery — fan-out is idempotent (calendar extendedProperties
+      # + slack_posted_at), so the worst case is re-posting confirmed events.
+      - name: Restore events database
+        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11  # v6
+        with:
+          name: analyst-days-db
+          search_artifacts: true
+          workflow_search: true
+          workflow_conclusion: success
+          branch: master
+          if_no_artifact_found: warn
+          path: data
+
+      - name: Write Google credentials
+        run: echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
+
+      - name: Run weekly (discover -> remind -> Monday digest)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
+          GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
+          GOOGLE_CREDENTIALS_PATH: credentials.json
+          TICKTICK_ACCESS_TOKEN: ${{ secrets.TICKTICK_ACCESS_TOKEN }}
+          GMAIL_OAUTH_JSON: ${{ secrets.GMAIL_OAUTH_JSON }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SEC_EDGAR_USER_AGENT: ${{ secrets.SEC_EDGAR_USER_AGENT }}
+          COVERAGE_MANAGER_PATH: ${{ github.workspace }}/coverage-manager
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python -m src.cli --weekly --dry-run
+          else
+            python -m src.cli --weekly
+          fi
+
+      # Refresh the published exports/upcoming_events.json (sa-monitor Phase 2
+      # 'Note:' enrichment fetches it via raw.githubusercontent.com). Commit-
+      # back so it's reachable from a public URL without GH artifact auth.
+      - name: Export + commit upcoming_events.json
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python scripts/export_upcoming_events.py
+          git config user.name "analyst-days-ci"
+          git config user.email "analyst-days-ci@users.noreply.github.com"
+          git add exports/upcoming_events.json
+          if git diff --cached --quiet; then
+            echo "no changes to upcoming_events.json"
+            exit 0
+          fi
+          git pull --rebase --quiet || git rebase --abort || true
+          git commit -m "ci: refresh exports/upcoming_events.json"
+          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:${GITHUB_REF_NAME:-master}" || echo "push failed (non-fatal)"
+
+      # Persist the DB for the Friday radar + next Monday's dedupe/state.
+      - name: Save events database
+        if: always() && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v6
+        with:
+          name: analyst-days-db
+          path: data/events.db
+          retention-days: 90
+          overwrite: true
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK_ANALYST_DAYS" ]; then
+            curl -sS -X POST -H 'Content-Type: application/json' \
+              --data "{\"text\":\":rotating_light: *analyst-days Monday weekly* failed — <${RUN_URL}|run details>\"}" \
+              "$SLACK_WEBHOOK_ANALYST_DAYS"
+          fi
+
+      # Out-of-band backup: email if Slack itself is the failure point.
+      # Inline (runner python3 + stdlib) so it does not depend on the repo
+      # checkout — the backup must work even if checkout is what failed.
+      - name: Email backup on failure
+        if: failure()
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_EMAIL_TO: jroypeterson+alerts@gmail.com
+          ALERT_SUBJECT: "analyst-days: Monday weekly failed"
+          ALERT_BODY: "The analyst-days Monday weekly workflow failed (Slack alerting may be down). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          python3 - <<'PY'
+          import os, smtplib
+          from email.mime.text import MIMEText
+          addr = os.environ.get("GMAIL_ADDRESS", "").strip()
+          pw = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+          to = os.environ.get("ALERT_EMAIL_TO", "jroypeterson+alerts@gmail.com").strip()
+          if not addr or not pw:
+              print("email backup: GMAIL creds unset - skipping"); raise SystemExit(0)
+          msg = MIMEText(os.environ.get("ALERT_BODY", "") or os.environ.get("ALERT_SUBJECT", ""), "plain")
+          msg["Subject"] = os.environ.get("ALERT_SUBJECT", "analyst-days alert")
+          msg["From"] = addr; msg["To"] = to
+          with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+              s.login(addr, pw); s.send_message(msg)
+          print(f"email backup: sent to {to}")
+          PY
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f credentials.json
