@@ -411,6 +411,13 @@ def cmd_friday_digest(args: argparse.Namespace) -> int:
         return 1
     conn = init_db(args.db)
     try:
+        if args.dry_run:
+            from src.outputs.slack import _query_radar
+            from datetime import date as _date
+            rows = _query_radar(conn, _date.today().isoformat())
+            print(f"[dry-run] would post Friday radar to #analyst-days "
+                  f"({len(rows)} events)")
+            return 0
         n = slack_out.post_friday_digest(conn)
         print(f"Friday digest posted to #analyst-days  ({n} events)")
         return 0
@@ -426,6 +433,12 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
     conn = init_db(args.db)
     try:
         rc = 0
+        # --dry-run is a hard "no external writes" contract — preview only.
+        if args.dry_run:
+            subject, _body, n30 = digest_mod.render_monday_html(conn)
+            print(f"[dry-run] would post Monday digest (Slack + email): "
+                  f"{n30} events in 30d — {subject}")
+            return 0
         # Slack first (the always-on channel). Email is the additive backup.
         if not args.no_slack:
             n = slack_out.post_monday_digest(conn)
