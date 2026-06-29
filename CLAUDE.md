@@ -11,14 +11,25 @@ Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and
 ## CLI modes
 
 ```
-python -m src.cli --discover              # Pull EDGAR 8-Ks + Tavily; classify; insert/update events
+python -m src.cli --discover              # Pull EDGAR 8-Ks + Tavily; classify; insert/update events + fan-out
 python -m src.cli --remind                # T-30 / T-7 / day-of pings for confirmed events
-python -m src.cli --digest                # Weekly Monday digest: forward 30-day + 7-day views
-python -m src.cli --weekly                # discover → remind → digest in sequence (the cron entry point)
-python -m src.cli --dry-run               # Preview; no Slack/Calendar/TickTick/Email writes
-python -m src.cli --backlog-conferences   # Backlog task: research + add additional conferences beyond JPM
+python -m src.cli --monday-digest         # Monday "forward 30/7" digest → Slack + email
+python -m src.cli --friday-digest         # Friday "on the radar" digest → Slack (read-only)
+python -m src.cli --weekly                # discover → remind → Monday digest in sequence (the Monday cron entry point)
 python -m src.cli --status                # Print upcoming events + DB stats
+python -m src.cli --slack-test            # Sanity ping to #analyst-days
+python -m src.cli --gcal-test             # Verify Google Calendar auth (no writes)
+python -m src.cli --gmail-test            # Verify Gmail auth (no send) — prints authorized address
+python -m src.cli --ticktick-test         # Verify TickTick auth + find/create the Analyst Days list
+python -m src.cli --fanout                # Re-run output fan-out without scanning
+python -m src.cli --dry-run               # Preview; no DB writes / no Slack/Calendar/TickTick/Email
+python -m src.cli --no-slack/--no-gcal/--no-ticktick/--no-email   # Per-channel skips (combine with any mode)
 ```
+
+Manual test entry points (verify without waiting for cron): `--weekly`
+locally, or the `workflow_dispatch` button on either workflow (`monday.yml`
+has a `dry_run` input). `--gmail-test` / `--gcal-test` / `--ticktick-test`
+verify auth in isolation.
 
 ## Tier semantics (phase plan)
 
@@ -73,8 +84,16 @@ Conferences are a parallel iterator over `data/conferences.csv` (JPM Healthcare 
 
 | Workflow | Cron (UTC) | Local ET | Purpose |
 |---|---|---|---|
-| `monday.yml` | `0 12 * * 1` | Monday ~07:00 ET | discover → remind → Monday "forward 30/7" digest |
-| `friday.yml` | `0 12 * * 5` | Friday ~07:00 ET | Friday "on the radar" digest (read-only — no discovery) |
+| `monday.yml` | `13 12 * * 1` | Monday ~07:13 ET | `--weekly`: discover → remind → Monday "forward 30/7" digest (Slack + email); refresh + commit-back `exports/upcoming_events.json`; persist DB artifact |
+| `friday.yml` | `13 12 * * 5` | Friday ~07:13 ET | `--friday-digest` (read-only — no discovery); reads the DB artifact the Monday run persisted |
+
+Minute is off-`:00` deliberately (top-of-hour GH Actions crons get delayed/
+skipped). The `events.db` is gitignored and persisted between runs as the
+`analyst-days-db` GitHub Actions artifact (cross-run restore via the pinned
+`dawidd6/action-download-artifact`); a lost artifact rebuilds from discovery —
+fan-out is idempotent so the worst case is re-posting confirmed events. Both
+workflows have an `if: failure()` Slack ping + an inline SMTP email backup
+(for the Slack-itself-is-down case).
 
 No daily reminder cron. Reminders are checked once per week against current date — events crossing the T-30 or T-7 thresholds in the past 7 days are pinged on the Monday fire. Day-of pings cover anything happening this week.
 
@@ -95,16 +114,17 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `GMAIL_OAUTH_JSON` | Reused (daily-reads) | Full token JSON content; reuses `gmail.send` scope. Locally use `GMAIL_OAUTH_JSON_PATH` instead. |
 | `EMAIL_TO` | New | "to" address — `jroypeterson@gmail.com` |
 | `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
+| `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` | Reused (earnings_agent / 13F) | Out-of-band failure email backup (inline SMTP in both workflows' `if: failure()` — fires when Slack itself is the failure point). Sends to `jroypeterson+alerts@gmail.com`. Opt-in: unset → no-op. |
 
-CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot.
+CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot. The Coverage Manager exports schema gate is **v3** (`CM_WATCHLIST_SCHEMA_VERSION` in `src/universe.py`; bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c).
 
 ## Local `.env`
 
 Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json`) instead of JSON blob; `COVERAGE_MANAGER_PATH=C:/Users/jroyp/Dropbox/Claude Folder/Coverage Manager`.
 
-## Module map (target)
+## Module map
 
-- `src/cli.py` — CLI entry + top-level flows (`run_discover`, `run_remind`, `run_digest`, `run_weekly`).
+- `src/cli.py` — CLI entry + top-level flows (`cmd_discover`, `cmd_remind`, `cmd_monday_digest`, `cmd_friday_digest`, `cmd_weekly`, the `*-test` modes).
 - `src/universe.py` — Load core watchlist from CM exports; schema version assert.
 - `src/discovery/scan_edgar.py` — EDGAR scanner via edgartools. Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
 - `src/discovery/scan_tavily.py` — Tavily search per ticker.
