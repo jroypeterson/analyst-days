@@ -30,8 +30,10 @@ from src.discovery.classify import (
 from src.discovery.scan_edgar import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
 from src.outputs import gcal as gcal_out
+from src.outputs import gmail as gmail_out
 from src.outputs import slack as slack_out
 from src.outputs import ticktick as ticktick_out
+from src import digest as digest_mod
 from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
@@ -366,6 +368,10 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Post a sanity ping to #analyst-days")
     mode.add_argument("--gcal-test", action="store_true",
                       help="Verify Google Calendar auth + access (no writes)")
+    mode.add_argument("--gmail-test", action="store_true",
+                      help="Verify Gmail auth (no send) — prints authorized address")
+    mode.add_argument("--weekly", action="store_true",
+                      help="Cron entry point: discover -> remind -> Monday digest")
     mode.add_argument("--ticktick-test", action="store_true",
                       help="Verify TickTick auth and find/create the Analyst Days list")
     mode.add_argument("--fanout", action="store_true",
@@ -385,6 +391,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Skip Google Calendar posts even outside --dry-run")
     p.add_argument("--no-ticktick", action="store_true",
                    help="Skip TickTick posts even outside --dry-run")
+    p.add_argument("--no-email", action="store_true",
+                   help="Skip the Gmail digest email (Slack digest still posts)")
     p.add_argument("--lookback", type=int, default=DEFAULT_LOOKBACK_DAYS,
                    help="EDGAR lookback window in days (default 14)")
     p.add_argument("--tavily-results", type=int, default=5,
@@ -417,11 +425,55 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
         return 1
     conn = init_db(args.db)
     try:
-        n = slack_out.post_monday_digest(conn)
-        print(f"Monday digest posted to #analyst-days  ({n} events in 30d)")
-        return 0
+        rc = 0
+        # Slack first (the always-on channel). Email is the additive backup.
+        if not args.no_slack:
+            n = slack_out.post_monday_digest(conn)
+            print(f"Monday digest posted to #analyst-days  ({n} events in 30d)")
+        else:
+            print("Slack skipped (--no-slack)")
+        if not args.no_email:
+            try:
+                subject, body, n30 = digest_mod.render_monday_html(conn)
+                msg_id = gmail_out.send_html(subject, body)
+                print(f"Monday digest emailed ({n30} events in 30d) id={msg_id}")
+            except Exception as exc:  # noqa: BLE001 — surface, don't swallow
+                # Email is the backup channel; a failure shouldn't sink the
+                # whole digest (Slack already went out), but it MUST be loud.
+                print(f"EMAIL DIGEST FAILED: {type(exc).__name__}: {exc}")
+                rc = 1
+        else:
+            print("Email skipped (--no-email)")
+        return rc
     finally:
         conn.close()
+
+
+def cmd_gmail_test(args: argparse.Namespace) -> int:
+    gmail_out.smoke_test()
+    return 0
+
+
+def cmd_weekly(args: argparse.Namespace) -> int:
+    """Cron entry point: discover -> remind -> Monday digest, in sequence.
+
+    Each phase opens/closes its own DB connection (the sub-commands do that
+    internally). Phases run independently — a failure in one is reported but
+    does NOT skip the rest, so a flaky discovery can't suppress reminders or
+    the digest. Returns non-zero if ANY phase reported a failure, so the
+    workflow's if: failure() alarm + email backup fire.
+    """
+    print("===== WEEKLY: discover =====")
+    rc_discover = cmd_discover(args)
+    print("\n===== WEEKLY: remind =====")
+    rc_remind = cmd_remind(args)
+    print("\n===== WEEKLY: Monday digest =====")
+    rc_digest = cmd_monday_digest(args)
+
+    overall = rc_discover or rc_remind or rc_digest
+    print(f"\n===== WEEKLY done (discover={rc_discover} remind={rc_remind} "
+          f"digest={rc_digest}) =====")
+    return overall
 
 
 def cmd_remind(args: argparse.Namespace) -> int:
@@ -548,6 +600,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_slack_test(args)
     if args.gcal_test:
         return cmd_gcal_test(args)
+    if args.gmail_test:
+        return cmd_gmail_test(args)
+    if args.weekly:
+        return cmd_weekly(args)
     if args.ticktick_test:
         return cmd_ticktick_test(args)
     if args.fanout:
