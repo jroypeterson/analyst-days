@@ -43,6 +43,7 @@ from src.state.events_repo import (
 )
 from src.state.schema import init_db, schema_version, CURRENT_SCHEMA_VERSION
 from src.universe import Ticker, load_core_watchlist
+from src import reminders as reminders_mod
 
 
 CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
@@ -374,7 +375,7 @@ def build_parser() -> argparse.ArgumentParser:
                            "for non-pushable types (e.g. conferences) "
                            "after a policy change. Idempotent.")
     mode.add_argument("--remind", action="store_true",
-                      help="(TODO) Reminder fan-out (T-30 / T-7 / day-of)")
+                      help="Reminder fan-out (T-30 / T-7 / day-of) for confirmed events")
 
     p.add_argument("--dry-run", action="store_true",
                    help="No DB writes / no fan-out; prints proposed actions")
@@ -419,6 +420,22 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
         n = slack_out.post_monday_digest(conn)
         print(f"Monday digest posted to #analyst-days  ({n} events in 30d)")
         return 0
+    finally:
+        conn.close()
+
+
+def cmd_remind(args: argparse.Namespace) -> int:
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}. Run --discover first.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        summary = reminders_mod.run_reminders(
+            conn, dry_run=args.dry_run, no_slack=args.no_slack
+        )
+        print(f"summary: {json.dumps(summary, indent=2)}")
+        return 1 if summary["errors"] else 0
     finally:
         conn.close()
 
@@ -538,8 +555,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.prune_non_pushable:
         return cmd_prune_non_pushable(args)
     if args.remind:
-        print("Mode not yet implemented (Phase 1 ships --discover, --status, --friday-digest, --monday-digest, --slack-test).")
-        return 2
+        return cmd_remind(args)
     return 1
 
 

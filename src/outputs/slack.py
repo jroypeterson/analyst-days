@@ -130,6 +130,52 @@ def post_confirmed(event_row) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Reminder pings (T-30 / T-7 / day-of)
+# ---------------------------------------------------------------------------
+
+# Lead-time label + emoji per reminder kind. Keys match reminders.REMINDER_KINDS.
+REMINDER_LABELS = {
+    "t30": (":hourglass_flowing_sand:", "~30 days out"),
+    "t7": (":alarm_clock:", "1 week out"),
+    "day_of": (":rotating_light:", "happening this week"),
+}
+
+
+def post_reminder(event_row, kind: str) -> None:
+    """Post a single reminder ping for a confirmed event.
+
+    `kind` is one of "t30" / "t7" / "day_of". Conferences (non-pushable)
+    are silently skipped so a policy change can't leak them into the feed.
+    Ticker is rendered as a backtick monospace chip (workspace convention).
+    """
+    e = event_row
+    if e["event_type"] not in PUSHABLE_EVENT_TYPES:
+        return
+    emoji, lead = REMINDER_LABELS.get(kind, (":calendar:", "upcoming"))
+    type_label = EVENT_TYPE_LABELS.get(e["event_type"], e["event_type"])
+
+    when_str = e["start_date"] or "(date TBD)"
+    if e["multi_day"] and e["end_date"]:
+        when_str = f"{e['start_date']} - {e['end_date']} (multi-day)"
+
+    header = f"{emoji} *Reminder ({lead})* — `{e['ticker']}` {type_label}"
+    if e["company_name"]:
+        header += f" ({e['company_name']})"
+
+    blocks = [
+        {"type": "section", "text": {"type": "mrkdwn", "text": header}},
+        {"type": "section", "fields": [
+            {"type": "mrkdwn", "text": f"*Date*\n{when_str}"},
+            {"type": "mrkdwn", "text": f"*Confidence*\n{e['confidence']:.2f}"},
+        ]},
+    ]
+    _post({
+        "text": f"Reminder ({lead}): {e['ticker']} {type_label} on {when_str}",
+        "blocks": blocks,
+    })
+
+
+# ---------------------------------------------------------------------------
 # Friday digest — full radar
 # ---------------------------------------------------------------------------
 
