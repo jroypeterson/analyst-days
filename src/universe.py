@@ -20,7 +20,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
-CM_WATCHLIST_SCHEMA_VERSION = 2  # exports/watchlist_status.json schema_version
+CM_WATCHLIST_SCHEMA_VERSION = 3  # exports/watchlist_status.json schema_version
+# Bumped 2->3 on 2026-06-29 to match Coverage Manager exports schema v3
+# (sibling sa-monitor took the same bump in 565af1c on 2026-06-14). The v3
+# watchlist.csv columns this loader reads (Ticker, Company Name, Sector (JP),
+# Subsector (JP), Sub-subsector (JP), YF Sector, YF Industry, CIK, Website,
+# Country (HQ), ISIN, Core) are unchanged, so this is a pure gate bump.
 
 
 @dataclass(frozen=True)
