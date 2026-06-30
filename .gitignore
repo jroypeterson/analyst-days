@@ -39,3 +39,6 @@ logs/
 
 # Codex reviewer output (dated, accumulates; saved by scripts/codex_review.sh)
 codex_feedback/
+
+# Health heartbeat local artifacts (sentinel + fallback payload)
+.health/

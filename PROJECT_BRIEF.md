@@ -145,9 +145,11 @@ sourcing, and the Phase 2/3 scale-up — see §5.
   hit cache (content hash + `last_seen`, classify only new/changed) and tiered
   cadence (core weekly, lower tiers monthly/rotating); a CIK fan-in EDGAR pass
   instead of per-ticker `Company()`. Parallelism is an *after*, not a *before*.
-- **No `#status-reports` health heartbeat.** Unlike the rest of the scheduled
-  fleet, a failed/partial run is invisible. A `health/v1` Block Kit heartbeat
-  should land next.
+- **`#status-reports` health heartbeat — SHIPPED 2026-06-30.** Both scheduled
+  runs now post a `health/v1` Block Kit heartbeat (`src/health.py`), with an
+  `if: always()` workflow fallback for the run-aborted case. ok/partial/error
+  semantics; `--health-test` verifies the webhook. A failed/partial run is no
+  longer invisible.
 - **Thin test coverage.** One test file (`tests/test_events_repo.py`, 8 tests)
   covers repo/dedup/promotion. Date-precision parsing, classifier output
   handling, and the reminder transitions are untested.

@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -51,6 +51,7 @@ from src.state.events_repo import (
 from src.state.schema import init_db, schema_version, CURRENT_SCHEMA_VERSION
 from src.universe import Ticker, load_core_watchlist
 from src import reminders as reminders_mod
+from src import health as health_mod
 
 
 CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
@@ -254,6 +255,8 @@ def cmd_discover(args: argparse.Namespace) -> int:
 
     print("---")
     print(f"summary: {json.dumps(summary, indent=2)}")
+    # Stash for the weekly health heartbeat (see cmd_weekly / _post_weekly_health).
+    args.health_discover = summary
     return 0
 
 
@@ -417,6 +420,9 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Verify Google Calendar auth + access (no writes)")
     mode.add_argument("--gmail-test", action="store_true",
                       help="Verify Gmail auth (no send) — prints authorized address")
+    mode.add_argument("--health-test", action="store_true",
+                      help="Post a sample health/v1 heartbeat to #status-reports "
+                           "(verifies SLACK_WEBHOOK_STATUS_REPORTS + Block Kit)")
     mode.add_argument("--weekly", action="store_true",
                       help="Cron entry point: discover -> remind -> Monday digest")
     mode.add_argument("--ticktick-test", action="store_true",
@@ -464,22 +470,50 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _post_friday_health(
+    start: datetime,
+    status: str,
+    radar_n: Optional[int],
+    warning: Optional[str] = None,
+) -> None:
+    hb = health_mod.Heartbeat(
+        status=status,
+        cycle=f"{start.date().isoformat()} friday",
+        start_time=start,
+        end_time=datetime.now(timezone.utc),
+        next_expected=f"{_next_expected_weekday(0)} (Monday weekly)",  # Mon=0
+        counters=[f"{radar_n} events on radar"] if radar_n is not None else [],
+        warnings=[warning] if warning else [],
+        run_link=health_mod.run_link_from_env(),
+    )
+    health_mod.post_health(hb)
+
+
 def cmd_friday_digest(args: argparse.Namespace) -> int:
+    start = datetime.now(timezone.utc)
     db_path = Path(args.db)
     if not db_path.exists():
-        print(f"No DB at {db_path}. Run --discover first.")
-        return 1
+        # Missing DB on Friday isn't a failure — the Monday run simply hasn't
+        # seeded it yet. Post a partial heartbeat so the run is still accounted
+        # for, and exit clean.
+        print(f"No DB at {db_path} — Monday run hasn't seeded it yet; nothing to post.")
+        if not args.dry_run:
+            _post_friday_health(
+                start, "partial", None,
+                warning="events.db not restored (Monday run hasn't seeded it)",
+            )
+        return 0
     conn = init_db(args.db)
     try:
         if args.dry_run:
             from src.outputs.slack import _query_radar
-            from datetime import date as _date
-            rows = _query_radar(conn, _date.today().isoformat())
+            rows = _query_radar(conn, date.today().isoformat())
             print(f"[dry-run] would post Friday radar to #analyst-days "
                   f"({len(rows)} events)")
             return 0
         n = slack_out.post_friday_digest(conn)
         print(f"Friday digest posted to #analyst-days  ({n} events)")
+        _post_friday_health(start, "ok", n)
         return 0
     finally:
         conn.close()
@@ -499,10 +533,12 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
             print(f"[dry-run] would post Monday digest (Slack + email): "
                   f"{n30} events in 30d — {subject}")
             return 0
+        slack_n: Optional[int] = None
+        email_failed = False
         # Slack first (the always-on channel). Email is the additive backup.
         if not args.no_slack:
-            n = slack_out.post_monday_digest(conn)
-            print(f"Monday digest posted to #analyst-days  ({n} events in 30d)")
+            slack_n = slack_out.post_monday_digest(conn)
+            print(f"Monday digest posted to #analyst-days  ({slack_n} events in 30d)")
         else:
             print("Slack skipped (--no-slack)")
         if not args.no_email:
@@ -515,8 +551,10 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
                 # whole digest (Slack already went out), but it MUST be loud.
                 print(f"EMAIL DIGEST FAILED: {type(exc).__name__}: {exc}")
                 rc = 1
+                email_failed = True
         else:
             print("Email skipped (--no-email)")
+        args.health_digest = {"slack_n": slack_n, "email_failed": email_failed}
         return rc
     finally:
         conn.close()
@@ -524,6 +562,25 @@ def cmd_monday_digest(args: argparse.Namespace) -> int:
 
 def cmd_gmail_test(args: argparse.Namespace) -> int:
     gmail_out.smoke_test()
+    return 0
+
+
+def cmd_health_test(args: argparse.Namespace) -> int:
+    """Post a sample 'ok' heartbeat to #status-reports to verify the webhook +
+    Block Kit rendering."""
+    now = datetime.now(timezone.utc)
+    hb = health_mod.Heartbeat(
+        status="ok",
+        cycle=f"{now.date().isoformat()} test",
+        start_time=now - timedelta(seconds=3),
+        end_time=now,
+        next_expected="(manual test — no schedule)",
+        counters=["health-test ping", "0 errors"],
+        warnings=["This is a --health-test ping, not a real run."],
+        run_link=health_mod.run_link_from_env(),
+    )
+    health_mod.post_health(hb)
+    print("Health heartbeat posted (or logged locally if webhook unset).")
     return 0
 
 
@@ -536,6 +593,11 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     the digest. Returns non-zero if ANY phase reported a failure, so the
     workflow's if: failure() alarm + email backup fire.
     """
+    start = datetime.now(timezone.utc)
+    args.health_discover = {}
+    args.health_remind = {}
+    args.health_digest = {}
+
     print("===== WEEKLY: discover =====")
     rc_discover = cmd_discover(args)
     print("\n===== WEEKLY: remind =====")
@@ -546,7 +608,64 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     overall = rc_discover or rc_remind or rc_digest
     print(f"\n===== WEEKLY done (discover={rc_discover} remind={rc_remind} "
           f"digest={rc_digest}) =====")
+
+    # Health heartbeat to #status-reports (skip on dry-run — no external writes).
+    if not args.dry_run:
+        _post_weekly_health(args, start)
     return overall
+
+
+def _next_expected_weekday(target_weekday: int) -> str:
+    """Label for the next occurrence of `target_weekday` (Mon=0 .. Sun=6),
+    i.e. when the next heartbeat is due. Used so a reader spots a missing run."""
+    today = date.today()
+    delta = (target_weekday - today.weekday()) % 7 or 7
+    return (today + timedelta(days=delta)).isoformat()
+
+
+def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
+    """Build + post the weekly health/v1 heartbeat from the stashed phase
+    summaries. Raises (under CI) if the Slack post fails — see health.post_health."""
+    d = getattr(args, "health_discover", {}) or {}
+    r = getattr(args, "health_remind", {}) or {}
+    g = getattr(args, "health_digest", {}) or {}
+
+    derr = int(d.get("errors", 0))
+    rerr = int(r.get("errors", 0))
+    reminders_sent = int(r.get("t30", 0)) + int(r.get("t7", 0)) + int(r.get("day_of", 0))
+    tickers = int(d.get("tickers_scanned", 0))
+    hits = int(d.get("edgar_hits_total", 0)) + int(d.get("tavily_hits_total", 0))
+    new = int(d.get("events_inserted", 0))
+    merged = int(d.get("events_merged", 0))
+    fanned = int(d.get("fanout_slack", 0))
+
+    warnings: list[str] = []
+    status = "ok"
+    if g.get("email_failed"):
+        status = "partial"
+        warnings.append("Monday email digest failed (Slack digest posted)")
+    if derr:
+        status = "partial"
+        warnings.append(f"{derr} discovery source error(s) (EDGAR/Tavily)")
+    if rerr:
+        status = "partial"
+        warnings.append(f"{rerr} reminder post error(s)")
+
+    hb = health_mod.Heartbeat(
+        status=status,
+        cycle=f"{start.date().isoformat()} weekly",
+        start_time=start,
+        end_time=datetime.now(timezone.utc),
+        next_expected=f"{_next_expected_weekday(4)} (Friday radar)",  # Fri=4
+        counters=[
+            f"{tickers} tickers · {hits} source hits",
+            f"{new} new · {merged} merged · {fanned} fanned to Slack",
+            f"{reminders_sent} reminders · {derr + rerr} errors",
+        ],
+        warnings=warnings,
+        run_link=health_mod.run_link_from_env(),
+    )
+    health_mod.post_health(hb)
 
 
 def cmd_remind(args: argparse.Namespace) -> int:
@@ -560,6 +679,7 @@ def cmd_remind(args: argparse.Namespace) -> int:
             conn, dry_run=args.dry_run, no_slack=args.no_slack
         )
         print(f"summary: {json.dumps(summary, indent=2)}")
+        args.health_remind = summary  # for the weekly heartbeat
         return 1 if summary["errors"] else 0
     finally:
         conn.close()
@@ -734,6 +854,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_gcal_test(args)
     if args.gmail_test:
         return cmd_gmail_test(args)
+    if args.health_test:
+        return cmd_health_test(args)
     if args.weekly:
         return cmd_weekly(args)
     if args.ticktick_test:

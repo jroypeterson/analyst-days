@@ -50,15 +50,35 @@ jobs:
           if_no_artifact_found: warn
           path: data
 
+      # The CLI handles the missing-DB case itself (posts a 'partial' heartbeat
+      # and exits clean), so always call it — that way the health/v1 heartbeat
+      # fires even when the Monday run hasn't seeded the DB yet.
       - name: Post Friday radar digest
         env:
           SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
+          SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
+          GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python -m src.cli --friday-digest
+
+      - name: Health heartbeat fallback
+        if: always()
+        env:
+          SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
+          GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if [ ! -f data/events.db ]; then
-            echo "No events.db restored — posting nothing (Monday run hasn't seeded it yet)."
-            exit 0
+          if [ -f .health/posted ]; then
+            echo "Heartbeat already posted — skipping fallback."; exit 0
           fi
-          python -m src.cli --friday-digest
+          if [ -z "$SLACK_WEBHOOK_STATUS_REPORTS" ]; then
+            echo "No SLACK_WEBHOOK_STATUS_REPORTS — cannot post fallback heartbeat."; exit 1
+          fi
+          CYCLE="$(date -u +%Y-%m-%d) friday"
+          NOW="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          TEXT=":x: *analyst-days — error*  ·  health/v1\ncycle: ${CYCLE}  ·  attempt: 1\n${NOW} (workflow aborted)\nnext expected: see Monday/Friday schedule\n\n*Error:*\n\`\`\`\nFriday radar aborted before the health/v1 heartbeat was posted. Check the GH Actions log.\n\`\`\`\n\n<${GH_RUN_URL}|GH Actions run>"
+          curl -fsS -X POST "$SLACK_WEBHOOK_STATUS_REPORTS" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -nc --arg t "$TEXT" --arg fb "analyst-days — error (${CYCLE}) — workflow aborted" \
+              '{blocks:[{type:"section",text:{type:"mrkdwn",text:$t}}],text:$fb}')"
 
       - name: Notify Slack on failure
         if: failure()

@@ -21,6 +21,7 @@ python -m src.cli --slack-test            # Sanity ping to #analyst-days
 python -m src.cli --gcal-test             # Verify Google Calendar auth (no writes)
 python -m src.cli --gmail-test            # Verify Gmail auth (no send) — prints authorized address
 python -m src.cli --ticktick-test         # Verify TickTick auth + find/create the Analyst Days list
+python -m src.cli --health-test           # Post a sample health/v1 heartbeat to #status-reports (verify webhook + Block Kit)
 python -m src.cli --fanout                # Re-run output fan-out without scanning
 python -m src.cli --retire TICKER EVENT_TYPE START_DATE   # Retire an event off calendar/digests (deletes Calendar+TickTick, sets terminal status); --retire-as cancelled|superseded, --reason "..."
 python -m src.cli --dry-run               # Preview; no DB writes / no Slack/Calendar/TickTick/Email
@@ -110,6 +111,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `ANTHROPIC_API_KEY` | New | Claude API for classify.py |
 | `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Web search per ticker |
 | `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
+| `SLACK_WEBHOOK_STATUS_REPORTS` | Reused (shared earnings-agent #status-reports webhook) | health/v1 heartbeat → `#status-reports` (set on the repo 2026-06-30) |
 | `GOOGLE_CALENDAR_ID` | Dedicated "Other Investing" calendar (floridabusinessman) | Separate from earnings since 2026-05-28 |
 | `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
 | `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
@@ -141,6 +143,7 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/outputs/gmail.py` — Gmail API send via OAuth (`get_gmail_service()` reads `GMAIL_OAUTH_JSON` in CI or `GMAIL_OAUTH_JSON_PATH` locally; mirrors `daily-reads/gmail_reader.py`).
 - `src/digest.py` — forward 30/7-day views, HTML + Slack blocks.
 - `src/reminders.py` — T-30 / T-7 / day-of state machine.
+- `src/health.py` — health/v1 heartbeat to `#status-reports` (Block Kit; `.health/posted` sentinel + `.health/last_run.json` fallback). See "Health reporting" below.
 
 ## Pushable vs tracked-only event types
 
@@ -185,6 +188,27 @@ A precise date clears the confidence bar **and** must be *grounded in the raw so
 - **Slack-reply commands** (`lock`, `snooze`, `ignore`) — would require migrating from webhook to bot token + `conversations.history` scope.
 - **Per-company conference slot detection** ("MRNA presenting at JPM 2027 on Day 2 at 14:30").
 - **Reverse-channel to Coverage Manager**: surface tickers with no IR website populated in CM.
+
+## Health reporting
+
+Both scheduled runs post a `health/v1` Block Kit heartbeat to `#status-reports`
+(per root `HEALTH_REPORTING.md`), so a missing or red heartbeat is visible
+fleet-wide.
+
+- **Cadence:** Monday weekly (`--weekly`) and Friday radar (`--friday-digest`)
+  — one heartbeat each, at end of run. `next_expected` points Mon→Fri and
+  Fri→Mon so a reader spots a skipped run.
+- **Status:** `ok` = clean; `partial` = ran + primary output usable but a
+  sub-unit degraded (discovery source errors, reminder post errors, email
+  digest failed, or Friday DB-not-restored); `error` = run aborted before the
+  heartbeat (posted by the workflow's `if: always()` fallback step, which
+  checks the `.health/posted` sentinel).
+- **Counters (weekly):** tickers·hits · new·merged·fanned · reminders·errors.
+- **Secret:** `SLACK_WEBHOOK_STATUS_REPORTS` (shared earnings-agent webhook).
+  Verify with `--health-test`. Locally (no webhook, not CI) the post logs +
+  skips; under CI an unset webhook raises.
+- `src/health.py` is the poster; `.health/` (sentinel + fallback payload) is
+  gitignored.
 
 ## Testing
 
