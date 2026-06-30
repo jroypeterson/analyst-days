@@ -15,7 +15,7 @@ from src.digest import query_monday, render_monday_html
 def _confirmed(conn, ticker, start_date, **overrides):
     base = dict(
         ticker=ticker, company_name=f"{ticker} Inc.", event_type="investor_day",
-        start_date=start_date, confidence=0.95,
+        start_date=start_date, confidence=0.95, date_grounded=True,
         sources=[CandidateSource(source_type="8K", source_url=f"https://x/{ticker}")],
     )
     base.update(overrides)

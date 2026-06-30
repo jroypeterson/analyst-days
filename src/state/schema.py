@@ -10,7 +10,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-CURRENT_SCHEMA_VERSION = 1
+CURRENT_SCHEMA_VERSION = 2
 
 
 EVENT_TYPES = (
@@ -141,10 +141,24 @@ def _create_v1(conn: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_v2(conn: sqlite3.Connection) -> None:
+    """Add events.date_grounded — whether the confirmed date was found in the
+    raw source text (the date-grounding gate; see src/discovery/date_grounding.py).
+    Defaults 0 (not grounded) so legacy rows stay conservative; the next discovery
+    run re-evaluates and sets it on merge.
+    """
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(events)").fetchall()}
+    if "date_grounded" not in cols:
+        conn.execute(
+            "ALTER TABLE events ADD COLUMN date_grounded INTEGER NOT NULL DEFAULT 0"
+        )
+
+
 # Ordered list of migrations. Each entry is (target_version, callable).
 # Call only the migrations whose target_version > current.
 _MIGRATIONS: list[tuple[int, callable]] = [
     (1, _create_v1),
+    (2, _migrate_v2),
 ]
 
 

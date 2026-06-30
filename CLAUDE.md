@@ -51,8 +51,8 @@ discovered → tentative   (imprecise date, Slack/email mention only)
 ```
 
 - **Tentative** events are surfaced in Slack + email but never get Calendar / TickTick.
-- **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site).
-- **Confidence threshold** for auto-confirm: `>=0.80` from Claude classifier on a precise date string.
+- **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site), provided the date is precise AND **grounded in the raw source text** (see Date-grounding gate below).
+- **Confidence threshold** for auto-confirm: per-type bar (0.85 marquee / 0.70 conference) from the Claude classifier on a precise date string — *and* the date must be grounded, else the event holds at `tentative`.
 - **Reminders** fire from `confirmed` only. Each transition is one-shot — once `reminded_30` is set it never re-pings.
 - **Retiring an event.** To fix a wrong-date confirm or record a called-off event, use `--retire` → a terminal `cancelled` (called off) or `superseded` (replaced by a corrected row) status. `recompute_statuses` never reconsiders these, and `export_upcoming_events.py` hides them, so the row drops off calendar/digests while preserving provenance. Prefer this over deleting the row.
 
@@ -131,6 +131,7 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/discovery/scan_edgar.py` — EDGAR scanner via edgartools. Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
 - `src/discovery/scan_tavily.py` — Tavily search per ticker.
 - `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
+- `src/discovery/date_grounding.py` — deterministic date-grounding gate: does the extracted ISO date appear (in any recognizable textual form) in the raw source text? Gates confirmation; see "Date-grounding gate" above.
 - `src/discovery/conferences.py` — Parallel discovery for seeded conferences.
 - `src/state/schema.py` — SQLite schema + migrations.
 - `src/state/events_repo.py` — insert/update/dedupe/source-provenance.
@@ -171,6 +172,10 @@ Conferences are still discovered, classified, and stored — visible via `--stat
 `recompute_statuses(conn)` is run at the start of `--fanout` (and at end of `--discover`). It's promotion-only — events that have already been fanned out stay confirmed even if you tighten thresholds later. Tighten the universe by deleting a row, not by demoting status.
 
 Imprecise dates ("Q3 2026", "Fall 2026") never auto-confirm regardless of threshold — they stay `tentative` and surface in the Friday Radar (Slack/email mention only) without Calendar / TickTick fan-out until a precise corroborating source arrives.
+
+### Date-grounding gate (the wrong-date guard)
+
+A precise date clears the confidence bar **and** must be *grounded in the raw source text* before it confirms. `src/discovery/date_grounding.py` renders the extracted ISO date into the textual forms filings actually use (e.g. `September 15, 2026`, `Sept 15`, `9/15/2026`, `15 September 2026`, `2026-09-15`) and word-boundary-matches them against the EDGAR excerpt / Tavily snippet — **not** the classifier's own `rationale` (that would be circular). Month-day-only mentions ("September 15") count only if the year also appears in the text. A precise, high-confidence event whose date isn't found in source stays `tentative` (radar-only); a later grounded source promotes it. The decision is persisted as `events.date_grounded` (schema v2) so `recompute_statuses` enforces it too. This catches the classifier transcribing a real announcement's date wrong — which `confidence` alone does not. Grounding is computed in `cli._to_candidate` from the raw hit text and shown in `--discover` output (`grounded=…`).
 
 ## Backlog (not in v1)
 

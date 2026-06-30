@@ -31,6 +31,7 @@ from src.discovery.classify import (
 )
 from src.discovery.scan_edgar import scan_ticker as edgar_scan
 from src.discovery.scan_tavily import search_ticker as tavily_search
+from src.discovery.date_grounding import event_date_grounded, grounded_in_any
 from src.outputs import gcal as gcal_out
 from src.outputs import gmail as gmail_out
 from src.outputs import slack as slack_out
@@ -72,12 +73,34 @@ def _utcnow_iso() -> str:
 # --------------------------------------------------------------------------
 
 
+def _event_grounded(extracted, source_text_by_url: dict[str, str]) -> bool:
+    """Date-grounding gate for one classifier output row.
+
+    Grounds the precise start date against the RAW text of the source the
+    classifier CITED (not the rationale, and not every hit for the ticker —
+    grounding against unrelated hits could ground a wrong date that happens to
+    appear elsewhere). If the cited URL isn't among our fetched hits (rare —
+    the model echoes bundle URLs), fall back to the union of this ticker's
+    source texts rather than holding every such event tentative.
+    """
+    if extracted.date_imprecise or not extracted.start_date:
+        return False
+    cited = source_text_by_url.get(extracted.source_url or "")
+    if cited is not None:
+        return event_date_grounded(extracted.start_date, cited)
+    return grounded_in_any(extracted.start_date, list(source_text_by_url.values()))
+
+
 def _to_candidate(
     ticker: Ticker,
     extracted,
     edgar_hit_urls: set[str],
+    grounded: bool,
 ) -> CandidateEvent:
-    """Build a CandidateEvent (with sources) from one classifier output row."""
+    """Build a CandidateEvent (with sources) from one classifier output row.
+
+    `grounded` is the date-grounding-gate decision (see _event_grounded).
+    """
     src = CandidateSource(
         source_type=extracted.source_type,
         source_url=extracted.source_url,
@@ -97,6 +120,7 @@ def _to_candidate(
         date_imprecise=bool(extracted.date_imprecise),
         imprecise_hint=extracted.imprecise_hint,
         confidence=float(extracted.confidence),
+        date_grounded=bool(grounded),
         sources=[src],
     )
 
@@ -166,13 +190,15 @@ def cmd_discover(args: argparse.Namespace) -> int:
             print()
             continue
 
+        edgar_dicts = [h.to_dict() for h in edgar_hits]
+        tavily_dicts = [h.to_dict() for h in tavily_hits]
         try:
             result: ExtractionResult = classify_ticker(
                 client,
                 t.ticker,
                 t.company_name,
-                [h.to_dict() for h in edgar_hits],
-                [h.to_dict() for h in tavily_hits],
+                edgar_dicts,
+                tavily_dicts,
             )
         except Exception as e:
             print(f"  Classifier error: {type(e).__name__}: {e}")
@@ -181,19 +207,36 @@ def cmd_discover(args: argparse.Namespace) -> int:
             continue
 
         edgar_urls = {h.url for h in edgar_hits}
+        # Raw source text the classifier read, keyed by URL — used by the
+        # date-grounding gate (NOT the model's rationale, which would be
+        # circular). Keyed by URL so we ground against the CITED source, not
+        # every hit for the ticker.
+        source_text_by_url: dict[str, str] = {}
+        for d in edgar_dicts:
+            if d.get("url"):
+                source_text_by_url[d["url"]] = d.get("excerpt", "")
+        for d in tavily_dicts:
+            if d.get("url"):
+                source_text_by_url[d["url"]] = (
+                    f"{d.get('title', '')} {d.get('snippet', '')}"
+                )
         summary["events_extracted"] += len(result.events)
 
         for e in result.events:
+            grounded = _event_grounded(e, source_text_by_url)
             print(
                 f"  -> {e.event_type:20} start={e.start_date or '?':10}  "
                 f"multi={e.multi_day}  imprecise={e.date_imprecise}  "
-                f"conf={e.confidence:.2f}"
+                f"conf={e.confidence:.2f}  grounded={grounded}"
             )
             print(f"     {e.rationale[:160]}")
+            if not e.date_imprecise and e.start_date and not grounded:
+                print("     ! date NOT found in cited source text -> held tentative "
+                      "(wrong-date guard)")
             if args.dry_run:
                 continue
 
-            cand = _to_candidate(t, e, edgar_urls)
+            cand = _to_candidate(t, e, edgar_urls, grounded)
             event_id, status, is_new = upsert_event(conn, cand)
             if is_new:
                 summary["events_inserted"] += 1

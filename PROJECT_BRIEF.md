@@ -114,15 +114,20 @@ sourcing, and the Phase 2/3 scale-up — see §5.
 > 2026-06-29 and is reflected in §2. The remaining gaps below are about
 > **correctness posture and reach**, not "is it running."
 
-- **Wrong-date confirms aren't guarded — the headline gap.** Promotion checks
-  only date-presence + LLM self-confidence (`recompute_statuses` in
-  `events_repo.py`). The 0.85 bar catches hallucinated/no-date events but not a
-  classifier that extracts the *wrong* date from a *real* announcement — the
-  exact "prep on the wrong day" failure §3.2 calls the expensive error. Candidate
-  fix: a deterministic **date-grounding gate** (the normalized date must appear
-  in the source text/snippet, else stay `tentative` even at high confidence),
-  plus a **source-sensitive bar** (EDGAR/IR single-source confirms; generic
-  Tavily hits stay radar-only until a company-domain source corroborates).
+- **Wrong-date confirms — date-grounding gate SHIPPED 2026-06-30.** Promotion
+  used to check only date-presence + LLM self-confidence, so a classifier that
+  extracted the *wrong* date from a *real* announcement still auto-confirmed (the
+  "prep on the wrong day" failure §3.2 calls the expensive error). Now a precise
+  date only confirms if it's **grounded in the raw source text** —
+  `src/discovery/date_grounding.py` renders the ISO date into the forms a filing
+  actually uses (long/abbrev month, day-first, M/D/Y, ISO) and word-boundary-
+  matches them against the EDGAR excerpt / Tavily snippet (year required for
+  month-day-only mentions). Ungrounded precise dates stay `tentative` (radar-only)
+  regardless of confidence; a later grounded source promotes them. Persisted as
+  `events.date_grounded` (schema v2) so `recompute_statuses` honors it too.
+  *Still open follow-on:* a **source-sensitive bar** (let EDGAR/IR single-source
+  confirm but require corroboration for generic Tavily hits) — grounding covers
+  the worst case; this would tighten the rest.
 - **No correction path for a bad confirm.** Dedup is keyed on
   `(ticker, event_type, start_date)`, so a wrong-date confirm followed by the
   correct date becomes a *second* event, not a repair; promotion-only recompute

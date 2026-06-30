@@ -76,6 +76,11 @@ class CandidateEvent:
     date_imprecise: bool = False
     imprecise_hint: Optional[str] = None
     confidence: float = 0.0
+    # Whether the precise start_date was found in the RAW source text (not the
+    # classifier's rationale). A precise, high-confidence event whose date isn't
+    # grounded stays tentative — see src/discovery/date_grounding.py and the
+    # "date-grounding gate" notes in CLAUDE.md.
+    date_grounded: bool = False
     sources: list[CandidateSource] = field(default_factory=list)
 
 
@@ -121,14 +126,19 @@ def upsert_event(
     if existing:
         new_confidence = max(existing["confidence"] or 0.0, candidate.confidence)
         new_status = existing["status"]
-        # Promote on merge: discovered/tentative -> confirmed when the
-        # combined confidence now clears the per-type bar AND the date is
-        # precise.
+        # Grounding is sticky + accretive: once any source has grounded the
+        # date, it stays grounded; a new corroborating source can also flip a
+        # previously-ungrounded event to grounded.
+        new_grounded = bool(existing["date_grounded"]) or candidate.date_grounded
+        # Promote on merge: discovered/tentative -> confirmed when the combined
+        # confidence clears the per-type bar AND the date is precise AND the
+        # date is grounded in raw source text (the wrong-date guard).
         if (
             existing["status"] in ("discovered", "tentative")
             and not candidate.date_imprecise
             and candidate.start_date
             and new_confidence >= threshold
+            and new_grounded
         ):
             new_status = "confirmed"
 
@@ -138,6 +148,7 @@ def upsert_event(
             "end_date = COALESCE(?, end_date), "
             "multi_day = ?, "
             "imprecise_hint = COALESCE(?, imprecise_hint), "
+            "date_grounded = ?, "
             "confirmed_at = COALESCE(confirmed_at, ?) "
             "WHERE id = ?",
             (
@@ -148,6 +159,7 @@ def upsert_event(
                 candidate.end_date,
                 int(candidate.multi_day or existing["multi_day"]),
                 candidate.imprecise_hint,
+                int(new_grounded),
                 now if new_status == "confirmed" else None,
                 existing["id"],
             ),
@@ -157,8 +169,14 @@ def upsert_event(
     else:
         if candidate.date_imprecise or candidate.start_date is None:
             status = "tentative"
-        elif candidate.confidence >= threshold:
+        elif candidate.confidence >= threshold and candidate.date_grounded:
             status = "confirmed"
+        elif candidate.confidence >= threshold:
+            # High confidence but the date isn't in the raw source text — likely
+            # a mis-transcribed date. Hold at tentative (radar-only) rather than
+            # auto-confirming onto the calendar; a grounded corroboration later
+            # promotes it.
+            status = "tentative"
         else:
             status = "discovered"
 
@@ -166,8 +184,8 @@ def upsert_event(
             "INSERT INTO events ("
             "ticker, company_name, event_type, start_date, end_date, "
             "multi_day, date_imprecise, imprecise_hint, status, confidence, "
-            "first_seen_at, last_seen_at, confirmed_at) VALUES "
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "date_grounded, first_seen_at, last_seen_at, confirmed_at) VALUES "
+            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 candidate.ticker,
                 candidate.company_name,
@@ -179,6 +197,7 @@ def upsert_event(
                 candidate.imprecise_hint,
                 status,
                 candidate.confidence,
+                int(bool(candidate.date_grounded)),
                 now,
                 now,
                 now if status == "confirmed" else None,
@@ -252,14 +271,16 @@ def recompute_statuses(conn: sqlite3.Connection) -> int:
     """
     now = _utcnow()
     rows = conn.execute(
-        "SELECT id, event_type, confidence, status, start_date, date_imprecise "
+        "SELECT id, event_type, confidence, status, start_date, date_imprecise, "
+        "date_grounded "
         "FROM events WHERE status IN ('discovered','tentative')"
     ).fetchall()
     promoted = 0
     for r in rows:
         threshold = threshold_for(r["event_type"])
         precise = bool(r["start_date"]) and not r["date_imprecise"]
-        if precise and (r["confidence"] or 0.0) >= threshold:
+        grounded = bool(r["date_grounded"])
+        if precise and grounded and (r["confidence"] or 0.0) >= threshold:
             conn.execute(
                 "UPDATE events SET status = 'confirmed', "
                 "confirmed_at = COALESCE(confirmed_at, ?) "

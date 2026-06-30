@@ -19,6 +19,7 @@ def _confirmed(conn, ticker, start_date, **overrides):
         event_type="investor_day",
         start_date=start_date,
         confidence=0.95,  # >= 0.85 investor_day threshold -> confirmed
+        date_grounded=True,  # date found in source text (see date-grounding gate)
         sources=[CandidateSource(source_type="8K", source_url=f"https://x/{ticker}")],
     )
     base.update(overrides)

@@ -27,6 +27,10 @@ def _candidate(**overrides):
         event_type="analyst_day",
         start_date="2026-09-15",
         confidence=0.9,
+        # Default to grounded — the discovery layer (cli._to_candidate) computes
+        # this against raw source text; the repo just trusts the flag. Tests that
+        # exercise the wrong-date guard pass date_grounded=False explicitly.
+        date_grounded=True,
         sources=[
             CandidateSource(
                 source_type="8K",
@@ -174,6 +178,47 @@ def test_retire_event_rejects_non_terminal_status(tmp_path):
     eid, _, _ = upsert_event(conn, _candidate(start_date="2026-09-15"))
     with pytest.raises(ValueError):
         retire_event(conn, eid, new_status="confirmed")
+
+
+def test_ungrounded_precise_high_confidence_stays_tentative(tmp_path):
+    """The wrong-date guard: a precise, high-confidence date that isn't grounded
+    in source text must NOT auto-confirm."""
+    conn = init_db(tmp_path / "events.db")
+    eid, status, _ = upsert_event(
+        conn, _candidate(confidence=0.95, date_grounded=False)
+    )
+    assert status == "tentative"
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["confirmed_at"] is None
+    assert row["date_grounded"] == 0
+
+
+def test_grounded_corroboration_promotes_ungrounded_event(tmp_path):
+    """An ungrounded tentative event is promoted when a later, grounded source
+    corroborates the same (ticker, type, date)."""
+    conn = init_db(tmp_path / "events.db")
+    upsert_event(conn, _candidate(confidence=0.95, date_grounded=False))
+    # Second sighting of the SAME event, now grounded.
+    eid, status, is_new = upsert_event(
+        conn, _candidate(confidence=0.95, date_grounded=True)
+    )
+    assert is_new is False  # merge, same (ticker, type, start_date)
+    assert status == "confirmed"
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["date_grounded"] == 1
+
+
+def test_recompute_skips_ungrounded(tmp_path):
+    """recompute_statuses must not promote an ungrounded event even at high
+    confidence."""
+    from src.state.events_repo import recompute_statuses
+
+    conn = init_db(tmp_path / "events.db")
+    upsert_event(conn, _candidate(confidence=0.95, date_grounded=False))
+    promoted = recompute_statuses(conn)
+    assert promoted == 0
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["status"] == "tentative"
 
 
 def test_recompute_never_revives_retired_event(tmp_path):
