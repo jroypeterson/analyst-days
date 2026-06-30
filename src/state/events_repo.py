@@ -49,6 +49,30 @@ def is_pushable(event_type: str) -> bool:
     return event_type in PUSHABLE_EVENT_TYPES
 
 
+# Source-sensitive confirmation bar: a marquee (pushable) event may only
+# auto-confirm if it has at least one AUTHORITATIVE source — an 8-K, a company
+# IR page, a press release, or a manual entry. A generic web hit (TAVILY_HIT —
+# i.e. not on the company's own IR domain and not a PR wire) is too weak to
+# single-source-confirm a prep-driving event; it stays tentative until an
+# authoritative source corroborates. Conferences (tracked-only, never fanned
+# out) are exempt — Tavily snippets are their normal signal.
+AUTHORITATIVE_SOURCE_TYPES: set[str] = {"8K", "IR_PAGE", "PRESS_RELEASE", "MANUAL"}
+
+
+def _is_authoritative(source_type: Optional[str]) -> bool:
+    return source_type in AUTHORITATIVE_SOURCE_TYPES
+
+
+def event_has_authoritative_source(conn: sqlite3.Connection, event_id: int) -> bool:
+    placeholders = ",".join(["?"] * len(AUTHORITATIVE_SOURCE_TYPES))
+    row = conn.execute(
+        f"SELECT 1 FROM event_sources WHERE event_id = ? "
+        f"AND source_type IN ({placeholders}) LIMIT 1",
+        (event_id, *sorted(AUTHORITATIVE_SOURCE_TYPES)),
+    ).fetchone()
+    return row is not None
+
+
 def threshold_for(event_type: str) -> float:
     return EVENT_TYPE_THRESHOLDS.get(event_type, DEFAULT_CONFIDENCE_THRESHOLD)
 
@@ -123,6 +147,11 @@ def upsert_event(
         conn, candidate.ticker, candidate.event_type, candidate.start_date
     )
 
+    # Source-sensitive bar (pushable types only): a marquee event needs an
+    # authoritative source to confirm; a generic Tavily-only hit stays tentative.
+    requires_auth = is_pushable(candidate.event_type)
+    cand_auth = any(_is_authoritative(s.source_type) for s in candidate.sources)
+
     if existing:
         new_confidence = max(existing["confidence"] or 0.0, candidate.confidence)
         new_status = existing["status"]
@@ -130,15 +159,19 @@ def upsert_event(
         # date, it stays grounded; a new corroborating source can also flip a
         # previously-ungrounded event to grounded.
         new_grounded = bool(existing["date_grounded"]) or candidate.date_grounded
+        # Authoritative-source presence is likewise accretive across sources.
+        has_auth = cand_auth or event_has_authoritative_source(conn, existing["id"])
         # Promote on merge: discovered/tentative -> confirmed when the combined
-        # confidence clears the per-type bar AND the date is precise AND the
-        # date is grounded in raw source text (the wrong-date guard).
+        # confidence clears the per-type bar AND the date is precise AND grounded
+        # in raw source text (wrong-date guard) AND, for pushable types, backed by
+        # an authoritative source (weak-source guard).
         if (
             existing["status"] in ("discovered", "tentative")
             and not candidate.date_imprecise
             and candidate.start_date
             and new_confidence >= threshold
             and new_grounded
+            and (not requires_auth or has_auth)
         ):
             new_status = "confirmed"
 
@@ -167,15 +200,18 @@ def upsert_event(
         event_id = int(existing["id"])
         is_new = False
     else:
-        if candidate.date_imprecise or candidate.start_date is None:
+        precise = not candidate.date_imprecise and bool(candidate.start_date)
+        auth_ok = (not requires_auth) or cand_auth
+        if not precise:
             status = "tentative"
-        elif candidate.confidence >= threshold and candidate.date_grounded:
+        elif candidate.confidence >= threshold and candidate.date_grounded and auth_ok:
             status = "confirmed"
         elif candidate.confidence >= threshold:
-            # High confidence but the date isn't in the raw source text — likely
-            # a mis-transcribed date. Hold at tentative (radar-only) rather than
-            # auto-confirming onto the calendar; a grounded corroboration later
-            # promotes it.
+            # Precise + high confidence, but held at tentative (radar-only)
+            # because EITHER the date isn't grounded in raw source text (likely a
+            # mis-transcribed date) OR the only source is a generic web hit that
+            # can't single-source-confirm a prep-driving event. A grounded,
+            # authoritative corroboration later promotes it.
             status = "tentative"
         else:
             status = "discovered"
@@ -280,7 +316,9 @@ def recompute_statuses(conn: sqlite3.Connection) -> int:
         threshold = threshold_for(r["event_type"])
         precise = bool(r["start_date"]) and not r["date_imprecise"]
         grounded = bool(r["date_grounded"])
-        if precise and grounded and (r["confidence"] or 0.0) >= threshold:
+        auth_ok = (not is_pushable(r["event_type"])) or \
+            event_has_authoritative_source(conn, r["id"])
+        if precise and grounded and auth_ok and (r["confidence"] or 0.0) >= threshold:
             conn.execute(
                 "UPDATE events SET status = 'confirmed', "
                 "confirmed_at = COALESCE(confirmed_at, ?) "

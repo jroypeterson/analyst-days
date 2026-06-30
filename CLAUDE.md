@@ -52,7 +52,7 @@ discovered → tentative   (imprecise date, Slack/email mention only)
 ```
 
 - **Tentative** events are surfaced in Slack + email but never get Calendar / TickTick.
-- **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site), provided the date is precise AND **grounded in the raw source text** (see Date-grounding gate below).
+- **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site), provided the date is precise AND **grounded in the raw source text** (see Date-grounding gate below). For **pushable (marquee) types**, the source must actually *be* authoritative — a generic `TAVILY_HIT` web hit (not on the company IR domain, not a PR wire) can't single-source-confirm; it stays tentative until an 8-K / IR / press-release source corroborates. Conferences are exempt (tracked-only). See "Source-sensitive bar" below.
 - **Confidence threshold** for auto-confirm: per-type bar (0.85 marquee / 0.70 conference) from the Claude classifier on a precise date string — *and* the date must be grounded, else the event holds at `tentative`.
 - **Reminders** fire from `confirmed` only. Each transition is one-shot — once `reminded_30` is set it never re-pings.
 - **Retiring an event.** To fix a wrong-date confirm or record a called-off event, use `--retire` → a terminal `cancelled` (called off) or `superseded` (replaced by a corrected row) status. `recompute_statuses` never reconsiders these, and `export_upcoming_events.py` hides them, so the row drops off calendar/digests while preserving provenance. Prefer this over deleting the row.
@@ -179,6 +179,10 @@ Imprecise dates ("Q3 2026", "Fall 2026") never auto-confirm regardless of thresh
 ### Date-grounding gate (the wrong-date guard)
 
 A precise date clears the confidence bar **and** must be *grounded in the raw source text* before it confirms. `src/discovery/date_grounding.py` renders the extracted ISO date into the textual forms filings actually use (e.g. `September 15, 2026`, `Sept 15`, `9/15/2026`, `15 September 2026`, `2026-09-15`) and word-boundary-matches them against the EDGAR excerpt / Tavily snippet — **not** the classifier's own `rationale` (that would be circular). Month-day-only mentions ("September 15") count only if the year also appears in the text. A precise, high-confidence event whose date isn't found in source stays `tentative` (radar-only); a later grounded source promotes it. The decision is persisted as `events.date_grounded` (schema v2) so `recompute_statuses` enforces it too. This catches the classifier transcribing a real announcement's date wrong — which `confidence` alone does not. Grounding is computed in `cli._to_candidate` from the raw hit text and shown in `--discover` output (`grounded=…`).
+
+### Source-sensitive bar (the weak-source guard)
+
+Orthogonal to grounding: a **pushable** event only auto-confirms if it has an **authoritative** source — `8K`, `IR_PAGE`, `PRESS_RELEASE`, or `MANUAL` (`AUTHORITATIVE_SOURCE_TYPES` in `events_repo.py`). A generic `TAVILY_HIT` (web result not on the company's IR domain and not a PR wire) is too weak to single-source-confirm a prep-driving event, so it stays `tentative` until an authoritative source corroborates the same `(ticker, type, date)`. Authoritativeness is accretive on merge (a later 8-K promotes a web-only tentative), and `recompute_statuses` enforces it via `event_has_authoritative_source` (an `EXISTS` over `event_sources`). **Conferences are exempt** — they're tracked-only / never fanned out, and Tavily snippets are their normal signal. `--discover` flags a held event with `! only a generic web source -> held tentative`.
 
 ## Backlog (not in v1)
 

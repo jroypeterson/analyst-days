@@ -125,9 +125,10 @@ sourcing, and the Phase 2/3 scale-up — see §5.
   month-day-only mentions). Ungrounded precise dates stay `tentative` (radar-only)
   regardless of confidence; a later grounded source promotes them. Persisted as
   `events.date_grounded` (schema v2) so `recompute_statuses` honors it too.
-  *Still open follow-on:* a **source-sensitive bar** (let EDGAR/IR single-source
-  confirm but require corroboration for generic Tavily hits) — grounding covers
-  the worst case; this would tighten the rest.
+  The companion **source-sensitive bar** also shipped (2026-06-30): a pushable
+  event needs an authoritative source (8-K / IR / press release) to confirm; a
+  generic `TAVILY_HIT`-only event stays tentative until corroborated.
+  Conferences are exempt.
 - **No correction path for a bad confirm.** Dedup is keyed on
   `(ticker, event_type, start_date)`, so a wrong-date confirm followed by the
   correct date becomes a *second* event, not a repair; promotion-only recompute

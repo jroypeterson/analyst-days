@@ -38,6 +38,7 @@ from src.outputs import slack as slack_out
 from src.outputs import ticktick as ticktick_out
 from src import digest as digest_mod
 from src.state.events_repo import (
+    AUTHORITATIVE_SOURCE_TYPES,
     CandidateEvent,
     CandidateSource,
     PUSHABLE_EVENT_TYPES,
@@ -231,9 +232,19 @@ def cmd_discover(args: argparse.Namespace) -> int:
                 f"conf={e.confidence:.2f}  grounded={grounded}"
             )
             print(f"     {e.rationale[:160]}")
-            if not e.date_imprecise and e.start_date and not grounded:
+            precise = not e.date_imprecise and bool(e.start_date)
+            if precise and not grounded:
                 print("     ! date NOT found in cited source text -> held tentative "
                       "(wrong-date guard)")
+            # Weak-source guard: marquee event whose cited source is a generic
+            # web hit (not 8-K / IR / press release) can't single-source-confirm.
+            eff_auth = e.source_type in AUTHORITATIVE_SOURCE_TYPES or (
+                e.source_url in edgar_urls
+            )
+            if precise and grounded and e.event_type in PUSHABLE_EVENT_TYPES \
+                    and not eff_auth:
+                print("     ! only a generic web source -> held tentative "
+                      "(needs 8-K/IR corroboration)")
             if args.dry_run:
                 continue
 

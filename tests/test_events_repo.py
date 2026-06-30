@@ -221,6 +221,60 @@ def test_recompute_skips_ungrounded(tmp_path):
     assert row["status"] == "tentative"
 
 
+def _tavily_only(**overrides):
+    """A precise, grounded, high-confidence candidate whose ONLY source is a
+    generic web hit (not authoritative)."""
+    base = dict(
+        sources=[CandidateSource(source_type="TAVILY_HIT",
+                                 source_url="https://news.example/x")],
+    )
+    base.update(overrides)
+    return _candidate(**base)
+
+
+def test_pushable_tavily_only_stays_tentative(tmp_path):
+    """Source-sensitive bar: a marquee event backed only by a generic web hit
+    must NOT auto-confirm even when precise, grounded, and high-confidence."""
+    conn = init_db(tmp_path / "events.db")
+    _eid, status, _ = upsert_event(conn, _tavily_only(event_type="investor_day"))
+    assert status == "tentative"
+
+
+def test_conference_tavily_only_confirms(tmp_path):
+    """Conferences are exempt from the authoritative-source bar (tracked-only,
+    never fanned out; Tavily is their normal signal)."""
+    conn = init_db(tmp_path / "events.db")
+    _eid, status, _ = upsert_event(
+        conn, _tavily_only(event_type="conference", confidence=0.75)
+    )
+    assert status == "confirmed"
+
+
+def test_authoritative_corroboration_promotes_tavily_only(tmp_path):
+    """A web-only tentative marquee event is promoted when an 8-K corroborates."""
+    conn = init_db(tmp_path / "events.db")
+    upsert_event(conn, _tavily_only(event_type="rd_day"))
+    _eid, status, is_new = upsert_event(
+        conn,
+        _candidate(
+            event_type="rd_day",
+            sources=[CandidateSource(source_type="8K", source_url="https://sec.gov/8k")],
+        ),
+    )
+    assert is_new is False
+    assert status == "confirmed"
+
+
+def test_recompute_skips_tavily_only_pushable(tmp_path):
+    from src.state.events_repo import recompute_statuses
+
+    conn = init_db(tmp_path / "events.db")
+    upsert_event(conn, _tavily_only(event_type="analyst_day"))
+    assert recompute_statuses(conn) == 0
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["status"] == "tentative"
+
+
 def test_recompute_never_revives_retired_event(tmp_path):
     """A retired (terminal) event must not be re-promoted by recompute_statuses."""
     from src.state.events_repo import recompute_statuses
