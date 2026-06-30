@@ -22,6 +22,7 @@ python -m src.cli --gcal-test             # Verify Google Calendar auth (no writ
 python -m src.cli --gmail-test            # Verify Gmail auth (no send) — prints authorized address
 python -m src.cli --ticktick-test         # Verify TickTick auth + find/create the Analyst Days list
 python -m src.cli --fanout                # Re-run output fan-out without scanning
+python -m src.cli --retire TICKER EVENT_TYPE START_DATE   # Retire an event off calendar/digests (deletes Calendar+TickTick, sets terminal status); --retire-as cancelled|superseded, --reason "..."
 python -m src.cli --dry-run               # Preview; no DB writes / no Slack/Calendar/TickTick/Email
 python -m src.cli --no-slack/--no-gcal/--no-ticktick/--no-email   # Per-channel skips (combine with any mode)
 ```
@@ -53,6 +54,7 @@ discovered → tentative   (imprecise date, Slack/email mention only)
 - **Confirmation rule**: one authoritative source counts (8-K *or* IR-page press release *or* investor relations site).
 - **Confidence threshold** for auto-confirm: `>=0.80` from Claude classifier on a precise date string.
 - **Reminders** fire from `confirmed` only. Each transition is one-shot — once `reminded_30` is set it never re-pings.
+- **Retiring an event.** To fix a wrong-date confirm or record a called-off event, use `--retire` → a terminal `cancelled` (called off) or `superseded` (replaced by a corrected row) status. `recompute_statuses` never reconsiders these, and `export_upcoming_events.py` hides them, so the row drops off calendar/digests while preserving provenance. Prefer this over deleting the row.
 
 ## Output formatting
 

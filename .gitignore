@@ -36,3 +36,6 @@ logs/
 
 # Edit-tool atomic-write leftovers (Windows + Dropbox race)
 *.tmp.*
+
+# Codex reviewer output (dated, accumulates; saved by scripts/codex_review.sh)
+codex_feedback/

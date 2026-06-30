@@ -13,9 +13,11 @@ from src.state.events_repo import (
     CandidateSource,
     upsert_event,
     find_event,
+    retire_event,
     upcoming_events,
     tentative_events,
 )
+import pytest
 
 
 def _candidate(**overrides):
@@ -153,3 +155,34 @@ def test_tentative_listed_separately(tmp_path):
     rows = tentative_events(conn)
     assert len(rows) == 1
     assert rows[0]["ticker"] == "MRNA"
+
+
+def test_retire_event_sets_terminal_status_and_note(tmp_path):
+    conn = init_db(tmp_path / "events.db")
+    eid, status, _ = upsert_event(conn, _candidate(start_date="2026-09-15"))
+    assert status == "confirmed"
+
+    assert retire_event(conn, eid, new_status="superseded", reason="wrong date") is True
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["status"] == "superseded"
+    assert "superseded" in (row["notes"] or "")
+    assert "wrong date" in (row["notes"] or "")
+
+
+def test_retire_event_rejects_non_terminal_status(tmp_path):
+    conn = init_db(tmp_path / "events.db")
+    eid, _, _ = upsert_event(conn, _candidate(start_date="2026-09-15"))
+    with pytest.raises(ValueError):
+        retire_event(conn, eid, new_status="confirmed")
+
+
+def test_recompute_never_revives_retired_event(tmp_path):
+    """A retired (terminal) event must not be re-promoted by recompute_statuses."""
+    from src.state.events_repo import recompute_statuses
+
+    conn = init_db(tmp_path / "events.db")
+    eid, _, _ = upsert_event(conn, _candidate(start_date="2026-09-15", confidence=0.95))
+    retire_event(conn, eid, new_status="cancelled")
+    recompute_statuses(conn)
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["status"] == "cancelled"

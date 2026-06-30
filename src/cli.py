@@ -5,9 +5,11 @@ Modes (Phase 1):
                                upsert events into events.db
   --discover --dry-run         same, but no DB writes — prints proposed events
   --status                     print DB stats + upcoming events
-  --weekly                     (TODO) discover → remind → digest one-shot
-  --remind                     (TODO) reminder fan-out
-  --digest                     (TODO) weekly digest
+  --weekly                     discover → remind → Monday digest one-shot
+                               (the Monday cron entry point)
+  --remind                     T-30 / T-7 / day-of reminder fan-out
+  --monday-digest              Monday "forward 30/7" digest → Slack + email
+  --friday-digest              Friday "on the radar" digest → Slack
 
 Phases 2+ swap the universe iterator (HC Services / MedTech / full universe);
 the rest of the pipeline is universe-agnostic.
@@ -38,7 +40,9 @@ from src.state.events_repo import (
     CandidateEvent,
     CandidateSource,
     PUSHABLE_EVENT_TYPES,
+    find_event,
     recompute_statuses,
+    retire_event,
     upcoming_events,
     upsert_event,
     tentative_events,
@@ -382,7 +386,20 @@ def build_parser() -> argparse.ArgumentParser:
                            "after a policy change. Idempotent.")
     mode.add_argument("--remind", action="store_true",
                       help="Reminder fan-out (T-30 / T-7 / day-of) for confirmed events")
+    mode.add_argument("--retire", nargs=3,
+                      metavar=("TICKER", "EVENT_TYPE", "START_DATE"),
+                      help="Retire an event off the calendar/digests without "
+                           "deleting the row, e.g. --retire MRNA rd_day 2026-09-15. "
+                           "Deletes its Calendar + TickTick entries and sets a "
+                           "terminal status (see --retire-as).")
 
+    p.add_argument("--retire-as", choices=("cancelled", "superseded"),
+                   default="cancelled",
+                   help="Terminal status for --retire: 'cancelled' (event called "
+                        "off) or 'superseded' (replaced by a corrected row). "
+                        "Default cancelled.")
+    p.add_argument("--reason", default=None,
+                   help="Optional note recorded on the retired event")
     p.add_argument("--dry-run", action="store_true",
                    help="No DB writes / no fan-out; prints proposed actions")
     p.add_argument("--no-slack", action="store_true",
@@ -598,6 +615,65 @@ def cmd_prune_non_pushable(args: argparse.Namespace) -> int:
         conn.close()
 
 
+def cmd_retire(args: argparse.Namespace) -> int:
+    """Retire one event to a terminal state (cancelled/superseded) and tear down
+    its Calendar + TickTick artifacts. Use to fix a wrong-date confirm without
+    losing provenance. Slack pings already posted can't be unsent (webhook)."""
+    ticker, event_type, start_date = (s.strip() for s in args.retire)
+    ticker = ticker.upper()
+    db_path = Path(args.db)
+    if not db_path.exists():
+        print(f"No DB at {db_path}.")
+        return 1
+    conn = init_db(args.db)
+    try:
+        row = find_event(conn, ticker, event_type, start_date)
+        if row is None:
+            print(f"No event found for {ticker} {event_type} {start_date}.")
+            return 1
+        if row["status"] in ("cancelled", "superseded"):
+            print(f"Event {ticker} {event_type} {start_date} is already "
+                  f"{row['status']}; nothing to do.")
+            return 0
+
+        print(f"Retiring {ticker} {event_type} {start_date} "
+              f"(status {row['status']} -> {args.retire_as})")
+        if args.dry_run:
+            print("[dry-run] no DB writes / no Calendar / no TickTick teardown")
+            return 0
+
+        # Tear down Calendar entry
+        if row["calendar_event_id"] and not args.no_gcal:
+            try:
+                if gcal_out.delete_calendar_event(
+                    gcal_out.get_service(), conn, row["id"]
+                ):
+                    print("  -> deleted Calendar entry")
+            except Exception as exc:
+                print(f"  Calendar teardown failed (continuing): {exc}")
+
+        # Tear down TickTick task
+        if row["ticktick_task_id"] and not args.no_ticktick:
+            try:
+                list_id = ticktick_out.find_or_create_list()
+                if ticktick_out.delete_task(list_id, row["ticktick_task_id"]):
+                    conn.execute(
+                        "UPDATE events SET ticktick_task_id = NULL WHERE id = ?",
+                        (row["id"],),
+                    )
+                    conn.commit()
+                    print("  -> deleted TickTick task")
+            except Exception as exc:
+                print(f"  TickTick teardown failed (continuing): {exc}")
+
+        retire_event(conn, row["id"], new_status=args.retire_as, reason=args.reason)
+        print(f"Retired ({args.retire_as}). It will drop off digests/exports "
+              "on the next run.")
+        return 0
+    finally:
+        conn.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
     args = build_parser().parse_args(argv)
@@ -625,6 +701,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_prune_non_pushable(args)
     if args.remind:
         return cmd_remind(args)
+    if args.retire:
+        return cmd_retire(args)
     return 1
 
 

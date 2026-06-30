@@ -285,3 +285,40 @@ def mark_status(
             "UPDATE events SET status = ? WHERE id = ?", (new_status, event_id)
         )
     conn.commit()
+
+
+_RETIRE_STATUSES = ("cancelled", "superseded")
+
+
+def retire_event(
+    conn: sqlite3.Connection,
+    event_id: int,
+    new_status: str = "cancelled",
+    reason: Optional[str] = None,
+) -> bool:
+    """Retire an event to a terminal state without deleting the row.
+
+    Use this to fix a wrong-date confirm (`superseded`) or record that an event
+    was called off (`cancelled`) while preserving provenance. recompute_statuses()
+    never reconsiders these rows, and the export filter hides them, so a retired
+    event drops off the calendar/digest surfaces on the next fan-out/export.
+    The Calendar/TickTick entries themselves are removed by the caller (see
+    cmd_retire) — this only updates DB state.
+
+    Returns True if a row was updated.
+    """
+    if new_status not in _RETIRE_STATUSES:
+        raise ValueError(
+            f"retire status must be one of {_RETIRE_STATUSES}, got {new_status!r}"
+        )
+    stamp = f"[{_utcnow()}] retired -> {new_status}"
+    if reason:
+        stamp += f": {reason}"
+    cur = conn.execute(
+        "UPDATE events SET status = ?, "
+        "notes = TRIM(COALESCE(notes || char(10), '') || ?) "
+        "WHERE id = ?",
+        (new_status, stamp, event_id),
+    )
+    conn.commit()
+    return cur.rowcount > 0

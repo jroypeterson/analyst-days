@@ -56,7 +56,27 @@ EVENT_TYPE_LABEL = {
 }
 
 CAL_SCOPES = ["https://www.googleapis.com/auth/calendar"]
-EXT_PROP_KEY = "analyst_days_event_id"
+# Stored as a private extended property so we can recover/re-attach to an
+# existing calendar entry after a DB rebuild (CI artifact loss). Must be a
+# STABLE natural key, not the SQLite row id — AUTOINCREMENT ids are not
+# preserved when the DB is rebuilt from discovery, which would defeat recovery.
+EXT_PROP_KEY = "analyst_days_event_key"
+
+
+def _event_key(event_row) -> str:
+    """Deterministic natural key for an event: stable across DB rebuilds.
+
+    Keyed the same way as the DB dedup unique constraint
+    (ticker, event_type, start_date), with end_date appended so a single-day ->
+    multi-day correction is a distinct calendar entry.
+    """
+    end = event_row["end_date"] or event_row["start_date"]
+    return "|".join((
+        (event_row["ticker"] or "").upper(),
+        event_row["event_type"] or "",
+        event_row["start_date"] or "",
+        end or "",
+    ))
 
 
 # ---------------------------------------------------------------------------
@@ -152,7 +172,7 @@ def _build_event_body(event_row, source_url: Optional[str], rationale: Optional[
         "end": {"date": end_iso},
         "extendedProperties": {
             "private": {
-                EXT_PROP_KEY: str(event_row["id"]),
+                EXT_PROP_KEY: _event_key(event_row),
                 "ticker": event_row["ticker"],
                 "event_type": event_row["event_type"],
             },
@@ -252,15 +272,17 @@ def delete_calendar_event(service, conn: sqlite3.Connection, event_id: int) -> b
     return True
 
 
-def find_existing_by_event_id(service, analyst_days_event_id: int) -> Optional[str]:
-    """Find a calendar event by our extended-property ID. Used to recover
-    after a DB rebuild (CI artifact loss) — we can re-attach to existing
-    calendar entries instead of creating duplicates.
+def find_existing_by_event_key(service, event_row) -> Optional[str]:
+    """Find a calendar event by our deterministic extended-property key. Used to
+    recover after a DB rebuild (CI artifact loss) — we can re-attach to existing
+    calendar entries instead of creating duplicates. Keyed on the stable natural
+    key (see _event_key), so it survives row-id churn from a rebuilt DB.
     """
     cal_id = _calendar_id()
+    key = _event_key(event_row)
     resp = service.events().list(
         calendarId=cal_id,
-        privateExtendedProperty=f"{EXT_PROP_KEY}={analyst_days_event_id}",
+        privateExtendedProperty=f"{EXT_PROP_KEY}={key}",
         maxResults=2,
         singleEvents=True,
     ).execute()
@@ -269,8 +291,7 @@ def find_existing_by_event_id(service, analyst_days_event_id: int) -> Optional[s
         return None
     if len(items) > 1:
         logger.warning(
-            "Multiple gcal events match analyst_days_event_id=%s; using first",
-            analyst_days_event_id,
+            "Multiple gcal events match %s=%s; using first", EXT_PROP_KEY, key,
         )
     return items[0]["id"]
 

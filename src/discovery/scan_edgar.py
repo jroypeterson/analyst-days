@@ -30,6 +30,16 @@ TRIGGER_RE = re.compile(
     r"|investor\s+and\s+analyst\s+day"
     r"|capital\s+markets\s+day"
     r"|r\s*&\s*d\s+day|r\s+and\s+d\s+day|research\s+and\s+development\s+day"
+    # Marquee events that use other names — common in HC/biotech. These only
+    # gate which filings reach the classifier; the LLM + per-type confidence
+    # bar still decide event_type and whether to confirm, so a noisy match
+    # (e.g. a routine "business update") just lands low-confidence, not on the
+    # calendar.
+    r"|innovation\s+day"
+    r"|pipeline\s+day"
+    r"|strategy\s+day"
+    r"|strategic\s+update"
+    r"|business\s+update"
     r")\b",
     re.IGNORECASE,
 )

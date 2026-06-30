@@ -30,6 +30,14 @@ EVENT_STATUSES = (
     "day_of",
     "completed",
     "historical",
+    # Terminal "retired" states. recompute_statuses() only reconsiders
+    # discovered/tentative, so these are never re-promoted. Used to retire a
+    # wrong-date or stale confirm without deleting the row (keeps provenance):
+    #   cancelled  — the event itself was called off / never happened
+    #   superseded — replaced by a corrected row (e.g. a fixed date)
+    # The export filter (scripts/export_upcoming_events.py) hides both.
+    "cancelled",
+    "superseded",
 )
 
 SOURCE_TYPES = (

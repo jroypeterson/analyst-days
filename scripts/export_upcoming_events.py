@@ -54,7 +54,7 @@ def export(db_path: Path, out_path: Path,
                COALESCE(multi_day, 0), COALESCE(status, '')
         FROM events
         WHERE start_date BETWEEN ? AND ?
-          AND COALESCE(status, '') != 'cancelled'
+          AND COALESCE(status, '') NOT IN ('cancelled', 'superseded')
         ORDER BY start_date, ticker
         """,
         (start, end),
