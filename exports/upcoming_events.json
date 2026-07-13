@@ -1,15 +1,24 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-07-06T15:56:44Z",
+  "generated_at": "2026-07-13T15:13:00Z",
   "window": {
-    "start": "2026-07-05",
-    "end": "2026-09-04"
+    "start": "2026-07-12",
+    "end": "2026-09-11"
   },
   "counts": {
-    "events": 4
+    "events": 6
   },
   "events": [
+    {
+      "ticker": "ADI",
+      "company_name": "Analog Devices Inc",
+      "event_type": "investor_day",
+      "start_date": "2026-07-14",
+      "end_date": null,
+      "multi_day": false,
+      "status": "discovered"
+    },
     {
       "ticker": "HOOD",
       "company_name": "Robinhood Markets Inc",
@@ -38,13 +47,22 @@
       "status": "confirmed"
     },
     {
+      "ticker": "EHC",
+      "company_name": "Encompass Health Corp",
+      "event_type": "conference",
+      "start_date": "2026-08-06",
+      "end_date": null,
+      "multi_day": false,
+      "status": "discovered"
+    },
+    {
       "ticker": "WAY",
       "company_name": "Waystar Holding Corp",
       "event_type": "investor_day",
       "start_date": "2026-08-25",
       "end_date": null,
       "multi_day": false,
-      "status": "tentative"
+      "status": "confirmed"
     }
   ]
 }
