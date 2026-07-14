@@ -122,7 +122,7 @@ def render_monday_html(
     in_30, in_7 = query_monday(conn, today_iso)
 
     subject = (
-        f"Analyst Days — Monday Outlook ({today_iso}): "
+        f"[ClaudeFin] analyst-days — Monday Outlook ({today_iso}): "
         f"{len(in_30)} in 30d / {len(in_7)} in 7d"
     )
     body = (
