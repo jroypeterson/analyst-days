@@ -50,6 +50,15 @@ RELEVANT_FORMS = ("8-K", "6-K")
 _IDENTITY_SET = False
 
 
+class EdgarScanError(RuntimeError):
+    """A hard EDGAR fetch/lookup failure (company resolve or filings pull).
+
+    Raised instead of returning [] so the caller can tell a genuine "no
+    filings matched" from an outage — a silent zero-result would otherwise keep
+    the run's health green while a covered name was never actually scanned.
+    """
+
+
 def _ensure_identity() -> None:
     """Set the SEC identity header on first call. Required by EDGAR."""
     global _IDENTITY_SET
@@ -133,14 +142,19 @@ def scan_ticker(
     try:
         c = Company(ticker)
     except Exception as e:
-        print(f"  edgartools Company({ticker}) failed: {type(e).__name__}: {e}")
-        return []
+        # A lookup failure is an outage/transport error, not "no filings" —
+        # signal it so the run counts an error and posts a partial heartbeat
+        # instead of silently treating the name as clean.
+        raise EdgarScanError(
+            f"edgartools Company({ticker}) failed: {type(e).__name__}: {e}"
+        ) from e
 
     try:
         filings = c.get_filings(form=list(RELEVANT_FORMS), filing_date=date_range)
     except Exception as e:
-        print(f"  EDGAR fetch failed for {ticker}: {type(e).__name__}: {e}")
-        return []
+        raise EdgarScanError(
+            f"EDGAR fetch failed for {ticker}: {type(e).__name__}: {e}"
+        ) from e
 
     hits: list[EdgarHit] = []
     for f in filings:

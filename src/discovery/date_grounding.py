@@ -85,13 +85,23 @@ def _date_forms(y: int, m: int, d: int) -> tuple[list[str], list[str]]:
 
     # Numeric M/D/Y and D/M/Y, padded + unpadded, '/' and '-' separators,
     # plus ISO. These all carry the year, so they go in with_year.
+    #
+    # Day-first (D/M/Y) is emitted ONLY when it can't be misread as US-convention
+    # M/D/Y — i.e. when the day exceeds 12. When BOTH month and day are <=12,
+    # "4/3/2026" is genuinely ambiguous (April 3 vs 3 April), and US/SEC filings
+    # overwhelmingly write M/D/Y, so honoring the day-first reading would ground
+    # the wrong day (e.g. ground 2026-03-04 on "4/3/2026" that means April 3).
+    # Suppressing it keeps the gate conservative — a false-negative costs a manual
+    # confirm; a false-positive costs wrong-day prep.
+    day_first_ambiguous = m <= 12 and d <= 12
     for sep in ("/", "-"):
         with_year.append(f"{m}{sep}{d}{sep}{y}")
         with_year.append(f"{m:02d}{sep}{d:02d}{sep}{y}")
         with_year.append(f"{m}{sep}{d}{sep}{yy:02d}")
         with_year.append(f"{m:02d}{sep}{d:02d}{sep}{yy:02d}")
-        with_year.append(f"{d}{sep}{m}{sep}{y}")          # day-first numeric
-        with_year.append(f"{d:02d}{sep}{m:02d}{sep}{y}")
+        if not day_first_ambiguous:
+            with_year.append(f"{d}{sep}{m}{sep}{y}")          # day-first numeric
+            with_year.append(f"{d:02d}{sep}{m:02d}{sep}{y}")
     with_year.append(f"{y}-{m:02d}-{d:02d}")              # ISO
     with_year.append(f"{y}/{m:02d}/{d:02d}")
 

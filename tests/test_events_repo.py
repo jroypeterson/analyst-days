@@ -275,6 +275,78 @@ def test_recompute_skips_tavily_only_pushable(tmp_path):
     assert row["status"] == "tentative"
 
 
+def test_past_precise_grounded_event_does_not_confirm(tmp_path):
+    """Past-date backstop: a precise, grounded, high-confidence, authoritatively
+    sourced date that is already in the past must NOT auto-confirm (it would
+    otherwise fan out to Slack/Calendar/TickTick for an event that's over)."""
+    conn = init_db(tmp_path / "events.db")
+    # start_date 2026-09-15 with 'today' pinned AFTER it.
+    eid, status, _ = upsert_event(conn, _candidate(), today_iso="2026-10-01")
+    assert status == "tentative"
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["confirmed_at"] is None
+    # Sanity: the same candidate with 'today' before the date DOES confirm.
+    conn2 = init_db(tmp_path / "events2.db")
+    _eid, status2, _ = upsert_event(conn2, _candidate(), today_iso="2026-01-01")
+    assert status2 == "confirmed"
+
+
+def test_merge_does_not_confirm_past_event(tmp_path):
+    """A tentative row whose date has since passed must not promote on merge."""
+    conn = init_db(tmp_path / "events.db")
+    upsert_event(conn, _candidate(confidence=0.95, date_grounded=False),
+                 today_iso="2026-01-01")
+    _eid, status, is_new = upsert_event(
+        conn, _candidate(confidence=0.95, date_grounded=True),
+        today_iso="2026-10-01",
+    )
+    assert is_new is False
+    assert status == "tentative"
+
+
+def test_recompute_skips_past_event(tmp_path):
+    """recompute_statuses must not promote an event whose date is now past."""
+    from src.state.events_repo import recompute_statuses
+
+    conn = init_db(tmp_path / "events.db")
+    # Land it tentative by pinning today before the date but withholding grounding.
+    upsert_event(conn, _candidate(confidence=0.95, date_grounded=False),
+                 today_iso="2026-01-01")
+    # Now ground it via a merge, but keep it tentative because today is past it.
+    upsert_event(conn, _candidate(confidence=0.95, date_grounded=True),
+                 today_iso="2026-10-01")
+    assert recompute_statuses(conn, today_iso="2026-10-01") == 0
+    row = find_event(conn, "AAPL", "analyst_day", "2026-09-15")
+    assert row["status"] == "tentative"
+
+
+def test_precise_row_supersedes_imprecise_null_sibling(tmp_path):
+    """When a precise date arrives, the leftover imprecise NULL-date placeholder
+    for the same (ticker, event_type) is retired (superseded), so the Friday
+    Radar no longer double-shows the event."""
+    conn = init_db(tmp_path / "events.db")
+    # First: imprecise NULL row -> tentative.
+    null_eid, _, _ = upsert_event(
+        conn,
+        _candidate(start_date=None, date_imprecise=True, imprecise_hint="Q3 2026"),
+    )
+    # Then: precise date arrives (different row under the unique key).
+    precise_eid, _, is_new = upsert_event(conn, _candidate(start_date="2026-09-15"))
+    assert is_new  # different start_date → different row
+    assert precise_eid != null_eid
+
+    null_row = conn.execute(
+        "SELECT status, notes FROM events WHERE id = ?", (null_eid,)
+    ).fetchone()
+    assert null_row["status"] == "superseded"
+    assert "superseded by precise-dated row" in (null_row["notes"] or "")
+    # The precise row itself is untouched.
+    precise_row = conn.execute(
+        "SELECT status FROM events WHERE id = ?", (precise_eid,)
+    ).fetchone()
+    assert precise_row["status"] != "superseded"
+
+
 def test_recompute_never_revives_retired_event(tmp_path):
     """A retired (terminal) event must not be re-promoted by recompute_statuses."""
     from src.state.events_repo import recompute_statuses

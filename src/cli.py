@@ -271,6 +271,26 @@ def cmd_discover(args: argparse.Namespace) -> int:
     return 0
 
 
+def _fanout_candidates(conn, today_iso: str) -> list:
+    """Confirmed, pushable, precise-dated events eligible to fan out.
+
+    The past-date backstop lives here too (not just in confirmation): a
+    grounded row whose date has since passed — or a legacy confirmed row
+    predating the backstop — must not be (re-)posted to Slack/Calendar/TickTick.
+    So we floor on `start_date >= today`.
+    """
+    status_placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
+    type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
+    pushable_types = sorted(PUSHABLE_EVENT_TYPES)
+    return conn.execute(
+        f"SELECT * FROM events WHERE status IN ({status_placeholders}) "
+        f"AND event_type IN ({type_placeholders}) "
+        "AND start_date IS NOT NULL AND start_date >= ? "
+        "ORDER BY start_date ASC",
+        (*CONFIRMED_STATUSES, *pushable_types, today_iso),
+    ).fetchall()
+
+
 def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     """Post any confirmed event missing slack/calendar/ticktick output rows.
 
@@ -286,15 +306,7 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     if promoted:
         print(f"[fan-out] promoted {promoted} discovered/tentative -> confirmed")
 
-    status_placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
-    type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
-    pushable_types = sorted(PUSHABLE_EVENT_TYPES)
-    rows = conn.execute(
-        f"SELECT * FROM events WHERE status IN ({status_placeholders}) "
-        f"AND event_type IN ({type_placeholders}) "
-        "AND start_date IS NOT NULL ORDER BY start_date ASC",
-        (*CONFIRMED_STATUSES, *pushable_types),
-    ).fetchall()
+    rows = _fanout_candidates(conn, date.today().isoformat())
 
     if not rows:
         return {"fanout_slack": 0, "fanout_gcal": 0, "fanout_ticktick": 0}

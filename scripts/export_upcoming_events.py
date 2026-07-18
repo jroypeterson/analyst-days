@@ -3,12 +3,16 @@
 
 Consumer: sa-monitor (Phase 2 'Note:' context enrichment). Schema matches
 sa-monitor/src/calendars.py:AnalystDayCalendar — see that file for the canonical
-contract.
+contract. sa-monitor looks events up by (ticker, halt_date) and renders a
+"hosting an analyst day today" Note for any match, WITHOUT re-checking status —
+so it is this export's job to publish only rows the user should be told about.
 
-Window: events with start_date in [today - 1 day, today + 60 days]. Analyst
-days are scheduled further in advance than earnings, so a longer lookahead
-window is appropriate; the 1-day lookback covers same-day halts after a
-mid-day analyst event start.
+Window + gate: only *confirmed* events (confirmed / reminded_30 / reminded_7 /
+day_of) with start_date in [today, today + 60 days]. We do NOT publish
+discovered/tentative rows (unconfirmed — a Note on an unproven event would
+mislead) nor past rows (nothing to halt-correlate against a day that has
+passed). cancelled/superseded are terminal and likewise excluded. The schema
+(schema_version=1 + fields) is unchanged — this is a strict row-subset tightening.
 
 Run from the analyst-days repo root:
     python scripts/export_upcoming_events.py
@@ -31,8 +35,17 @@ DEFAULT_DB = REPO_ROOT / "data" / "events.db"
 DEFAULT_OUT = REPO_ROOT / "exports" / "upcoming_events.json"
 
 SCHEMA_VERSION = 1
-WINDOW_LOOKBACK_DAYS = 1
+# Past-date backstop: publish only forward-looking rows. (Was 1-day lookback,
+# but sa-monitor only ever queries the halt date == today, so a past row could
+# never correlate to a live halt anyway — and a past "hosting today" Note is
+# wrong.) Kept as a param so callers can override in tests.
+WINDOW_LOOKBACK_DAYS = 0
 WINDOW_LOOKAHEAD_DAYS = 60
+
+# Confirmed-family statuses eligible for publication. Mirrors the DB's
+# fanned-out states; unconfirmed (discovered/tentative) and terminal
+# (cancelled/superseded/completed/historical) rows are withheld.
+EXPORT_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
 
 
 def export(db_path: Path, out_path: Path,
@@ -47,17 +60,18 @@ def export(db_path: Path, out_path: Path,
     start = (today - timedelta(days=lookback_days)).isoformat()
     end = (today + timedelta(days=lookahead_days)).isoformat()
 
+    status_placeholders = ",".join(["?"] * len(EXPORT_STATUSES))
     con = sqlite3.connect(db_path)
     rows = con.execute(
-        """
+        f"""
         SELECT ticker, company_name, event_type, start_date, end_date,
                COALESCE(multi_day, 0), COALESCE(status, '')
         FROM events
         WHERE start_date BETWEEN ? AND ?
-          AND COALESCE(status, '') NOT IN ('cancelled', 'superseded')
+          AND COALESCE(status, '') IN ({status_placeholders})
         ORDER BY start_date, ticker
         """,
-        (start, end),
+        (start, end, *EXPORT_STATUSES),
     ).fetchall()
     con.close()
 

@@ -23,7 +23,10 @@ def _confirmed(conn, ticker, start_date, **overrides):
         sources=[CandidateSource(source_type="8K", source_url=f"https://x/{ticker}")],
     )
     base.update(overrides)
-    eid, status, _ = upsert_event(conn, CandidateEvent(**base))
+    # Anchor the past-date backstop before the fixture dates so these rows
+    # confirm deterministically regardless of the wall clock.
+    eid, status, _ = upsert_event(conn, CandidateEvent(**base),
+                                  today_iso="2020-01-01")
     assert status == "confirmed", f"expected confirmed, got {status}"
     return eid
 

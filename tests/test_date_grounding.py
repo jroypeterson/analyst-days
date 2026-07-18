@@ -86,6 +86,22 @@ def test_day_number_not_substring_matched():
     assert date_grounded_in_text("2026-09-01", "Investor Day September 15, 2026") is False
 
 
+def test_ambiguous_numeric_does_not_ground_day_first():
+    # "4/3/2026" in US/SEC text means April 3. It must NOT ground 2026-03-04
+    # (the day-first reading) — both components are <=12, so day-first is
+    # suppressed. (Codex High: D/M/Y vs M/D/Y ambiguity.)
+    assert date_grounded_in_text("2026-03-04", "Analyst Day on 4/3/2026 at 9am ET") is False
+    # The M/D/Y reading of the SAME string still grounds its true date.
+    assert date_grounded_in_text("2026-04-03", "Analyst Day on 4/3/2026 at 9am ET") is True
+
+
+def test_unambiguous_day_first_still_grounds():
+    # When the day exceeds 12 there is no M/D/Y misreading, so the day-first
+    # numeric form is still honored: "15/3/2026" grounds 2026-03-15.
+    assert date_grounded_in_text("2026-03-15", "the event is on 15/3/2026") is True
+    assert date_grounded_in_text("2026-03-15", "the event is on 15-3-2026") is True
+
+
 def test_empty_and_malformed_inputs():
     assert date_grounded_in_text("2026-09-15", "") is False
     assert date_grounded_in_text("2026-09-15", None) is False

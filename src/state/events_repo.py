@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Optional
 
 
@@ -81,6 +81,10 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _today_iso() -> str:
+    return date.today().isoformat()
+
+
 @dataclass
 class CandidateSource:
     source_type: str          # 8K | IR_PAGE | PRESS_RELEASE | TAVILY_HIT | MANUAL
@@ -125,6 +129,7 @@ def upsert_event(
     conn: sqlite3.Connection,
     candidate: CandidateEvent,
     confidence_threshold: Optional[float] = None,
+    today_iso: Optional[str] = None,
 ) -> tuple[int, str, bool]:
     """Insert or merge a candidate event.
 
@@ -132,12 +137,18 @@ def upsert_event(
     EVENT_TYPE_THRESHOLDS; pass an explicit value to override (mostly useful
     in tests).
 
+    `today_iso` (ISO YYYY-MM-DD) is the past-date backstop reference — a precise
+    date strictly before it never auto-confirms (the calendar/fan-out surfaces
+    are forward-looking; confirming a past date would fan a grounded-but-stale
+    row out to Slack/Calendar/TickTick). Defaults to today.
+
     Returns (event_id, status, is_new) where:
       - event_id: int
       - status: the resulting events.status value
       - is_new: True if this insert created a new event row, False on merge
     """
     now = _utcnow()
+    today = today_iso or _today_iso()
     threshold = (
         confidence_threshold
         if confidence_threshold is not None
@@ -146,6 +157,9 @@ def upsert_event(
     existing = find_event(
         conn, candidate.ticker, candidate.event_type, candidate.start_date
     )
+
+    # Past-date backstop: a precise date strictly in the past must never confirm.
+    not_past = bool(candidate.start_date) and candidate.start_date >= today
 
     # Source-sensitive bar (pushable types only): a marquee event needs an
     # authoritative source to confirm; a generic Tavily-only hit stays tentative.
@@ -169,6 +183,7 @@ def upsert_event(
             existing["status"] in ("discovered", "tentative")
             and not candidate.date_imprecise
             and candidate.start_date
+            and not_past
             and new_confidence >= threshold
             and new_grounded
             and (not requires_auth or has_auth)
@@ -204,14 +219,20 @@ def upsert_event(
         auth_ok = (not requires_auth) or cand_auth
         if not precise:
             status = "tentative"
-        elif candidate.confidence >= threshold and candidate.date_grounded and auth_ok:
+        elif (
+            candidate.confidence >= threshold
+            and candidate.date_grounded
+            and auth_ok
+            and not_past
+        ):
             status = "confirmed"
         elif candidate.confidence >= threshold:
             # Precise + high confidence, but held at tentative (radar-only)
             # because EITHER the date isn't grounded in raw source text (likely a
             # mis-transcribed date) OR the only source is a generic web hit that
-            # can't single-source-confirm a prep-driving event. A grounded,
-            # authoritative corroboration later promotes it.
+            # can't single-source-confirm a prep-driving event OR the date is
+            # already in the past (nothing to prep for). A grounded, authoritative,
+            # still-future corroboration later promotes it.
             status = "tentative"
         else:
             status = "discovered"
@@ -264,8 +285,46 @@ def upsert_event(
                  src.source_excerpt, src.accession_no, now),
             )
 
+    # When a precise-dated row exists for this (ticker, event_type), retire any
+    # leftover imprecise NULL-date sibling ("Q3 2026") — its concrete date has
+    # now arrived, so the placeholder would otherwise linger and double-show on
+    # the Friday Radar. Superseded rows drop off the radar + export.
+    if candidate.start_date:
+        _supersede_imprecise_null_siblings(
+            conn, candidate.ticker, candidate.event_type, keep_id=event_id
+        )
+
     conn.commit()
     return event_id, new_status, is_new
+
+
+def _supersede_imprecise_null_siblings(
+    conn: sqlite3.Connection,
+    ticker: str,
+    event_type: str,
+    keep_id: int,
+) -> int:
+    """Retire (status=superseded) any NULL-start_date rows for the same
+    (ticker, event_type) — the imprecise placeholders a now-precise row replaces.
+
+    Skips already-terminal rows and never touches the row being kept. Returns the
+    count retired. Does not commit (the caller commits)."""
+    rows = conn.execute(
+        "SELECT id FROM events WHERE ticker = ? AND event_type = ? "
+        "AND start_date IS NULL AND id != ? "
+        "AND status NOT IN ('cancelled', 'superseded')",
+        (ticker, event_type, keep_id),
+    ).fetchall()
+    now = _utcnow()
+    for r in rows:
+        stamp = f"[{now}] retired -> superseded: superseded by precise-dated row"
+        conn.execute(
+            "UPDATE events SET status = 'superseded', "
+            "notes = TRIM(COALESCE(notes || char(10), '') || ?) "
+            "WHERE id = ?",
+            (stamp, r["id"]),
+        )
+    return len(rows)
 
 
 def upcoming_events(
@@ -296,16 +355,21 @@ def event_sources(conn: sqlite3.Connection, event_id: int) -> list[sqlite3.Row]:
     ).fetchall()
 
 
-def recompute_statuses(conn: sqlite3.Connection) -> int:
+def recompute_statuses(
+    conn: sqlite3.Connection, today_iso: Optional[str] = None
+) -> int:
     """Walk all events and promote discovered/tentative -> confirmed where
     the stored confidence + per-type threshold now warrants it.
 
     Idempotent. Promotion-only (never demotes) so events that have already
     been fanned out stay confirmed even if you tighten thresholds later.
+    A precise date strictly before `today_iso` (defaults to today) is never
+    promoted — the past-date backstop, mirroring upsert_event.
 
     Returns count of events promoted.
     """
     now = _utcnow()
+    today = today_iso or _today_iso()
     rows = conn.execute(
         "SELECT id, event_type, confidence, status, start_date, date_imprecise, "
         "date_grounded "
@@ -315,10 +379,12 @@ def recompute_statuses(conn: sqlite3.Connection) -> int:
     for r in rows:
         threshold = threshold_for(r["event_type"])
         precise = bool(r["start_date"]) and not r["date_imprecise"]
+        not_past = bool(r["start_date"]) and r["start_date"] >= today
         grounded = bool(r["date_grounded"])
         auth_ok = (not is_pushable(r["event_type"])) or \
             event_has_authoritative_source(conn, r["id"])
-        if precise and grounded and auth_ok and (r["confidence"] or 0.0) >= threshold:
+        if precise and not_past and grounded and auth_ok \
+                and (r["confidence"] or 0.0) >= threshold:
             conn.execute(
                 "UPDATE events SET status = 'confirmed', "
                 "confirmed_at = COALESCE(confirmed_at, ?) "
