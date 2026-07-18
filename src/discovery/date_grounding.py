@@ -140,9 +140,20 @@ def date_grounded_in_text(iso_date: str, text: Optional[str]) -> bool:
         if _find(norm, form):
             return True
     for form in month_day:
-        m = _find(norm, form)
-        if m and _year_near(norm, dt.year, m.span()):
-            return True
+        for m in re.finditer(r"\b" + re.escape(form) + r"\b", norm):
+            # An explicit 4-digit year *immediately* following the month/day is
+            # authoritative for THIS mention. If it differs from the target
+            # year, this occurrence is a different-year date (e.g. a
+            # "September 15, 2025" replay reference) — skip it, so a stray
+            # target-year token elsewhere within the proximity window can't
+            # ground it. (A matching trailing year would already have grounded
+            # via a with_year form above.) With no adjacent year we fall back to
+            # the proximity heuristic, as before.
+            trailing = re.match(r"\s+(\d{4})\b", norm[m.end():])
+            if trailing and int(trailing.group(1)) != dt.year:
+                continue
+            if _year_near(norm, dt.year, m.span()):
+                return True
     return False
 
 

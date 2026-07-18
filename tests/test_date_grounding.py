@@ -41,6 +41,25 @@ def test_year_required_for_monthday_only_mention():
     assert date_grounded_in_text("2026-09-15", "around September 15 sometime") is False
 
 
+def test_explicit_trailing_year_overrides_stray_nearby_year():
+    # A month/day mention that carries its OWN explicit (different) year must not
+    # ground just because the target year appears nearby in another phrase.
+    # Here "September 15, 2025" is a past replay reference; the stray "2026" in
+    # "its 2026 Investor Day" sits within the proximity window but must NOT
+    # ground 2026-09-15. (Guards the documented month/day rule, Codex High #2.)
+    text = (
+        "Acme announced its 2026 Investor Day. Replay materials from last "
+        "year's Investor Day on September 15, 2025 are available."
+    )
+    assert date_grounded_in_text("2026-09-15", text) is False
+    # Sanity: the SAME text with the correct trailing year does ground.
+    text_ok = (
+        "Acme announced its 2026 Investor Day. Details for the Investor Day "
+        "on September 15, 2026 are available."
+    )
+    assert date_grounded_in_text("2026-09-15", text_ok) is True
+
+
 def test_year_leading_phrase_grounds_monthday():
     # Common filing phrasing: year leads the event name, date follows.
     assert date_grounded_in_text(
