@@ -58,12 +58,19 @@ def due_reminders(conn: sqlite3.Connection, today_iso: str) -> list[tuple]:
     today = date.fromisoformat(today_iso)
     type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
     status_placeholders = ",".join(["?"] * len(ELIGIBLE_STATUSES))
+    # Join the primary source so the reminder ping can carry the announcement
+    # link, same as the confirmation ping.
     rows = conn.execute(
-        f"SELECT * FROM events "
-        f"WHERE status IN ({status_placeholders}) "
-        f"AND event_type IN ({type_placeholders}) "
-        f"AND start_date IS NOT NULL AND date_imprecise = 0 "
-        f"ORDER BY start_date ASC",
+        f"SELECT e.*, "
+        f" (SELECT s.source_type FROM event_sources s "
+        f"   WHERE s.event_id = e.id ORDER BY s.id ASC LIMIT 1) AS source_type, "
+        f" (SELECT s.source_url FROM event_sources s "
+        f"   WHERE s.event_id = e.id ORDER BY s.id ASC LIMIT 1) AS source_url "
+        f"FROM events e "
+        f"WHERE e.status IN ({status_placeholders}) "
+        f"AND e.event_type IN ({type_placeholders}) "
+        f"AND e.start_date IS NOT NULL AND e.date_imprecise = 0 "
+        f"ORDER BY e.start_date ASC",
         (*ELIGIBLE_STATUSES, *sorted(PUSHABLE_EVENT_TYPES)),
     ).fetchall()
 

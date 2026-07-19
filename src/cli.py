@@ -282,11 +282,19 @@ def _fanout_candidates(conn, today_iso: str) -> list:
     status_placeholders = ",".join(["?"] * len(CONFIRMED_STATUSES))
     type_placeholders = ",".join(["?"] * len(PUSHABLE_EVENT_TYPES))
     pushable_types = sorted(PUSHABLE_EVENT_TYPES)
+    # Join the primary (oldest) source so the Slack ping can render an
+    # announcement link (event_sources.source_url). e.* keeps every column the
+    # fan-out to Calendar/TickTick relies on.
     return conn.execute(
-        f"SELECT * FROM events WHERE status IN ({status_placeholders}) "
-        f"AND event_type IN ({type_placeholders}) "
-        "AND start_date IS NOT NULL AND start_date >= ? "
-        "ORDER BY start_date ASC",
+        f"SELECT e.*, "
+        f" (SELECT s.source_type FROM event_sources s "
+        f"   WHERE s.event_id = e.id ORDER BY s.id ASC LIMIT 1) AS source_type, "
+        f" (SELECT s.source_url FROM event_sources s "
+        f"   WHERE s.event_id = e.id ORDER BY s.id ASC LIMIT 1) AS source_url "
+        f"FROM events e WHERE e.status IN ({status_placeholders}) "
+        f"AND e.event_type IN ({type_placeholders}) "
+        "AND e.start_date IS NOT NULL AND e.start_date >= ? "
+        "ORDER BY e.start_date ASC",
         (*CONFIRMED_STATUSES, *pushable_types, today_iso),
     ).fetchall()
 
