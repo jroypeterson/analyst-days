@@ -1,33 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-07-13T15:13:00Z",
+  "generated_at": "2026-07-20T14:34:45Z",
   "window": {
-    "start": "2026-07-12",
-    "end": "2026-09-11"
+    "start": "2026-07-20",
+    "end": "2026-09-18"
   },
   "counts": {
-    "events": 6
+    "events": 3
   },
   "events": [
-    {
-      "ticker": "ADI",
-      "company_name": "Analog Devices Inc",
-      "event_type": "investor_day",
-      "start_date": "2026-07-14",
-      "end_date": null,
-      "multi_day": false,
-      "status": "discovered"
-    },
-    {
-      "ticker": "HOOD",
-      "company_name": "Robinhood Markets Inc",
-      "event_type": "conference",
-      "start_date": "2026-07-29",
-      "end_date": null,
-      "multi_day": false,
-      "status": "discovered"
-    },
     {
       "ticker": "KKR",
       "company_name": "KKR & Co Inc",
@@ -45,15 +27,6 @@
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
-    },
-    {
-      "ticker": "EHC",
-      "company_name": "Encompass Health Corp",
-      "event_type": "conference",
-      "start_date": "2026-08-06",
-      "end_date": null,
-      "multi_day": false,
-      "status": "discovered"
     },
     {
       "ticker": "WAY",
