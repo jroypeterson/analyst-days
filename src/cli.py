@@ -681,6 +681,14 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
     if rerr:
         status = "partial"
         warnings.append(f"{rerr} reminder post error(s)")
+    if tickers == 0:
+        # Abnormal-counts rule (HEALTH_REPORTING.md §4.2): the Phase-1 universe
+        # is ~22 names, so a 0-ticker scan is never a quiet week — it means the
+        # CM watchlist load failed or the discovery phase never stashed its
+        # summary. Without this, that failure heartbeats `ok · 0 tickers`.
+        status = "partial"
+        warnings.append("0 tickers scanned — CM watchlist load failed "
+                        "or discovery phase did not run")
 
     hb = health_mod.Heartbeat(
         status=status,

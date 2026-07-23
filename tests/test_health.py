@@ -77,3 +77,39 @@ def test_ci_without_webhook_raises(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     with pytest.raises(RuntimeError):
         health.post_health(_hb())
+
+
+def test_weekly_status_zero_tickers_is_partial(monkeypatch):
+    """Abnormal-counts rule (HEALTH_REPORTING.md 4.2): a 0-ticker scan means
+    the watchlist load failed / discovery never ran -- never `ok`."""
+    import argparse
+
+    from src import cli as cli_mod
+
+    captured = {}
+    monkeypatch.setattr(cli_mod.health_mod, "post_health",
+                        lambda hb: captured.setdefault("hb", hb))
+    args = argparse.Namespace(health_discover={"tickers_scanned": 0},
+                              health_remind={}, health_digest={})
+    cli_mod._post_weekly_health(args, datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc))
+    hb = captured["hb"]
+    assert hb.status == "partial"
+    assert any("0 tickers scanned" in w for w in hb.warnings)
+
+
+def test_weekly_status_normal_scan_stays_ok(monkeypatch):
+    import argparse
+
+    from src import cli as cli_mod
+
+    captured = {}
+    monkeypatch.setattr(cli_mod.health_mod, "post_health",
+                        lambda hb: captured.setdefault("hb", hb))
+    args = argparse.Namespace(
+        health_discover={"tickers_scanned": 22, "edgar_hits_total": 3,
+                         "events_inserted": 1},
+        health_remind={"t30": 1}, health_digest={})
+    cli_mod._post_weekly_health(args, datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc))
+    hb = captured["hb"]
+    assert hb.status == "ok"
+    assert not hb.warnings
