@@ -113,7 +113,9 @@ def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
 
     csv_path = cm_root / "exports" / "watchlist.csv"
     out: list[Ticker] = []
-    with csv_path.open(newline="", encoding="utf-8") as f:
+    # utf-8-sig: a BOM on CM's export otherwise makes the first field "﻿Ticker"
+    # and every Sector (JP) row silently fails to match.
+    with csv_path.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for row in reader:
             if (row.get("Core") or "").strip().upper() == "Y":
