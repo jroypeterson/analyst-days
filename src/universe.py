@@ -20,18 +20,25 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
-_ACCEPTED_CM_SCHEMA = frozenset({3, 4})  # exports/watchlist_status.json schema_version
-# TEMPORARY dual-accept window for the v4 dual-ISIN release (2026-07-28);
-# NARROW TO {4} in phase 4. CM publishes 3 today and flips to 4 in the same
-# release, so both must be green while the flip is in flight.
+_ACCEPTED_CM_SCHEMA = frozenset({3})  # exports/watchlist_status.json schema_version
+# CM exports schema. Adding a CSV column does NOT bump this (the `LEI` and
+# `IPO Date`/`Est Lockup` backfills all landed in the CSVs, and in portfolio.json
+# entry keys, with no bump); only a change to `universe_metadata.json`'s entry
+# shape does -- that is what the 2026-05-06 v3 bump was for. So new identity
+# columns arriving in watchlist.csv are expected to show up under v3, and this
+# loader reads by column name via `_row_to_ticker`, so they are inert for it.
 #
 # Bumped 2->3 on 2026-06-29 to match Coverage Manager exports schema v3
 # (sibling sa-monitor took the same bump in 565af1c on 2026-06-14). The v3
 # watchlist.csv columns this loader reads (Ticker, Company Name, Sector (JP),
 # Subsector (JP), Sub-subsector (JP), YF Sector, YF Industry, CIK, Website,
 # Country (HQ), ISIN, Core) are unchanged, so this is a pure gate bump.
-# v4 adds `ISIN (Primary Listing)` and `Country (Incorporation)`; this loader
-# reads by column name via `_row_to_ticker`, so the addition is inert for it.
+#
+# Briefly widened to {3, 4} on 2026-07-28 for an anticipated v4 bump that was
+# then disproven (see plans/identity_export_v4_release_2026-07-28.md, R1) and
+# narrowed back the same night. The frozenset form is kept deliberately: the
+# error message names the accepted set, and a real future bump is a one-line
+# change here.
 
 
 @dataclass(frozen=True)
