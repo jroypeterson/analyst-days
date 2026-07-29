@@ -61,6 +61,23 @@ def test_long_error_splits_under_section_limit():
     assert all(len(b["text"]["text"]) <= health.SLACK_SECTION_LIMIT for b in blocks)
 
 
+def test_long_error_text_splits_rather_than_truncating():
+    """Guards the rendering of the real tracebacks the weekly heartbeat now
+    carries: a >3000-char error block must SPLIT, never lose its tail."""
+    big = "\n".join(f'  File "frame{i}.py", line {i}, in phase' for i in range(300))
+    blocks, _ = health._build_blocks(_hb(status="error", error_text=big))
+    assert all(len(b["text"]["text"]) <= health.SLACK_SECTION_LIMIT for b in blocks)
+    joined = "\n".join(b["text"]["text"] for b in blocks)
+    assert "frame0.py" in joined and "frame299.py" in joined
+
+
+def test_error_block_is_suppressed_when_status_is_ok():
+    """`ok` heartbeats must not carry an error block even if error_text leaks in."""
+    blocks, _ = health._build_blocks(_hb(status="ok", error_text="stale traceback"))
+    joined = "\n".join(b["text"]["text"] for b in blocks)
+    assert "*Error:*" not in joined
+
+
 def test_local_post_without_webhook_does_not_raise(monkeypatch, tmp_path):
     monkeypatch.delenv("SLACK_WEBHOOK_STATUS_REPORTS", raising=False)
     monkeypatch.delenv("CI", raising=False)

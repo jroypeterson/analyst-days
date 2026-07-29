@@ -73,6 +73,7 @@ jobs:
         run: echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
 
       - name: Run weekly (discover -> remind -> Monday digest)
+        id: run_weekly
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
@@ -95,28 +96,51 @@ jobs:
 
       # Backstop heartbeat: the --weekly run posts its own health/v1 heartbeat
       # (writing .health/posted on success). If that sentinel is absent the run
-      # died before reaching the heartbeat, so post a generic error one so a
+      # died before reaching the heartbeat, so post an error one here so a
       # red/missing heartbeat is never silently lost. dry-run skips its own
       # heartbeat, so skip the fallback there too.
+      #
+      # HEALTH_REPORTING.md §4.1 requires an error block of the last ~20 lines,
+      # so this must not be a constant sentence -- a message identical for every
+      # abort cause tells the operator only that something broke. src/cli.py's
+      # top-level handler writes .health/crash.txt; we tail it here. Its ABSENCE
+      # is itself the third diagnostic: we died before that handler existed.
       - name: Health heartbeat fallback
         if: always() && github.event.inputs.dry_run != 'true'
         env:
           SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
           GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_WEEKLY_OUTCOME: ${{ steps.run_weekly.outcome }}
         run: |
           if [ -f .health/posted ]; then
-            echo "Heartbeat already posted — skipping fallback."; exit 0
+            echo "Heartbeat already posted - skipping fallback."; exit 0
           fi
           if [ -z "$SLACK_WEBHOOK_STATUS_REPORTS" ]; then
-            echo "No SLACK_WEBHOOK_STATUS_REPORTS — cannot post fallback heartbeat."; exit 1
+            echo "No SLACK_WEBHOOK_STATUS_REPORTS - cannot post fallback heartbeat."; exit 1
           fi
           CYCLE="$(date -u +%Y-%m-%d) weekly"
           NOW="$(date -u +'%Y-%m-%d %H:%M UTC')"
-          TEXT=":x: *analyst-days — error*  ·  health/v1\ncycle: ${CYCLE}  ·  attempt: 1\n${NOW} (workflow aborted)\nnext expected: see Monday/Friday schedule\n\n*Error:*\n\`\`\`\nRun aborted before the health/v1 heartbeat was posted. Check the GH Actions log for the failing step (likely a phase exception or import-time crash).\n\`\`\`\n\n<${GH_RUN_URL}|GH Actions run>"
+          if [ -s .health/crash.txt ]; then
+            DETAIL="$(tail -n 20 .health/crash.txt | tail -c 2400)"
+          else
+            DETAIL="No .health/crash.txt was written, so the run died BEFORE src/cli.py installed its top-level handler: an import-time crash, a dependency install failure, or a cancelled/timed-out job. Check the first failing step in the GH Actions log."
+          fi
+          jq -nc --arg cycle "$CYCLE" --arg now "$NOW" --arg outcome "${RUN_WEEKLY_OUTCOME:-unknown}" \
+                 --arg detail "$DETAIL" --arg run "$GH_RUN_URL" '
+            ( ":x: *analyst-days - error*  ·  health/v1\n"
+            + "cycle: " + $cycle + "  ·  attempt: 1\n"
+            + $now + " (workflow aborted)\n"
+            + "next expected: see Monday/Friday schedule\n"
+            + "failing step: Run weekly (outcome: " + $outcome + ")\n\n"
+            + "*Error:*\n```\n" + $detail + "\n```\n\n"
+            + "<" + $run + "|GH Actions run>"
+            ) as $t
+            | {blocks: [{type: "section", text: {type: "mrkdwn", text: $t}}],
+               text: ("analyst-days - error (" + $cycle + ") - workflow aborted")}
+          ' > /tmp/fallback_heartbeat.json
           curl -fsS -X POST "$SLACK_WEBHOOK_STATUS_REPORTS" \
             -H 'Content-Type: application/json' \
-            --data "$(jq -nc --arg t "$TEXT" --arg fb "analyst-days — error (${CYCLE}) — workflow aborted" \
-              '{blocks:[{type:"section",text:{type:"mrkdwn",text:$t}}],text:$fb}')"
+            --data @/tmp/fallback_heartbeat.json
 
       # Refresh the published exports/upcoming_events.json (sa-monitor Phase 2
       # 'Note:' enrichment fetches it via raw.githubusercontent.com). Commit-

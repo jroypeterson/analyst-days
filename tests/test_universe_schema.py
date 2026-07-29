@@ -14,7 +14,21 @@ import json
 
 import pytest
 
-from src.universe import _ACCEPTED_CM_SCHEMA, _assert_schema, load_core_watchlist
+from src.universe import (
+    _ACCEPTED_CM_SCHEMA,
+    _assert_schema,
+    load_by_sectors,
+    load_core_watchlist,
+    load_portfolio,
+)
+
+UTF8_BOM = b"\xef\xbb\xbf"
+
+
+def _prefix_bom(path):
+    """Re-write an existing export with a UTF-8 BOM, exactly as Coverage
+    Manager published `watchlist.csv` on 2026-07-27."""
+    path.write_bytes(UTF8_BOM + path.read_bytes())
 
 
 def _make_cm_root(tmp_path, schema_version, rows=None):
@@ -69,6 +83,83 @@ def test_load_returns_rows_not_just_no_crash(tmp_path):
     out = load_core_watchlist(root)
     assert len(out) == 1
     assert out[0].ticker == "IDXX"
+
+
+def test_load_survives_a_utf8_bom_on_the_header(tmp_path):
+    """The owed 2026-07-27 regression test, in one assertion.
+
+    CM published `exports/watchlist.csv` with a UTF-8 BOM, so DictReader's first
+    fieldname became "\\ufeffTicker", `_row_to_ticker`'s `row["Ticker"]` raised
+    `KeyError`, and the whole weekly run died.
+
+    `test_load_returns_rows_not_just_no_crash` above was written to catch the
+    BOM's zero-row signature, but `_make_cm_root` writes a plain-utf-8 fixture,
+    so it never exercised the BOM path. This one does.
+
+    Fails against `git show 77995b7:src/universe.py` (encoding="utf-8");
+    passes against HEAD (3df75d0, encoding="utf-8-sig").
+    """
+    root = _make_cm_root(tmp_path, 3)
+    _prefix_bom(root / "exports" / "watchlist.csv")
+
+    out = load_core_watchlist(root)
+
+    assert len(out) == 1, "a BOM must not silently zero the join"
+    assert out[0].ticker == "IDXX"
+
+
+def test_schema_gate_survives_a_bom_on_watchlist_status_json(tmp_path):
+    """A BOM here raises `JSONDecodeError: Expecting value: line 1 column 1`
+    from inside the SCHEMA GATE, which reads as "CM broke its schema" rather
+    than "encoding" -- a misleading diagnosis for the on-call operator.
+
+    Tolerant in, strict out: we still write utf-8 ourselves.
+    """
+    root = _make_cm_root(tmp_path, 3)
+    _prefix_bom(root / "exports" / "watchlist_status.json")
+
+    _assert_schema(root)  # must not raise
+
+
+def test_schema_gate_still_rejects_a_bad_version_under_a_bom(tmp_path):
+    """Tolerating the BOM must not tolerate the wrong schema."""
+    root = _make_cm_root(tmp_path, 99)
+    _prefix_bom(root / "exports" / "watchlist_status.json")
+
+    with pytest.raises(RuntimeError, match="Coverage Manager exports schema"):
+        _assert_schema(root)
+
+
+def test_position_json_survives_a_utf8_bom(tmp_path):
+    root = _make_cm_root(tmp_path, 3)
+    (root / "exports" / "portfolio.json").write_text(
+        json.dumps({"IDXX": {"Ticker": "IDXX", "name": "IDEXX Laboratories",
+                             "sector": "MedTech", "Core": "Y"}}),
+        encoding="utf-8",
+    )
+    _prefix_bom(root / "exports" / "portfolio.json")
+
+    out = load_portfolio(root)
+
+    assert [t.ticker for t in out] == ["IDXX"]
+
+
+def test_universe_csv_survives_a_utf8_bom(tmp_path):
+    """`load_by_sectors` reads a SECOND csv that `3df75d0` did not fix. Its BOM
+    signature is the quieter one: the `Sector (JP)` filter still matches, so it
+    returns rows -- until the BOM lands on the first column and `row["Ticker"]`
+    raises, or the first column IS the filter column and it returns zero."""
+    root = _make_cm_root(tmp_path, 3)
+    (root / "exports" / "universe.csv").write_text(
+        "Ticker,Company Name,Sector (JP),ISIN,Core\n"
+        "IDXX,IDEXX Laboratories,MedTech,US45168D1046,Y\n",
+        encoding="utf-8",
+    )
+    _prefix_bom(root / "exports" / "universe.csv")
+
+    out = load_by_sectors(["MedTech"], root)
+
+    assert [t.ticker for t in out] == ["IDXX"]
 
 
 def test_tolerates_extra_identity_columns_without_a_bump(tmp_path):

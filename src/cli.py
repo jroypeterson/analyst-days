@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import traceback
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -56,6 +57,54 @@ from src import health as health_mod
 
 
 CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
+
+# The three --weekly phases, in run order. Named once so the isolation driver
+# and the "phases not reached" diagnostic cannot drift apart.
+WEEKLY_PHASES = ("discover", "remind", "digest")
+
+# HEALTH_REPORTING.md 4.1: the error block is "a code block, last ~20 lines".
+ERROR_TAIL_LINES = 20
+
+# Breadcrumb for an abort that never reached a heartbeat. Read by the
+# `Health heartbeat fallback` step in both workflows (`tail -n 20`), which
+# otherwise has only a constant sentence to post. `.health/` is gitignored.
+CRASH_PATH = Path(".health") / "crash.txt"
+
+
+def _ascii(text: object) -> str:
+    """Render arbitrary data ASCII-safe for a console / log / Slack payload.
+
+    Sanitizing the format string is not enough -- the DATA is what carries the
+    non-ASCII here. The 2026-07-27 abort's own traceback ends in
+    `KeyError: '\\ufeffTicker'`, and printing that to a cp1252 console raises
+    UnicodeEncodeError, killing the process before it can report anything.
+    `backslashreplace` also keeps the escape visible, which is the diagnosis.
+    """
+    return str(text).encode("ascii", "backslashreplace").decode("ascii")
+
+
+def _write_crash_breadcrumb() -> None:
+    """Persist the active traceback so the workflow's `if: always()` fallback
+    can post real diagnostics instead of a fixed sentence.
+
+    Best-effort by design: a failure writing the breadcrumb must never mask the
+    original exception that we are on our way to re-raising.
+    """
+    try:
+        CRASH_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CRASH_PATH.write_text(_ascii(traceback.format_exc()), encoding="utf-8")
+        print(f"[crash] wrote {CRASH_PATH}", file=sys.stderr)
+    except Exception as e:  # noqa: BLE001 -- must not mask the real failure
+        print(f"[crash] could not write {CRASH_PATH}: {e!r}", file=sys.stderr)
+
+
+def _clear_crash_breadcrumb() -> None:
+    """Drop a breadcrumb left by a previous local run -- a stale crash.txt is a
+    false diagnosis. (CI checks out fresh, so this is local hygiene.)"""
+    try:
+        CRASH_PATH.unlink(missing_ok=True)
+    except OSError:
+        pass
 
 
 def _utcnow() -> str:
@@ -615,6 +664,26 @@ def cmd_health_test(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_phase(name: str, fn, args: argparse.Namespace,
+               failures: list[tuple[str, str]]) -> int:
+    """Run one weekly phase in isolation. Returns its rc, or 1 if it raised.
+
+    This is the MECHANISM behind cmd_weekly's isolation promise. Calling a
+    phase bare handles its RETURN CODE, not an EXCEPTION -- which is how a
+    `KeyError` inside cmd_discover took out cmd_remind, cmd_monday_digest and
+    the health heartbeat on 2026-07-27. The traceback is recorded (not
+    swallowed) so the heartbeat can name the phase and carry its tail.
+    """
+    try:
+        return int(fn(args) or 0)
+    except Exception:  # noqa: BLE001 -- isolation is the point; recorded below
+        tb = traceback.format_exc()
+        failures.append((name, tb))
+        print(f"PHASE FAILED: {name}", file=sys.stderr)
+        print(_ascii(tb), file=sys.stderr)
+        return 1
+
+
 def cmd_weekly(args: argparse.Namespace) -> int:
     """Cron entry point: discover -> remind -> Monday digest, in sequence.
 
@@ -623,27 +692,47 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     does NOT skip the rest, so a flaky discovery can't suppress reminders or
     the digest. Returns non-zero if ANY phase reported a failure, so the
     workflow's if: failure() alarm + email backup fire.
+
+    Enforced by tests/test_cli_weekly_isolation.py — this docstring used to be
+    the only place the promise existed.
     """
     start = datetime.now(timezone.utc)
     args.health_discover = {}
     args.health_remind = {}
     args.health_digest = {}
+    failures: list[tuple[str, str]] = []
+    rcs: dict[str, int] = {}
+    args.health_phase_errors = failures
+    args.health_phase_rcs = rcs
 
-    print("===== WEEKLY: discover =====")
-    rc_discover = cmd_discover(args)
-    print("\n===== WEEKLY: remind =====")
-    rc_remind = cmd_remind(args)
-    print("\n===== WEEKLY: Monday digest =====")
-    rc_digest = cmd_monday_digest(args)
+    try:
+        print("===== WEEKLY: discover =====")
+        rcs["discover"] = _run_phase("discover", cmd_discover, args, failures)
+        print("\n===== WEEKLY: remind =====")
+        rcs["remind"] = _run_phase("remind", cmd_remind, args, failures)
+        print("\n===== WEEKLY: Monday digest =====")
+        rcs["digest"] = _run_phase("digest", cmd_monday_digest, args, failures)
+    finally:
+        # The heartbeat lives in a `finally` so it fires even when the
+        # isolation driver ITSELF breaks -- otherwise the one failure mode the
+        # isolation cannot catch is also the one with no diagnostics.
+        missed = [p for p in WEEKLY_PHASES if p not in rcs]
+        if missed:
+            tb = traceback.format_exc().rstrip()
+            if tb.startswith("NoneType"):  # not unwinding an exception
+                tb = "(no active exception)"
+            failures.append(
+                ("weekly-driver",
+                 f"{tb}\nphases not reached: {', '.join(missed)}")
+            )
+        print("\n===== WEEKLY done ("
+              + " ".join(f"{p}={rcs.get(p, 'not-reached')}" for p in WEEKLY_PHASES)
+              + ") =====")
+        # Skip on dry-run — no external writes.
+        if not args.dry_run:
+            _post_weekly_health(args, start)
 
-    overall = rc_discover or rc_remind or rc_digest
-    print(f"\n===== WEEKLY done (discover={rc_discover} remind={rc_remind} "
-          f"digest={rc_digest}) =====")
-
-    # Health heartbeat to #status-reports (skip on dry-run — no external writes).
-    if not args.dry_run:
-        _post_weekly_health(args, start)
-    return overall
+    return 1 if (failures or any(rcs.values())) else 0
 
 
 def _next_expected_weekday(target_weekday: int) -> str:
@@ -654,12 +743,36 @@ def _next_expected_weekday(target_weekday: int) -> str:
     return (today + timedelta(days=delta)).isoformat()
 
 
+def _phase_error_text(phase_errors: list[tuple[str, str]]) -> str:
+    """Render collected phase tracebacks into the heartbeat's error block.
+
+    HEALTH_REPORTING.md 4.1: code block, last ~20 lines. ASCII-sanitized --
+    the BOM that caused the 2026-07-27 abort is IN the traceback text.
+    """
+    parts: list[str] = []
+    for name, tb in phase_errors:
+        lines = _ascii(tb).rstrip().splitlines()
+        tail = lines[-ERROR_TAIL_LINES:] if lines else ["(empty traceback)"]
+        parts.append("\n".join([f"PHASE FAILED: {name}"] + tail))
+    return "\n\n".join(parts)
+
+
+def _phase_error_summary(tb: str) -> str:
+    """One ASCII line naming the exception, for the warnings list."""
+    lines = [ln for ln in _ascii(tb).rstrip().splitlines() if ln.strip()]
+    return lines[-1].strip() if lines else "(no traceback)"
+
+
 def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
     """Build + post the weekly health/v1 heartbeat from the stashed phase
     summaries. Raises (under CI) if the Slack post fails — see health.post_health."""
     d = getattr(args, "health_discover", {}) or {}
     r = getattr(args, "health_remind", {}) or {}
     g = getattr(args, "health_digest", {}) or {}
+    phase_errors: list[tuple[str, str]] = list(
+        getattr(args, "health_phase_errors", []) or []
+    )
+    phase_rcs: dict[str, int] = dict(getattr(args, "health_phase_rcs", {}) or {})
 
     derr = int(d.get("errors", 0))
     rerr = int(r.get("errors", 0))
@@ -690,6 +803,27 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
         warnings.append("0 tickers scanned — CM watchlist load failed "
                         "or discovery phase did not run")
 
+    # A phase that reported failure by RETURN CODE is degraded, not aborted.
+    # Without this, a phase returning 1 while stashing no error counters
+    # heartbeats `ok` — the same truth defect as the 0-ticker case.
+    rc_failed = [p for p in WEEKLY_PHASES if phase_rcs.get(p)]
+    raised = {name for name, _ in phase_errors}
+    rc_only = [p for p in rc_failed if p not in raised]
+    if rc_only:
+        status = "partial"
+        warnings.append(
+            "phase(s) reported failure: " + ", ".join(rc_only)
+        )
+
+    # A phase EXCEPTION outranks every `partial` above: the run did not merely
+    # degrade, a unit of it aborted. This is what `error` is for.
+    error_text = ""
+    if phase_errors:
+        status = "error"
+        error_text = _phase_error_text(phase_errors)
+        for name, tb in phase_errors:
+            warnings.append(f"phase '{name}' raised: {_phase_error_summary(tb)}")
+
     hb = health_mod.Heartbeat(
         status=status,
         cycle=f"{start.date().isoformat()} weekly",
@@ -702,6 +836,7 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
             f"{reminders_sent} reminders · {derr + rerr} errors",
         ],
         warnings=warnings,
+        error_text=error_text,
         run_link=health_mod.run_link_from_env(),
     )
     health_mod.post_health(hb)
@@ -878,6 +1013,7 @@ def cmd_retire(args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
+    _clear_crash_breadcrumb()
     args = build_parser().parse_args(argv)
     if args.discover:
         return cmd_discover(args)
@@ -911,4 +1047,15 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Any abort that never reaches a heartbeat leaves `.health/crash.txt` for
+    # the workflows' `if: always()` fallback to tail. Three distinguishable
+    # shapes result: a phase exception (caught by _run_phase -> a real
+    # heartbeat), a post-heartbeat crash (`.health/posted` present, fallback
+    # skips), and a pre-main crash (no crash.txt -- the generic message, which
+    # is now itself the diagnosis: we died before this handler was installed).
+    try:
+        _rc = main()
+    except BaseException:  # noqa: BLE001 -- breadcrumb, then re-raise verbatim
+        _write_crash_breadcrumb()
+        raise
+    sys.exit(_rc)

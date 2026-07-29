@@ -204,9 +204,31 @@ fleet-wide.
   Fri→Mon so a reader spots a skipped run.
 - **Status:** `ok` = clean; `partial` = ran + primary output usable but a
   sub-unit degraded (discovery source errors, reminder post errors, email
-  digest failed, or Friday DB-not-restored); `error` = run aborted before the
-  heartbeat (posted by the workflow's `if: always()` fallback step, which
-  checks the `.health/posted` sentinel).
+  digest failed, Friday DB-not-restored, 0 tickers scanned, or a phase that
+  reported failure by return code without raising); `error` = a `--weekly`
+  phase raised an exception, or the run aborted before the heartbeat.
+- **Phase isolation (`--weekly`).** `_run_phase` wraps each of discover /
+  remind / digest, catches `Exception`, records `(phase, traceback)`, and lets
+  the next phase run — a bare call handles a phase's *return code*, not an
+  *exception*, which is how a `KeyError` in discover took out the entire
+  2026-07-27 run **and** its heartbeat. `_post_weekly_health` is called from a
+  `finally`, so the heartbeat fires even if the isolation driver itself
+  breaks, and it carries `error_text` = the failing phase name + the last
+  ~20 traceback lines (`ERROR_TAIL_LINES`), ASCII-sanitized — the BOM that
+  caused that abort is *inside* the traceback text. Pinned by
+  `tests/test_cli_weekly_isolation.py`.
+- **Three distinguishable failure shapes**, not one:
+  1. *phase exception* — caught by `_run_phase`; a real `error` heartbeat from
+     the CLI naming the phase, with the traceback tail.
+  2. *post-heartbeat crash* — `.health/posted` exists, so the workflow
+     fallback stands down; the CLI's own heartbeat already told the story.
+  3. *pre-`main` crash* — no `.health/crash.txt`, because `src/cli.py`'s
+     top-level `except BaseException` never got installed. The fallback's
+     generic message is now itself the diagnosis (import-time crash, dependency
+     install failure, cancelled/timed-out job).
+  Anything else that aborts mid-run writes `.health/crash.txt`; both workflows'
+  `Health heartbeat fallback` steps `tail -n 20` it into the Slack error block
+  instead of posting a constant sentence (HEALTH_REPORTING.md §4.1).
 - **Counters (weekly):** tickers·hits · new·merged·fanned · reminders·errors.
 - **Secret:** `SLACK_WEBHOOK_STATUS_REPORTS` (shared earnings-agent webhook).
   Verify with `--health-test`. Locally (no webhook, not CI) the post logs +

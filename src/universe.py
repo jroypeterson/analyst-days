@@ -78,7 +78,11 @@ def _assert_schema(cm_root: Path) -> None:
         # Fall back to the universe status file's schema_version, which moves
         # in lockstep with the watchlist's.
         status_path = cm_root / "exports" / "universe_status.json"
-    status = json.loads(status_path.read_text(encoding="utf-8"))
+    # utf-8-sig: a BOM here raises `JSONDecodeError: Expecting value: line 1
+    # column 1` from inside the schema gate, which reads as "CM broke its
+    # schema" rather than "encoding" -- a misleading diagnosis. Tolerant in,
+    # strict out (we still write utf-8 ourselves).
+    status = json.loads(status_path.read_text(encoding="utf-8-sig"))
     sv = int(status.get("schema_version", -1))
     if sv not in _ACCEPTED_CM_SCHEMA:
         accepted = ", ".join(f"v{v}" for v in sorted(_ACCEPTED_CM_SCHEMA))
@@ -143,7 +147,7 @@ def _load_position_json(cm_root: Path, filename: str) -> list[Ticker]:
     path = cm_root / "exports" / filename
     if not path.exists():
         return []
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8-sig"))  # tolerate a CM BOM
     if not isinstance(data, dict):
         return []
     out: list[Ticker] = []
@@ -193,7 +197,9 @@ def load_by_sectors(
     wanted = {s.strip() for s in sectors_jp}
     csv_path = cm_root / "exports" / "universe.csv"
     out: list[Ticker] = []
-    with csv_path.open(newline="", encoding="utf-8") as f:
+    # utf-8-sig for the same reason as load_core_watchlist above: 3df75d0 fixed
+    # only that one call site, and this reader has the identical BOM exposure.
+    with csv_path.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for row in reader:
             if (row.get("Sector (JP)") or "").strip() in wanted:
