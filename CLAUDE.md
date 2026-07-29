@@ -222,6 +222,14 @@ fleet-wide.
      the CLI naming the phase, with the traceback tail.
   2. *post-heartbeat crash* — `.health/posted` exists, so the workflow
      fallback stands down; the CLI's own heartbeat already told the story.
+     ⚠ **One case this oversells** (adversarial review, 2026-07-29): if the
+     crash is in a *workflow step after* the phases — the export commit-back or
+     the DB save — an `ok` heartbeat has already gone out, so **`#status-reports`
+     alone is indistinguishable from a clean run**. The red signal still lands,
+     but only in `#analyst-days` and the SMTP backup via `if: failure()`. That
+     is within the heartbeat's declared scope (it reports on the weekly phases,
+     not on the job's post-processing) and it is still alarmed — but do not read
+     a green `#status-reports` as proof the whole job succeeded.
   3. *pre-`main` crash* — no `.health/crash.txt`, because `src/cli.py`'s
      top-level `except BaseException` never got installed. The fallback's
      generic message is now itself the diagnosis (import-time crash, dependency
