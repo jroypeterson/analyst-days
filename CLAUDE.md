@@ -120,7 +120,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
 | `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` | Reused (earnings_agent / 13F) | Out-of-band failure email backup (inline SMTP in both workflows' `if: failure()` — fires when Slack itself is the failure point). Sends to `jroypeterson+alerts@gmail.com`. Opt-in: unset → no-op. |
 
-CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot. The Coverage Manager exports schema gate is **v3** (`CM_WATCHLIST_SCHEMA_VERSION` in `src/universe.py`; bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c).
+CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot. The Coverage Manager exports schema gate is `_ACCEPTED_CM_SCHEMA` in `src/universe.py` — currently a **TEMPORARY `{3, 4}` window** for the CM v4 dual-ISIN release (phase 1, 2026-07-28), to be **narrowed to `{4}` in phase 4**. It was a scalar `CM_WATCHLIST_SCHEMA_VERSION = 3` before that (bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c).
 
 ## Local `.env`
 

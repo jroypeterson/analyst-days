@@ -20,12 +20,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
-CM_WATCHLIST_SCHEMA_VERSION = 3  # exports/watchlist_status.json schema_version
+_ACCEPTED_CM_SCHEMA = frozenset({3, 4})  # exports/watchlist_status.json schema_version
+# TEMPORARY dual-accept window for the v4 dual-ISIN release (2026-07-28);
+# NARROW TO {4} in phase 4. CM publishes 3 today and flips to 4 in the same
+# release, so both must be green while the flip is in flight.
+#
 # Bumped 2->3 on 2026-06-29 to match Coverage Manager exports schema v3
 # (sibling sa-monitor took the same bump in 565af1c on 2026-06-14). The v3
 # watchlist.csv columns this loader reads (Ticker, Company Name, Sector (JP),
 # Subsector (JP), Sub-subsector (JP), YF Sector, YF Industry, CIK, Website,
 # Country (HQ), ISIN, Core) are unchanged, so this is a pure gate bump.
+# v4 adds `ISIN (Primary Listing)` and `Country (Incorporation)`; this loader
+# reads by column name via `_row_to_ticker`, so the addition is inert for it.
 
 
 @dataclass(frozen=True)
@@ -67,10 +73,11 @@ def _assert_schema(cm_root: Path) -> None:
         status_path = cm_root / "exports" / "universe_status.json"
     status = json.loads(status_path.read_text(encoding="utf-8"))
     sv = int(status.get("schema_version", -1))
-    if sv != CM_WATCHLIST_SCHEMA_VERSION:
+    if sv not in _ACCEPTED_CM_SCHEMA:
+        accepted = ", ".join(f"v{v}" for v in sorted(_ACCEPTED_CM_SCHEMA))
         raise RuntimeError(
-            f"Coverage Manager exports schema is v{sv}, expected "
-            f"v{CM_WATCHLIST_SCHEMA_VERSION}. Update analyst-days "
+            f"Coverage Manager exports schema is v{sv}, expected one of "
+            f"{accepted}. Update analyst-days "
             "to match the new schema before continuing."
         )
 
