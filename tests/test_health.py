@@ -13,6 +13,19 @@ import pytest
 from src import health
 
 
+@pytest.fixture(autouse=True)
+def _production_shape(monkeypatch):
+    """Pin these tests to the CI/production heartbeat shape.
+
+    Added 2026-07-29 with the local-run marker: a non-CI heartbeat now carries a
+    `LOCAL` marker and a `[LOCAL]` fallback suffix, so this module's exact-string
+    assertions would otherwise pass or fail depending on whether the suite ran on
+    a laptop or in Actions. The local shape is covered by
+    `test_health_local_run_marker.py`.
+    """
+    monkeypatch.setenv("CI", "true")
+
+
 def _hb(**overrides):
     base = dict(
         status="ok",

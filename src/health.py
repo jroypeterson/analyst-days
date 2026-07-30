@@ -39,6 +39,21 @@ SENTINEL_PATH = HEALTH_DIR / "posted"
 Status = Literal["ok", "partial", "error"]
 _STATUS_EMOJI = {"ok": ":white_check_mark:", "partial": ":warning:", "error": ":x:"}
 
+# Both production paths for this project are GitHub Actions workflows
+# (monday.yml, friday.yml), so a real-mode heartbeat posted with no CI marker in
+# the environment is by definition a developer's local run. That is NOT true
+# fleet-wide -- sigma-alert and portfolio_daily post from local Windows
+# scheduled tasks (HEALTH_REPORTING.md §4.8) -- which is why this lives here and
+# not in the shared spec.
+_LOCAL_RUN_NOTE = (
+    ":desktop_computer: *LOCAL DEV RUN* -- posted from a dev machine, not the "
+    "scheduled CI lane. Do NOT read this as a production failure."
+)
+
+
+def _is_ci() -> bool:
+    return bool(os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"))
+
 
 @dataclass
 class Heartbeat:
@@ -92,14 +107,18 @@ def _split_long_section(text: str) -> list[dict]:
 
 def _build_blocks(hb: Heartbeat) -> tuple[list[dict], str]:
     emoji = _STATUS_EMOJI[hb.status]
+    local = not _is_ci()
     header_lines = [
-        f"{emoji} *{hb.project} — {hb.status}*  ·  {TAG}",
+        f"{emoji} *{hb.project} — {hb.status}*  ·  {TAG}"
+        + ("  ·  :desktop_computer: LOCAL" if local else ""),
         f"cycle: {hb.cycle}  ·  attempt: {hb.attempt}",
         f"{_fmt_utc(hb.start_time)} → {_fmt_utc(hb.end_time)} "
         f"({_duration(hb.start_time, hb.end_time)})",
         f"next expected: {hb.next_expected}",
     ]
     body_parts: list[str] = ["\n".join(header_lines)]
+    if local:
+        body_parts.append(_LOCAL_RUN_NOTE)
     if hb.counters:
         body_parts.append("*Counters:* " + " · ".join(hb.counters))
     if hb.artifacts:
@@ -113,7 +132,10 @@ def _build_blocks(hb: Heartbeat) -> tuple[list[dict], str]:
     if hb.run_link:
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": hb.run_link}})
 
-    fallback = f"{hb.project} — {hb.status} ({hb.cycle})"
+    # The fallback string is what Slack shows in notifications and previews, so
+    # the marker has to be here too -- a reader triaging from a phone push
+    # notification is exactly the reader who would otherwise chase a phantom.
+    fallback = f"{hb.project} — {hb.status} ({hb.cycle})" + (" [LOCAL]" if local else "")
     return blocks, fallback
 
 
