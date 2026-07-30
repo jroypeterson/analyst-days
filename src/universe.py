@@ -20,7 +20,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
-_ACCEPTED_CM_SCHEMA = frozenset({3})  # exports/watchlist_status.json schema_version
+_ACCEPTED_CM_SCHEMA = frozenset({3, 4})  # v4 (2026-07-30): universe_metadata.json
+# is keyed by the RAW ticker instead of a suffix-stripped one. `DIA.MI` was published
+# as `DIA`, which broke `metadata[row["Ticker"]]` for 183 of 1,096 rows and silently
+# dropped Rogers Corporation, since `ROG` and `ROG.SW` collided. Both versions are
+# accepted so this repo works either side of CM republishing.  # exports/watchlist_status.json schema_version
 # CM exports schema. Adding a CSV column does NOT bump this (the `LEI` and
 # `IPO Date`/`Est Lockup` backfills all landed in the CSVs, and in portfolio.json
 # entry keys, with no bump); only a change to `universe_metadata.json`'s entry
