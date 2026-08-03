@@ -1,24 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-07-20T14:34:45Z",
+  "generated_at": "2026-08-03T15:17:37Z",
   "window": {
-    "start": "2026-07-20",
-    "end": "2026-09-18"
+    "start": "2026-08-03",
+    "end": "2026-10-02"
   },
   "counts": {
     "events": 3
   },
   "events": [
-    {
-      "ticker": "KKR",
-      "company_name": "KKR & Co Inc",
-      "event_type": "conference",
-      "start_date": "2026-07-30",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "FMS",
       "company_name": "Fresenius Medical Care AG",
@@ -33,6 +24,15 @@
       "company_name": "Waystar Holding Corp",
       "event_type": "investor_day",
       "start_date": "2026-08-25",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "CI",
+      "company_name": "Cigna Group",
+      "event_type": "investor_day",
+      "start_date": "2026-09-30",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
