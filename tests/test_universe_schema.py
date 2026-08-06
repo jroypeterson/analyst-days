@@ -52,17 +52,48 @@ def _make_cm_root(tmp_path, schema_version, rows=None):
 
 
 def test_accepts_v3(tmp_path):
-    """v3 is what CM publishes, and there is no bump coming."""
+    """v3 is still accepted; CM bumped to v4 on 2026-07-30 and both are in the set."""
     _assert_schema(_make_cm_root(tmp_path, 3))
 
 
-@pytest.mark.parametrize("bad", [2, 4, 5, 99])
+def test_accepts_v4(tmp_path):
+    """CM really did ship v4 on 2026-07-30 (weekly_universe.py EXPORTS_SCHEMA_VERSION = 4)."""
+    _assert_schema(_make_cm_root(tmp_path, 4))
+
+
+def test_accepted_set_covers_what_cm_actually_emits():
+    """Pin the set against CM's own constant, not against a note in a plan file.
+
+    THIRD instance of the same stale note in one day (2026-08-05): exec_interviews and
+    earnings_kpi carried word-for-word the same "v4 was disproven on 07-28" comment. CM
+    shipped v4 on 07-30, two days later, so all three were asserting a pre-bump world.
+    earnings_kpi's copy CRASHED its lane; this one only reddened a test because the
+    constant here had already been widened -- the CONSTANT was fixed and the TEST was not,
+    which is exactly what a fleet sweep over constants alone will miss.
+    """
+    import re
+    from pathlib import Path
+    cm = Path(__file__).resolve().parents[2] / "Coverage Manager" / "weekly_universe.py"
+    if not cm.exists():
+        pytest.skip("Coverage Manager is a Dropbox sibling; absent in this checkout")
+    m = re.search(r"^EXPORTS_SCHEMA_VERSION\s*=\s*(\d+)",
+                  cm.read_text(encoding="utf-8"), re.M)
+    assert m, "could not read EXPORTS_SCHEMA_VERSION from Coverage Manager"
+    live = int(m.group(1))
+    assert live in _ACCEPTED_CM_SCHEMA, (
+        f"Coverage Manager now emits schema_version={live}; _ACCEPTED_CM_SCHEMA is "
+        f"{sorted(_ACCEPTED_CM_SCHEMA)}. Widen it after confirming the export "
+        f"shape is readable, and remove {live} from the reject list below.")
+
+
+@pytest.mark.parametrize("bad", [2, 5, 99])
 def test_rejects_versions_outside_the_accepted_set(tmp_path, bad):
     """Loud failure outside the accepted set is the whole point of the pin.
 
-    `4` is in this list deliberately: it was briefly ACCEPTED on 2026-07-28 in
-    anticipation of a CM bump that was then disproven. An unannounced v4 must
-    stop the run like any other unknown version.
+    `4` was in this list until 2026-08-05, on a note saying a v4 bump floated on 07-28 had
+    been "disproven". CM shipped v4 on 07-30. A version listed here is a claim about a
+    SIBLING repo's CURRENT output and expires whenever that repo ships -- check the
+    artifact before adding one.
     """
     with pytest.raises(RuntimeError, match="Coverage Manager exports schema"):
         _assert_schema(_make_cm_root(tmp_path, bad))

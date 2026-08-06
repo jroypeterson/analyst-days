@@ -8,6 +8,41 @@ Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and
 - **Google Calendar** = published event state. Dedicated "Other Investing" calendar in `floridabusinessman@gmail.com` (split off the legacy shared earnings calendar 2026-05-28; titles prefixed with event type). Auth via the shared earnings-agent service account.
 - **SQLite (`data/events.db`)** = workflow state + historical memory + source provenance.
 
+## The conference calendar is CONFERENCE-anchored; `events` is COMPANY-anchored
+
+Two different questions, and only one of them the discovery pipeline can answer.
+
+`events.event_type='conference'` means **a covered company is presenting somewhere** —
+the classifier is explicit: *"use this only when the bundle says THIS company is
+presenting at a named external conference; do not include the conference itself if the
+company isn't presenting."* Conferences are also non-pushable, so they don't alert. That
+answers *"is ISRG at JPM?"* and cannot answer *"what are the key HC conferences this
+year?"*.
+
+The `conferences` / `conference_presentations` tables answer the second question. They
+existed with the right columns and **zero rows** until 2026-08-05; `src/seed_conferences.py`
+now populates them (board #58, JP's ask).
+
+```
+python -m src.seed_conferences --dry-run    # print, write nothing
+python -m src.seed_conferences              # upsert
+```
+
+- **Curated, not scraped, on purpose.** #58 asks for a sell-side-sourced calendar and that
+  half is genuinely hard (bank pages inconsistent, several gated). The *medical* circuit is
+  stable, published 12–18 months ahead, and is what moves the names — seeding it delivers
+  the calendar now and makes the scraper a refinement rather than a prerequisite.
+- **⚠ Dates are evidence, not memory.** Every entry carries `verified`/`unconfirmed` and a
+  verification date. **Unconfirmed conferences are NOT written** — a wrong conference date
+  silently mis-anchors every catalyst hung off it, which is the one failure a calendar must
+  not have. They print each run as work-to-do (currently TCT, SABCS, ACC, ADA, HIMSS,
+  AdvaMed, AGBT). 10 seeded, 7 outstanding.
+- **The table is STRICTER than it looks** — `name NOT NULL UNIQUE`, `start_date NOT NULL`,
+  `end_date NOT NULL`. `CREATE TABLE IF NOT EXISTS` silently no-ops against an existing
+  table, so the seeder's first version appeared to define the schema and did not: the dry
+  run claimed 17 added and the real run wrote **0**, rolling back on the NOT NULL. Respect
+  the constraint; do not relax it.
+
 ## CLI modes
 
 ```
