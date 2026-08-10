@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-08-03T15:17:37Z",
+  "generated_at": "2026-08-10T13:44:54Z",
   "window": {
-    "start": "2026-08-03",
-    "end": "2026-10-02"
+    "start": "2026-08-10",
+    "end": "2026-10-09"
   },
   "counts": {
-    "events": 3
+    "events": 4
   },
   "events": [
     {
-      "ticker": "FMS",
-      "company_name": "Fresenius Medical Care AG",
-      "event_type": "conference",
-      "start_date": "2026-08-04",
+      "ticker": "IDXX",
+      "company_name": "IDEXX Laboratories Inc",
+      "event_type": "investor_day",
+      "start_date": "2026-08-13",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "day_of"
     },
     {
       "ticker": "WAY",
@@ -27,6 +27,15 @@
       "end_date": null,
       "multi_day": false,
       "status": "reminded_30"
+    },
+    {
+      "ticker": "FMS",
+      "company_name": "Fresenius Medical Care AG",
+      "event_type": "conference",
+      "start_date": "2026-09-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
     },
     {
       "ticker": "CI",
