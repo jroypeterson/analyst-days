@@ -99,6 +99,34 @@ in `#status-reports` on every run until the secret exists.
 the seeder ever touched it: no CLI mode, no digest, no calendar. Ten verified dates sat in
 a gitignored SQLite file that nothing rendered.
 
+### Held instances — the calendar carries history (2026-08-12)
+
+The seeder was **forward-only** until then, so the entire 2025 circuit and all of H1-2026
+were missing: meetings that had already happened were recorded nowhere. 15 held instances
+were backfilled with web-verified dates (2025 ×10, H1-2026 ×5), taking the table to 25
+dated rows across 2025–2027.
+
+That is also what makes `series` load-bearing rather than decorative — `jpm-healthcare`
+now has three instances (43rd/44th/45th), `asco` has three, and the digest's rollover
+check has real data to work against.
+
+### The published page
+
+```
+python scripts/build_conference_page.py [--years 2025 2026] [--out PATH]
+```
+
+Renders `exports/conference_calendar.html` — a self-contained page published as a Claude
+Artifact at **https://claude.ai/code/artifact/cc5ff40a-6b3c-49d0-981d-9fdce2c0986e**.
+Re-run the script and re-publish **the same file path** to update that URL in place;
+publishing a different path creates a second artifact instead.
+
+The page is a *projection* of `data/events.db`, never a hand-maintained copy — that is the
+whole reason the generator exists. It marks today's position inside the current year,
+splits held from upcoming, and renders the undated backlog as an explicit "not on the
+calendar" section so the page never presents itself as the whole circuit. Artifact CSP
+blocks every external host, so all CSS is inline and no font or script is fetched.
+
 ## CLI modes
 
 ```

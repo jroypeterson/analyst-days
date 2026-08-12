@@ -78,58 +78,142 @@ class Conference:
 
 C = Conference
 
+# NOTE ON `name`: it is UNIQUE per INSTANCE, so every recurring meeting carries its
+# year in the name ("ASCO Annual Meeting 2026"), and `series` is what ties the
+# instances together. The J.P. Morgan rows use their ordinal instead (43rd/44th/45th),
+# which is already instance-unique and is how that conference is referred to.
 CONFERENCES: list[Conference] = [
-    # ---- verified 2026-08-05 by web search -------------------------------------------
+    # ---- HELD — backfilled and verified 2026-08-12 by web search ----------------------
+    # The seeder was forward-only until then, so the entire 2025 circuit and the first
+    # half of 2026 were missing: conferences that had already happened were never
+    # recorded anywhere. Held instances are what make `series` useful (year-over-year
+    # comparison, rollover detection) and are the history half of the published calendar.
+    C("J.P. Morgan 43rd Annual Healthcare Conference", "JPM 2025", "jpm-healthcare",
+      "2025-01-13", "2025-01-16", "San Francisco, CA",
+      "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
+      "verified", "2026-08-12",
+      "THE healthcare investment event of the year. Guidance resets, M&A announcements "
+      "and the year's strategic tone are set here."),
+    C("ASCO Gastrointestinal Cancers Symposium 2025", "ASCO GI 2025", "asco-gi",
+      "2025-01-23", "2025-01-25", "San Francisco, CA",
+      "https://www.asco.org/gi", "verified", "2026-08-12",
+      "GI oncology readouts — colorectal, gastric, pancreatic, HCC."),
+    C("ASCO Genitourinary Cancers Symposium 2025", "ASCO GU 2025", "asco-gu",
+      "2025-02-13", "2025-02-15", "San Francisco, CA",
+      "https://www.asco.org/gu", "verified", "2026-08-12",
+      "GU oncology — prostate, bladder, renal."),
+    C("AACR Annual Meeting 2025", "AACR 2025", "aacr",
+      "2025-04-25", "2025-04-30", "Chicago, IL",
+      "https://www.aacr.org/professionals/meetings/", "verified", "2026-08-12",
+      "Translational/early oncology. Earlier-stage than ASCO — first-in-human and "
+      "mechanism data, so it moves small/mid-cap biotech hardest."),
+    C("ASCO Annual Meeting 2025", "ASCO 2025", "asco",
+      "2025-05-30", "2025-06-03", "Chicago, IL",
+      "https://www.asco.org/annual-meeting", "verified", "2026-08-12",
+      "The largest oncology meeting. Registrational Phase 3 readouts; the single biggest "
+      "catalyst cluster of the year for oncology names."),
+    C("ESMO Congress 2025", "ESMO 2025", "esmo",
+      "2025-10-17", "2025-10-21", "Berlin, Germany",
+      "https://www.esmo.org/meeting-calendar/esmo-congress-2025", "verified", "2026-08-12",
+      "Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the "
+      "venue for EU-first approvals and readouts."),
+    C("ObesityWeek 2025", "ObesityWeek 2025", "obesityweek",
+      "2025-11-04", "2025-11-07", "Atlanta, GA",
+      "https://obesityweek.org/", "verified", "2026-08-12",
+      "Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its "
+      "second-wave competitors."),
+    C("AHA Scientific Sessions 2025", "AHA 2025", "aha",
+      "2025-11-07", "2025-11-10", "New Orleans, LA",
+      "https://professional.heart.org/en/meetings/scientific-sessions", "verified",
+      "2026-08-12",
+      "Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-"
+      "metabolic names (GLP-1 CV outcomes, lipid-lowering)."),
+    C("RSNA Scientific Assembly and Annual Meeting 2025", "RSNA 2025", "rsna",
+      "2025-11-30", "2025-12-04", "Chicago, IL",
+      "https://www.rsna.org/annual-meeting", "verified", "2026-08-12",
+      "Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, "
+      "Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase."),
+    C("ASH 67th Annual Meeting and Exposition", "ASH 2025", "ash",
+      "2025-12-06", "2025-12-09", "Orlando, FL",
+      "https://www.hematology.org/meetings/annual-meeting", "verified", "2026-08-12",
+      "Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major "
+      "biotech catalyst cluster."),
+    C("ASCO Gastrointestinal Cancers Symposium 2026", "ASCO GI 2026", "asco-gi",
+      "2026-01-08", "2026-01-10", "San Francisco, CA",
+      "https://www.asco.org/gi", "verified", "2026-08-12",
+      "GI oncology readouts — colorectal, gastric, pancreatic, HCC."),
+    C("J.P. Morgan 44th Annual Healthcare Conference", "JPM 2026", "jpm-healthcare",
+      "2026-01-12", "2026-01-15", "San Francisco, CA",
+      "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
+      "verified", "2026-08-12",
+      "THE healthcare investment event of the year. Guidance resets, M&A announcements "
+      "and the year's strategic tone are set here."),
+    C("ASCO Genitourinary Cancers Symposium 2026", "ASCO GU 2026", "asco-gu",
+      "2026-02-26", "2026-02-28", "San Francisco, CA",
+      "https://www.asco.org/gu", "verified", "2026-08-12",
+      "GU oncology — prostate, bladder, renal."),
+    C("AACR Annual Meeting 2026", "AACR 2026", "aacr",
+      "2026-04-17", "2026-04-22", "San Diego, CA",
+      "https://www.aacr.org/meeting/aacr-annual-meeting-2026/", "verified", "2026-08-12",
+      "Translational/early oncology. Earlier-stage than ASCO — first-in-human and "
+      "mechanism data, so it moves small/mid-cap biotech hardest."),
+    C("ASCO Annual Meeting 2026", "ASCO 2026", "asco",
+      "2026-05-29", "2026-06-02", "Chicago, IL",
+      "https://www.asco.org/annual-meeting", "verified", "2026-08-12",
+      "The largest oncology meeting. Registrational Phase 3 readouts; the single biggest "
+      "catalyst cluster of the year for oncology names."),
+
+    # ---- UPCOMING — verified 2026-08-05 by web search ---------------------------------
+    C("ESMO Congress 2026", "ESMO 2026", "esmo",
+      "2026-10-23", "2026-10-27", "Madrid, Spain",
+      "https://www.esmo.org/meeting-calendar/esmo-congress-2026", "verified", "2026-08-05",
+      "Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the "
+      "venue for EU-first approvals and readouts."),
+    C("AHA Scientific Sessions 2026", "AHA 2026", "aha",
+      "2026-11-06", "2026-11-09", "Chicago, IL",
+      "https://professional.heart.org/en/meetings/scientific-sessions", "verified",
+      "2026-08-05",
+      "Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-"
+      "metabolic names (GLP-1 CV outcomes, lipid-lowering)."),
+    C("ObesityWeek 2026", "ObesityWeek 2026", "obesityweek",
+      "2026-11-14", "2026-11-17", "Washington, DC",
+      "https://obesityweek.org/", "verified", "2026-08-05",
+      "Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its "
+      "second-wave competitors."),
+    C("RSNA Scientific Assembly and Annual Meeting 2026", "RSNA 2026", "rsna",
+      "2026-11-29", "2026-12-03", "Chicago, IL",
+      "https://www.rsna.org/annual-meeting", "verified", "2026-08-05",
+      "Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, "
+      "Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase."),
+    C("ASH Annual Meeting and Exposition 2026", "ASH 2026", "ash",
+      "2026-12-12", "2026-12-15", "New Orleans, LA",
+      "https://www.hematology.org/meetings/annual-meeting", "verified", "2026-08-05",
+      "Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major "
+      "biotech catalyst cluster."),
     C("J.P. Morgan 45th Annual Healthcare Conference", "JPM 2027", "jpm-healthcare",
       "2027-01-11", "2027-01-14", "San Francisco, CA",
       "https://jpmannualhealthcareconference.com/", "verified", "2026-08-05",
       "THE healthcare investment event of the year. ~8,000 attendees, 500+ company "
       "presentations. Invitation-only. Guidance resets, M&A announcements and the year's "
       "strategic tone are set here; the week itself moves the whole sector."),
-    C("ASCO Gastrointestinal Cancers Symposium", "ASCO GI 2027", "asco-gi",
+    C("ASCO Gastrointestinal Cancers Symposium 2027", "ASCO GI 2027", "asco-gi",
       "2027-01-21", "2027-01-23", "San Francisco, CA",
       "https://www.asco.org/calendar", "verified", "2026-08-05",
       "GI oncology readouts — colorectal, gastric, pancreatic, HCC."),
-    C("ASCO Genitourinary Cancers Symposium", "ASCO GU 2027", "asco-gu",
+    C("ASCO Genitourinary Cancers Symposium 2027", "ASCO GU 2027", "asco-gu",
       "2027-02-11", "2027-02-13", "San Francisco, CA",
       "https://www.asco.org/calendar", "verified", "2026-08-05",
       "GU oncology — prostate, bladder, renal."),
-    C("AACR Annual Meeting", "AACR 2027", "aacr",
+    C("AACR Annual Meeting 2027", "AACR 2027", "aacr",
       "2027-04-02", "2027-04-07", None,
       "https://onc-rg.com/conferences/aacr-2027/", "verified", "2026-08-05",
       "Translational/early oncology. Earlier-stage than ASCO — first-in-human and "
       "mechanism data, so it moves small/mid-cap biotech hardest."),
-    C("ASCO Annual Meeting", "ASCO 2027", "asco",
+    C("ASCO Annual Meeting 2027", "ASCO 2027", "asco",
       "2027-06-04", "2027-06-08", "Chicago, IL",
       "https://www.asco.org/annual-meeting", "verified", "2026-08-05",
       "The largest oncology meeting. Registrational Phase 3 readouts; the single biggest "
       "catalyst cluster of the year for oncology names."),
-    C("ESMO Congress", "ESMO 2026", "esmo",
-      "2026-10-23", "2026-10-27", "Madrid, Spain",
-      "https://www.esmo.org/meeting-calendar/esmo-congress-2026", "verified", "2026-08-05",
-      "Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the "
-      "venue for EU-first approvals and readouts."),
-    C("AHA Scientific Sessions", "AHA 2026", "aha",
-      "2026-11-06", "2026-11-09", "Chicago, IL",
-      "https://professional.heart.org/en/meetings/scientific-sessions", "verified",
-      "2026-08-05",
-      "Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-"
-      "metabolic names (GLP-1 CV outcomes, lipid-lowering)."),
-    C("ObesityWeek", "ObesityWeek 2026", "obesityweek",
-      "2026-11-14", "2026-11-17", "Washington, DC",
-      "https://obesityweek.org/", "verified", "2026-08-05",
-      "Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its "
-      "second-wave competitors."),
-    C("RSNA Scientific Assembly and Annual Meeting", "RSNA 2026", "rsna",
-      "2026-11-29", "2026-12-03", "Chicago, IL",
-      "https://www.rsna.org/annual-meeting", "verified", "2026-08-05",
-      "Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, "
-      "Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase."),
-    C("ASH Annual Meeting and Exposition", "ASH 2026", "ash",
-      "2026-12-12", "2026-12-15", "New Orleans, LA",
-      "https://www.hematology.org/meetings/annual-meeting", "verified", "2026-08-05",
-      "Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major "
-      "biotech catalyst cluster."),
 
     # ---- on the circuit, DATE NOT CONFIRMED — stored dateless on purpose --------------
     C("TCT (Transcatheter Cardiovascular Therapeutics)", "TCT", "tct",

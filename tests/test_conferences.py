@@ -107,9 +107,31 @@ def test_seed_populates_sector_and_series(tmp_path):
     conn.close()
 
 
-def test_series_slugs_are_unique():
-    slugs = [c.series for c in CONFERENCES]
-    assert len(slugs) == len(set(slugs)), "series must identify one meeting each"
+def test_series_repeats_across_years_but_instances_are_unique():
+    """`series` is deliberately NOT unique — that is what makes it a series.
+
+    Uniqueness belongs to the instance: `short_name` is the seeder's upsert key
+    and `name` is UNIQUE in the table, so both must be distinct per instance or
+    two different years silently overwrite each other.
+    """
+    shorts = [c.short_name for c in CONFERENCES]
+    names = [c.name for c in CONFERENCES]
+    assert len(shorts) == len(set(shorts)), "short_name is the upsert key"
+    assert len(names) == len(set(names)), "name is UNIQUE in the table"
+    # At least one series genuinely recurs, else `series` is carrying nothing.
+    from collections import Counter
+    assert max(Counter(c.series for c in CONFERENCES).values()) > 1
+
+
+def test_held_instances_are_present_for_last_year_and_this_year():
+    """The calendar must carry history, not just the forward view.
+
+    The seeder was forward-only until 2026-08-12, so 2025 and H1-2026 were
+    entirely absent — conferences that had already happened were recorded
+    nowhere.
+    """
+    years = {c.start[:4] for c in CONFERENCES if c.start}
+    assert {"2025", "2026", "2027"} <= years
 
 
 def test_digest_groups_by_sector_and_flags_undated(db):
