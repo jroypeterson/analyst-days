@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import traceback
 from datetime import date, datetime, timedelta, timezone
@@ -60,7 +61,7 @@ CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
 
 # The three --weekly phases, in run order. Named once so the isolation driver
 # and the "phases not reached" diagnostic cannot drift apart.
-WEEKLY_PHASES = ("discover", "remind", "digest")
+WEEKLY_PHASES = ("discover", "remind", "digest", "conferences")
 
 # HEALTH_REPORTING.md 4.1: the error block is "a code block, last ~20 lines".
 ERROR_TAIL_LINES = 20
@@ -492,6 +493,9 @@ def build_parser() -> argparse.ArgumentParser:
                       help="Print DB stats + upcoming events")
     mode.add_argument("--friday-digest", action="store_true",
                       help="Post Friday 'on the radar' digest to #analyst-days")
+    mode.add_argument("--conferences-digest", action="store_true",
+                      help="Re-seed the conference calendar and post it to "
+                           "#conferences (conference-anchored, no tickers)")
     mode.add_argument("--monday-digest", action="store_true",
                       help="Post Monday 'forward 30/7' digest to #analyst-days")
     mode.add_argument("--slack-test", action="store_true",
@@ -594,6 +598,53 @@ def cmd_friday_digest(args: argparse.Namespace) -> int:
         n = slack_out.post_friday_digest(conn)
         print(f"Friday digest posted to #analyst-days  ({n} events)")
         _post_friday_health(start, "ok", n)
+        return 0
+    finally:
+        conn.close()
+
+
+def cmd_conferences_digest(args: argparse.Namespace) -> int:
+    """Post the conference calendar to #conferences.
+
+    Re-seeds first, always. `conferences` is a pure projection of the CONFERENCES
+    constant in src/seed_conferences.py, and unlike `events` it CANNOT rebuild
+    from discovery — nothing discovers it. Since events.db is gitignored and
+    lives between CI runs as an expiring GitHub Actions artifact, a lost artifact
+    would otherwise empty this calendar silently. The seed is an idempotent
+    upsert, so re-running it every time is free and keeps CI current with any
+    seeder edit.
+    """
+    from src.seed_conferences import seed as seed_conferences
+
+    added, updated = seed_conferences(args.db, dry_run=args.dry_run)
+    print(f"{'[dry-run] ' if args.dry_run else ''}seed: {added} added, {updated} updated")
+
+    conn = init_db(args.db)
+    try:
+        today = date.today().isoformat()
+        if args.dry_run:
+            blocks, n = slack_out.build_conferences_blocks(conn, today)
+            print(f"[dry-run] would post conference calendar to #conferences "
+                  f"({n} upcoming, {len(blocks)} blocks)")
+            return 0
+        # An unprovisioned webhook is a DEGRADED sub-unit, not an aborted phase:
+        # the seed above (the half that cannot be skipped) has already run and
+        # the calendar is intact — only the post is missing. So warn and carry
+        # the warning into the weekly heartbeat, which renders it as `partial`,
+        # rather than raising. Raising here would turn one missing secret into a
+        # red Monday cron every week, burying real failures behind a known one.
+        # It is still not silent: `partial` plus a named warning lands in
+        # #status-reports on every run until the secret exists.
+        if not os.environ.get(slack_out.CONFERENCES_WEBHOOK_ENV, "").strip():
+            blocks, n = slack_out.build_conferences_blocks(conn, today)
+            warning = (f"{slack_out.CONFERENCES_WEBHOOK_ENV} not set - seeded {n} "
+                       f"upcoming conferences but skipped the #conferences post")
+            # ASCII only: this line lands on a cp1252 console and in CI logs.
+            print(f"WARNING: {warning}")
+            args.health_conferences_warning = warning
+            return 0
+        n = slack_out.post_conferences_digest(conn, today)
+        print(f"Conference calendar posted to #conferences  ({n} upcoming)")
         return 0
     finally:
         conn.close()
@@ -712,6 +763,13 @@ def cmd_weekly(args: argparse.Namespace) -> int:
         rcs["remind"] = _run_phase("remind", cmd_remind, args, failures)
         print("\n===== WEEKLY: Monday digest =====")
         rcs["digest"] = _run_phase("digest", cmd_monday_digest, args, failures)
+        # Last, and phase-isolated like the rest: it re-seeds the conference
+        # table (the only path that rebuilds it — nothing discovers conferences)
+        # and posts #conferences. A failure here must not colour the analyst-day
+        # phases, and theirs must not skip this.
+        print("\n===== WEEKLY: conference calendar =====")
+        rcs["conferences"] = _run_phase(
+            "conferences", cmd_conferences_digest, args, failures)
     finally:
         # The heartbeat lives in a `finally` so it fires even when the
         # isolation driver ITSELF breaks -- otherwise the one failure mode the
@@ -814,6 +872,15 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
         warnings.append(
             "phase(s) reported failure: " + ", ".join(rc_only)
         )
+
+    # The conference phase ran but couldn't post (no webhook yet). The calendar
+    # itself is seeded and intact, so this is `partial`, not a failure — but it
+    # must appear on every heartbeat until the secret exists, or it becomes the
+    # silent skip this repo keeps getting bitten by.
+    conf_warning = getattr(args, "health_conferences_warning", "")
+    if conf_warning:
+        status = "partial"
+        warnings.append(conf_warning)
 
     # A phase EXCEPTION outranks every `partial` above: the run did not merely
     # degrade, a unit of it aborted. This is what `error` is for.
@@ -1021,6 +1088,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_status(args)
     if args.friday_digest:
         return cmd_friday_digest(args)
+    if args.conferences_digest:
+        return cmd_conferences_digest(args)
     if args.monday_digest:
         return cmd_monday_digest(args)
     if args.slack_test:

@@ -48,7 +48,13 @@ def posted(monkeypatch):
 
 @pytest.fixture
 def ok_phases(monkeypatch):
-    """Stub all three phases to succeed; individual tests override one."""
+    """Stub every weekly phase to succeed; individual tests override one.
+
+    Must cover ALL of cli_mod.WEEKLY_PHASES — an unstubbed phase runs for real
+    and drags a live dependency (a webhook, the DB) into what is meant to be a
+    pure isolation test. The assertion below fails loudly if a phase is added to
+    cmd_weekly and not stubbed here.
+    """
     calls: list[str] = []
 
     def make(name, rc=0):
@@ -60,7 +66,15 @@ def ok_phases(monkeypatch):
     monkeypatch.setattr(cli_mod, "cmd_discover", make("discover"))
     monkeypatch.setattr(cli_mod, "cmd_remind", make("remind"))
     monkeypatch.setattr(cli_mod, "cmd_monday_digest", make("digest"))
+    monkeypatch.setattr(cli_mod, "cmd_conferences_digest", make("conferences"))
     return calls
+
+
+def test_the_ok_phases_fixture_covers_every_weekly_phase(ok_phases, posted,
+                                                         monkeypatch):
+    """Guard the fixture itself: add a phase to cmd_weekly, stub it here too."""
+    cli_mod.cmd_weekly(_args())
+    assert set(ok_phases) == set(cli_mod.WEEKLY_PHASES)
 
 
 # --------------------------------------------------------------------------
@@ -73,8 +87,12 @@ def test_a_raising_phase_does_not_skip_later_phases(monkeypatch, posted, ok_phas
 
     rc = cli_mod.cmd_weekly(_args())
 
-    assert ok_phases == ["remind", "digest"], (
-        "remind/digest were skipped -- the phase exception propagated"
+    # Every phase after the raising one must still have run. Derived from
+    # WEEKLY_PHASES rather than hardcoded so adding a phase can't quietly
+    # narrow what this regression covers.
+    expected = [p for p in cli_mod.WEEKLY_PHASES if p != "discover"]
+    assert ok_phases == expected, (
+        f"{expected} were skipped -- the phase exception propagated"
     )
     assert rc != 0, "a raising phase must still make the run exit non-zero"
 

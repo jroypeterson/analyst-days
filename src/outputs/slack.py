@@ -21,6 +21,11 @@ import requests
 from src.state.events_repo import PUSHABLE_EVENT_TYPES
 
 WEBHOOK_ENV = "SLACK_WEBHOOK_ANALYST_DAYS"
+# The conference calendar posts to its OWN channel. It answers a different
+# question from everything else here (which meetings matter, not which of our
+# companies is doing something), and mixing it into #analyst-days is what kept
+# it invisible. Channel-bound webhook, same as above.
+CONFERENCES_WEBHOOK_ENV = "SLACK_WEBHOOK_CONFERENCES"
 
 # Transient-network resilience: retry the Slack POST on momentary DNS/socket blips.
 _RETRY_BACKOFF = (5, 15, 30)  # seconds to wait BEFORE retry attempts 2..N
@@ -109,15 +114,15 @@ STATUS_LABELS = {
 # ---------------------------------------------------------------------------
 
 
-def _webhook_url() -> str:
-    url = os.environ.get(WEBHOOK_ENV, "").strip()
+def _webhook_url(env_var: str = WEBHOOK_ENV) -> str:
+    url = os.environ.get(env_var, "").strip()
     if not url:
-        raise RuntimeError(f"{WEBHOOK_ENV} not set")
+        raise RuntimeError(f"{env_var} not set")
     return url
 
 
-def _post(payload: dict) -> None:
-    url = _webhook_url()
+def _post(payload: dict, env_var: str = WEBHOOK_ENV) -> None:
+    url = _webhook_url(env_var)
     # Retry only on transient transport errors (network/DNS blip); a successful
     # POST with a bad status is NOT retried and falls through to the checks below.
     attempts = 1 + len(_RETRY_BACKOFF)
@@ -554,6 +559,175 @@ def post_monday_digest(conn, today_iso: Optional[str] = None) -> int:
 def _date_plus(iso: str, days: int) -> str:
     from datetime import date as _d, timedelta
     return (_d.fromisoformat(iso) + timedelta(days=days)).isoformat()
+
+
+# ---------------------------------------------------------------------------
+# Conference calendar digest — #conferences
+# ---------------------------------------------------------------------------
+#
+# This reads the `conferences` table, which is CONFERENCE-anchored: rows are
+# meetings, not companies, and carry no ticker (except `host_ticker` for the
+# company-owned events on the tech circuit). That is a different question from
+# everything above, which is company-anchored — hence its own channel.
+#
+# Until this existed the table had no reader at all: seeded 2026-08-05, and
+# nothing but the seeder ever touched it. Ten verified conference dates sat in
+# a gitignored SQLite file that nothing rendered.
+
+# Sector display order — Healthcare dominates the list today, so it leads.
+# Anything with an unrecognized/NULL sector sorts last under "Unclassified".
+SECTOR_ORDER = ("Healthcare", "Technology", "Consumer")
+_UNCLASSIFIED = "Unclassified"
+
+
+def _sector_rank(sector: Optional[str]) -> tuple[int, str]:
+    s = (sector or "").strip()
+    if s in SECTOR_ORDER:
+        return (SECTOR_ORDER.index(s), s)
+    return (len(SECTOR_ORDER), s or _UNCLASSIFIED)
+
+
+def _conference_line(row) -> str:
+    """One line in the per-sector monospace table."""
+    when = row["start_date"] or "TBD"
+    if _row_get(row, "end_date") and row["end_date"] != row["start_date"]:
+        when = f"{row['start_date']}/{(row['end_date'] or '')[5:]}"
+    short = (_row_get(row, "short_name") or row["name"] or "")[:18]
+    loc = (_row_get(row, "location") or "-")[:20]
+    host = _row_get(row, "host_ticker") or ""
+    return f"{when:16} {short:18}  {loc:20}  {host}"
+
+
+def _conference_table(rows) -> str:
+    if not rows:
+        return "_(none)_"
+    header = f"{'DATE':16} {'CONFERENCE':18}  {'LOCATION':20}  HOST"
+    body = "\n".join(_conference_line(r) for r in rows)
+    return "```\n" + header + "\n" + "-" * len(header) + "\n" + body + "\n```"
+
+
+def query_conferences(conn, today_iso: str) -> tuple[list, list]:
+    """Return (upcoming, needs_rollover) from the conferences table.
+
+    upcoming        — instances dated today or later, soonest first.
+    needs_rollover  — the LATEST instance of each series is already past. That is
+                      the annual-rollover prompt: `name` is UNIQUE per instance,
+                      so next year's meeting is a new row that somebody has to
+                      add. Without this the calendar just silently empties out.
+    """
+    upcoming = conn.execute(
+        """
+        SELECT id, name, short_name, series, sector, host_ticker,
+               start_date, end_date, location, url, notes
+        FROM conferences
+        WHERE start_date >= ?
+        ORDER BY start_date ASC, name ASC
+        """,
+        (today_iso,),
+    ).fetchall()
+
+    # A series needs rollover when NO instance of it is dated today-or-later.
+    # Rows with a NULL series fall back to their own name so an unslugged row
+    # still gets checked rather than silently grouped with every other NULL.
+    needs_rollover = conn.execute(
+        """
+        SELECT id, name, short_name, series, sector, host_ticker,
+               start_date, end_date, location, url, notes
+        FROM conferences c
+        WHERE start_date < ?
+          AND NOT EXISTS (
+                SELECT 1 FROM conferences c2
+                 WHERE COALESCE(c2.series, c2.name) = COALESCE(c.series, c.name)
+                   AND c2.start_date >= ?
+          )
+          AND start_date = (
+                SELECT MAX(c3.start_date) FROM conferences c3
+                 WHERE COALESCE(c3.series, c3.name) = COALESCE(c.series, c.name)
+          )
+        ORDER BY start_date DESC, name ASC
+        """,
+        (today_iso, today_iso),
+    ).fetchall()
+    return upcoming, needs_rollover
+
+
+def build_conferences_blocks(conn, today_iso: str) -> tuple[list[dict], int]:
+    """Build the #conferences Block Kit payload. Pure — no network.
+
+    Returns (blocks, upcoming_count).
+    """
+    # Imported lazily: the seeder is the source of truth for the undated backlog,
+    # which by design never reaches the table (start_date NOT NULL). Without this
+    # section that backlog is invisible unless someone runs the seeder by hand.
+    from src.seed_conferences import unconfirmed
+
+    upcoming, needs_rollover = query_conferences(conn, today_iso)
+
+    by_sector: dict[str, list] = {}
+    for r in upcoming:
+        by_sector.setdefault(_sector_rank(_row_get(r, "sector"))[1], []).append(r)
+
+    sectors = sorted(by_sector, key=lambda s: _sector_rank(s if s != _UNCLASSIFIED else None))
+
+    summary = (
+        f":round_pushpin: *Conference Calendar* ({today_iso})  |  "
+        f"*{len(upcoming)}* upcoming"
+    )
+    if len(sectors) > 1:
+        summary += f"  ·  {len(sectors)} sectors"
+
+    blocks: list[dict] = [
+        {"type": "section", "text": {"type": "mrkdwn", "text": summary}},
+    ]
+
+    if not upcoming:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "_(no upcoming conferences — run `python -m src.seed_conferences`)_"}})
+    for s in sectors:
+        rows = by_sector[s]
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*{s} ({len(rows)})*\n" + _conference_table(rows)}})
+
+    undated = unconfirmed()
+    if undated:
+        blocks.append({"type": "divider"})
+        names = " · ".join(f"`{c.short_name}`" for c in undated)
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*Dates needed ({len(undated)})* — on the circuit, not on the "
+                    f"calendar\n{names}\n_Stored dateless on purpose: a wrong "
+                    f"conference date silently mis-anchors every catalyst hung off "
+                    f"it. Confirm a date, move it into the verified block in "
+                    f"`src/seed_conferences.py`, re-run the seeder._"}})
+
+    if needs_rollover:
+        blocks.append({"type": "divider"})
+        names = " · ".join(f"`{_row_get(r, 'short_name') or r['name']}`"
+                           for r in needs_rollover)
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*Rollover needed ({len(needs_rollover)})* — latest known "
+                    f"instance has passed\n{names}\n_No future instance of these "
+                    f"series is on the calendar. Add next year's dates to the "
+                    f"seeder._"}})
+
+    blocks.append({"type": "context", "elements": [{
+        "type": "mrkdwn",
+        "text": "_Conference-anchored: these are the meetings themselves, not our "
+                "companies' appearances at them. Curated in "
+                "`analyst-days/src/seed_conferences.py`; every date is web-verified "
+                "with the verification date in the row's notes._",
+    }]})
+    return blocks, len(upcoming)
+
+
+def post_conferences_digest(conn, today_iso: Optional[str] = None) -> int:
+    """Post the conference calendar to #conferences. Returns upcoming count."""
+    today_iso = today_iso or date.today().isoformat()
+    blocks, count = build_conferences_blocks(conn, today_iso)
+    _post(
+        {"text": f"Conference calendar — {count} upcoming", "blocks": blocks},
+        env_var=CONFERENCES_WEBHOOK_ENV,
+    )
+    return count
 
 
 # ---------------------------------------------------------------------------

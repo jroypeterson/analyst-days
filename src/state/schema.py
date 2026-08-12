@@ -10,7 +10,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-CURRENT_SCHEMA_VERSION = 2
+CURRENT_SCHEMA_VERSION = 3
 
 
 EVENT_TYPES = (
@@ -154,11 +154,54 @@ def _migrate_v2(conn: sqlite3.Connection) -> None:
         )
 
 
+def _migrate_v3(conn: sqlite3.Connection) -> None:
+    """Add conferences.sector / series / host_ticker — the multi-sector columns.
+
+    The table was seeded with the healthcare circuit only. Tech and consumer
+    conferences are planned, and all three columns exist to answer a question
+    the current shape cannot:
+
+    * `sector`      — Healthcare / Technology / Consumer. The digest groups on
+                      it. Nullable, and legacy rows are backfilled by the
+                      seeder (which is the source of truth for row content).
+    * `series`      — stable slug identifying the recurring meeting across
+                      years (`asco`, `jpm-hc`). `name` is UNIQUE on the
+                      *instance* ("J.P. Morgan 45th Annual…", short_name
+                      "JPM 2027"), so next year's instance is a new row with
+                      no link to this one. Without `series` there is no key for
+                      "when is JPM this year", no way to carry
+                      conference_presentations across years, and no way to see
+                      that a series has gone past-dated with no successor row.
+    * `host_ticker` — the company that OWNS the event, when one does. Null for
+                      third-party venues, which is every healthcare row: ASCO
+                      owns ASCO and hundreds of companies present. The tech
+                      circuit is different — WWDC is Apple's, GTC is Nvidia's —
+                      and those still belong here rather than in `events`,
+                      because `event_type='conference'` is excluded from
+                      PUSHABLE_EVENT_TYPES and so fans out nowhere. One home;
+                      fan-out stays a downstream policy call.
+
+    Additive only — no existing column changes, no row is rewritten.
+    """
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(conferences)").fetchall()}
+    for col in ("sector", "series", "host_ticker"):
+        if col not in cols:
+            conn.execute(f"ALTER TABLE conferences ADD COLUMN {col} TEXT")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_conferences_series ON conferences(series)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_conferences_sector_date "
+        "ON conferences(sector, start_date)"
+    )
+
+
 # Ordered list of migrations. Each entry is (target_version, callable).
 # Call only the migrations whose target_version > current.
 _MIGRATIONS: list[tuple[int, callable]] = [
     (1, _create_v1),
     (2, _migrate_v2),
+    (3, _migrate_v3),
 ]
 
 

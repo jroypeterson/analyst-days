@@ -32,6 +32,15 @@ python -m src.seed_conferences              # upsert
   half is genuinely hard (bank pages inconsistent, several gated). The *medical* circuit is
   stable, published 12–18 months ahead, and is what moves the names — seeding it delivers
   the calendar now and makes the scraper a refinement rather than a prerequisite.
+- **The seeder constant is the source of truth, not the table.** DB rows are a pure
+  projection of `CONFERENCES` in `src/seed_conferences.py` and the upsert is idempotent, so
+  edit there and re-run. This matters more than it looks: `events.db` is gitignored and
+  lives between CI runs as an *expiring* GitHub Actions artifact. `events` rebuilds from
+  discovery if that artifact is lost — **`conferences` does not, because nothing discovers
+  it.** `--conferences-digest` therefore re-seeds on every run, and `--weekly` calls it.
+- **The seeder carries NO DDL of its own** (removed 2026-08-12). It routes through
+  `init_db`. It used to define the table itself, and that duplicate definition is the
+  documented cause of the "17 added / 0 written" incident below.
 - **⚠ Dates are evidence, not memory.** Every entry carries `verified`/`unconfirmed` and a
   verification date. **Unconfirmed conferences are NOT written** — a wrong conference date
   silently mis-anchors every catalyst hung off it, which is the one failure a calendar must
@@ -42,6 +51,53 @@ python -m src.seed_conferences              # upsert
   table, so the seeder's first version appeared to define the schema and did not: the dry
   run claimed 17 added and the real run wrote **0**, rolling back on the NOT NULL. Respect
   the constraint; do not relax it.
+- **`name UNIQUE` is per INSTANCE, not per series** — "J.P. Morgan 45th Annual Healthcare
+  Conference" (`JPM 2027`). Next year's meeting is a *new row* with no intrinsic link to
+  this one, which is what `series` (schema v3) exists for: the digest's "Rollover needed"
+  section lists any series whose latest instance has gone past-dated, because otherwise the
+  calendar just silently empties as the year turns.
+
+### Multi-sector columns (schema v3, 2026-08-12)
+
+Healthcare-only today and it will dominate, but tech and consumer are planned, so
+`conferences` gained `sector`, `series`, `host_ticker` while it was still 10 rows.
+
+**`host_ticker` is why company-owned events still live here.** The healthcare circuit is
+entirely third-party — ASCO owns ASCO and hundreds of companies present, so `host_ticker`
+is NULL on every current row. The tech circuit splits: CES/MWC are neutral, but WWDC is
+Apple's and GTC is Nvidia's. Those are *not* routed to `events` even though they have a
+ticker, because **`event_type='conference'` is excluded from `PUSHABLE_EVENT_TYPES`** — an
+`events` row for a conference fans out nowhere, so routing there buys zero and costs a
+calendar split across two tables. One home; fan-out stays a downstream policy call.
+
+**Sector display order** is `Healthcare → Technology → Consumer`, then `Unclassified` for
+NULL/unknown (`SECTOR_ORDER` in `src/outputs/slack.py`).
+
+**The dateless backlog grows as sectors expand.** `start_date NOT NULL` is correct and
+stays, but it was calibrated to a medical circuit that publishes 12–18 months ahead; tech
+and consumer publish later and less regularly. The digest's "Dates needed" section imports
+`unconfirmed()` straight from the seeder so that backlog is visible every run instead of
+only when someone runs the seeder by hand.
+
+### Output: `#conferences`, not `#analyst-days`
+
+```
+python -m src.cli --conferences-digest [--dry-run]     # re-seed + post
+```
+
+Separate channel because it answers a different question (which meetings matter, not which
+of our companies is doing something). Needs `SLACK_WEBHOOK_CONFERENCES`.
+
+**Unset webhook degrades, it does not fail.** The seed still runs (the half that cannot be
+skipped, and the only path that rebuilds this table), the post is skipped, and the reason
+is carried into the weekly heartbeat as a warning → `partial`. Deliberately *not* a raise:
+one missing secret would otherwise red-line the Monday cron every week and bury real
+failures behind a known one. It is still not silent — `partial` plus a named warning lands
+in `#status-reports` on every run until the secret exists.
+
+**Until 2026-08-12 this table had no reader at all.** Seeded 2026-08-05, and nothing but
+the seeder ever touched it: no CLI mode, no digest, no calendar. Ten verified dates sat in
+a gitignored SQLite file that nothing rendered.
 
 ## CLI modes
 
@@ -50,7 +106,8 @@ python -m src.cli --discover              # Pull EDGAR 8-Ks + Tavily; classify; 
 python -m src.cli --remind                # T-30 / T-7 / day-of pings for confirmed events
 python -m src.cli --monday-digest         # Monday "forward 30/7" digest → Slack + email
 python -m src.cli --friday-digest         # Friday "on the radar" digest → Slack (read-only)
-python -m src.cli --weekly                # discover → remind → Monday digest in sequence (the Monday cron entry point)
+python -m src.cli --conferences-digest    # Re-seed the conference calendar + post it to #conferences
+python -m src.cli --weekly                # discover → remind → Monday digest → conference calendar (the Monday cron entry point)
 python -m src.cli --status                # Print upcoming events + DB stats
 python -m src.cli --slack-test            # Sanity ping to #analyst-days
 python -m src.cli --gcal-test             # Verify Google Calendar auth (no writes)
@@ -116,7 +173,11 @@ for c in candidates:
         insert_tentative(c)  # → slack + email mention only
 ```
 
-Conferences are a parallel iterator over `data/conferences.csv` (JPM Healthcare seeded for now).
+Discovery does **not** touch the conference calendar. (This line used to claim "conferences
+are a parallel iterator over `data/conferences.csv`" — no such file and no such lane has
+ever existed in this repo. Corrected 2026-08-12.) Company-anchored conference *events* come
+out of the same EDGAR/Tavily pass as everything else; the conference *calendar* is seeded,
+not discovered.
 
 ## Cadence (two weekly fires)
 
@@ -147,6 +208,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Web search per ticker |
 | `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
 | `SLACK_WEBHOOK_STATUS_REPORTS` | Reused (shared earnings-agent #status-reports webhook) | health/v1 heartbeat → `#status-reports` (set on the repo 2026-06-30) |
+| `SLACK_WEBHOOK_CONFERENCES` | **New — NOT YET CREATED** | `#conferences` conference calendar. Until it exists the weekly run still seeds the calendar, skips the post, and heartbeats `partial` with a named warning. Create an incoming webhook for `#conferences` on the earnings-agent Slack app, then `gh secret set`. |
 | `GOOGLE_CALENDAR_ID` | Dedicated "Other Investing" calendar (floridabusinessman) | Separate from earnings since 2026-05-28 |
 | `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
 | `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
@@ -169,7 +231,10 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/discovery/scan_tavily.py` — Tavily search per ticker.
 - `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
 - `src/discovery/date_grounding.py` — deterministic date-grounding gate: does the extracted ISO date appear (in any recognizable textual form) in the raw source text? Gates confirmation; see "Date-grounding gate" above.
-- `src/discovery/conferences.py` — Parallel discovery for seeded conferences.
+- `src/seed_conferences.py` — the curated conference calendar (`CONFERENCES` is the source
+  of truth) + its idempotent upsert. No DDL of its own; routes through `init_db`.
+  _(This slot previously listed `src/discovery/conferences.py`, "Parallel discovery for
+  seeded conferences" — a file that has never existed here.)_
 - `src/state/schema.py` — SQLite schema + migrations.
 - `src/state/events_repo.py` — insert/update/dedupe/source-provenance.
 - `src/outputs/slack.py` — `#analyst-days` webhook poster.
