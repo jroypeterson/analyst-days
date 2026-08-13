@@ -7,8 +7,12 @@ could break here — the duplicate-DDL trap, the dateless policy, and rollover.
 from __future__ import annotations
 
 import sqlite3
+import sys
+from pathlib import Path
 
 import pytest
+
+REPO = Path(__file__).resolve().parents[1]
 
 from src.outputs import slack as slack_out
 from src.seed_conferences import CONFERENCES, seed, unconfirmed
@@ -155,8 +159,42 @@ def test_digest_groups_by_sector_and_flags_undated(db):
     # Healthcare leads regardless of insertion or date order.
     assert text.index("*Healthcare (1)*") < text.index("*Technology (1)*")
     assert "AAPL" in text            # host_ticker rendered
-    assert "Dates needed" in text    # unconfirmed backlog is visible
-    assert "TCT" in text
+
+
+def test_undated_backlog_renders_when_there_IS_one(db, monkeypatch):
+    """The dateless mechanism, tested independently of live seed data.
+
+    Every circuit entry has a confirmed date as of 2026-08-12, so the section is
+    correctly absent today — but the policy is what tech and consumer meetings
+    will land under, and it must not rot while the backlog happens to be empty.
+    """
+    import src.seed_conferences as seed_mod
+
+    fake = seed_mod.Conference(
+        name="Some Meeting", short_name="SOME", series="some",
+        start=None, end=None, location=None, url="https://example.com",
+        date_status="unconfirmed", verified_on=None,
+        why_it_matters="On the circuit. CONFIRM DATE.")
+    monkeypatch.setattr(seed_mod, "unconfirmed", lambda: [fake])
+
+    blocks, _ = slack_out.build_conferences_blocks(db, "2026-08-12")
+    text = "\n".join(
+        b.get("text", {}).get("text", "") for b in blocks if b.get("type") == "section"
+    )
+    assert "Dates needed (1)" in text
+    assert "SOME" in text
+
+
+def test_no_undated_backlog_means_no_section(db):
+    """All 39 instances carry a verified date today, so nothing should claim a
+    backlog that does not exist."""
+    from src.seed_conferences import unconfirmed
+    assert unconfirmed() == []
+    blocks, _ = slack_out.build_conferences_blocks(db, "2026-08-12")
+    text = "\n".join(
+        b.get("text", {}).get("text", "") for b in blocks if b.get("type") == "section"
+    )
+    assert "Dates needed" not in text
 
 
 def test_digest_flags_rollover_when_a_series_has_only_past_instances(db):
@@ -239,6 +277,56 @@ def test_a_skipped_conference_post_makes_the_weekly_heartbeat_partial(monkeypatc
     hb = posted[0]
     assert hb.status == "partial"
     assert any("SLACK_WEBHOOK_CONFERENCES" in w for w in hb.warnings)
+
+
+def test_published_page_filters_are_wired_to_the_data(tmp_path):
+    """Every filter chip must match real items, and every item must be reachable.
+
+    The failure mode here is silent and total: a chip whose `data-value` does not
+    equal the slug on the items filters to zero rows, and an item whose slug no
+    chip carries can never be shown. Both render as a page that looks fine and
+    hides data. Checked against the generated HTML, so a change to either side of
+    the slug contract fails here.
+
+    (The click behaviour itself was verified by running the page's own script
+    under jsdom; that needs a Node toolchain this repo does not carry, so what is
+    pinned permanently is the contract the script depends on.)
+    """
+    import re
+    import subprocess
+
+    from src.seed_conferences import seed as seed_conferences
+
+    db_path = tmp_path / "events.db"
+    seed_conferences(str(db_path))
+    out = tmp_path / "page.html"
+    rc = subprocess.call(
+        [sys.executable, str(REPO / "scripts" / "build_conference_page.py"),
+         "--db", str(db_path), "--out", str(out),
+         "--years", "2025", "2026", "--today", "2026-08-12"],
+        cwd=str(REPO),
+    )
+    assert rc == 0
+    html = out.read_text(encoding="utf-8")
+
+    items = re.findall(r'data-sector="([^"]+)" data-kind="([^"]+)"', html)
+    chips = re.findall(r'data-group="(\w+)" data-value="([^"]+)"', html)
+    assert items, "no conference items rendered"
+
+    for axis, idx in (("sector", 0), ("kind", 1)):
+        chip_vals = {v for g, v in chips if g == axis} - {"all"}
+        item_vals = {i[idx] for i in items}
+        assert not (item_vals - chip_vals), (
+            f"{axis}: items unreachable by any chip: {item_vals - chip_vals}")
+        assert not (chip_vals - item_vals), (
+            f"{axis}: chips matching nothing: {chip_vals - item_vals}")
+
+    # Elements the filter script addresses by name — a rename silently no-ops it.
+    assert 'id="shown"' in html
+    for block in re.findall(r'<article class="q[^"]*">.*?</article>', html, re.S):
+        assert "data-count" in block and '<p class="empty"' in block
+    for block in re.findall(r'<section class="year">.*?</section>', html, re.S):
+        assert "data-year-count" in block
 
 
 def test_conferences_digest_posts_to_its_own_webhook(db, monkeypatch):

@@ -110,6 +110,38 @@ That is also what makes `series` load-bearing rather than decorative — `jpm-he
 now has three instances (43rd/44th/45th), `asco` has three, and the digest's rollover
 check has real data to work against.
 
+### `kind` — the second axis (schema v4, 2026-08-12)
+
+`sector` says which book a meeting belongs to; `kind` says what actually happens there.
+They are orthogonal and the pair is why both exist:
+
+| | Sector | Kind |
+|---|---|---|
+| ASCO | Healthcare | Scientific meeting (trial data drops) |
+| JPM | Healthcare | Investor conference (guidance resets) |
+| CAGNY | Consumer | Investor conference |
+| CES | Technology | Industry trade show |
+| GTC | Technology | Vendor event (one company's launch) |
+
+Collapsed into one field, *"show me every venue where DATA lands"* — which cuts across
+sectors — becomes unaskable. `kind` was deliberately deferred while the table had no
+reader (designing schema against an imagined query is what left this table empty for a
+year); the published page's filters are the concrete consumer that earned it. Current
+split: 32 scientific · 5 investor · 2 trade show.
+
+### The dateless backlog is currently EMPTY — the mechanism is not
+
+All seven second-wave series (TCT, SABCS, ACC, ADA, HIMSS, AdvaMed, AGBT) were dated on
+2026-08-12 and are now full rows. The `start_date NOT NULL` policy and the digest's
+"Dates needed" section both remain live and are pinned by
+`test_undated_backlog_renders_when_there_IS_one`, which fakes an undated entry rather
+than relying on live data — tech and consumer meetings will land under that policy and it
+must not rot while the backlog happens to be empty.
+
+One row shows the policy generalizing past dates: **AGBT 2026 has a NULL location**
+because sources disagree (Marco Island vs Orlando) while agreeing on the date. The same
+rule that governs dates governs every other field — don't assert a disputed fact.
+
 ### The published page
 
 ```
@@ -122,10 +154,30 @@ Re-run the script and re-publish **the same file path** to update that URL in pl
 publishing a different path creates a second artifact instead.
 
 The page is a *projection* of `data/events.db`, never a hand-maintained copy — that is the
-whole reason the generator exists. It marks today's position inside the current year,
-splits held from upcoming, and renders the undated backlog as an explicit "not on the
-calendar" section so the page never presents itself as the whole circuit. Artifact CSP
-blocks every external host, so all CSS is inline and no font or script is fetched.
+whole reason the generator exists. Artifact CSP blocks every external host, so all CSS and
+JS are inline and nothing is fetched.
+
+**Shape:** a quarterly grid — four boxes per year, each listing `Name (dates)` on one line.
+Held meetings recede, the current quarter carries an accent rule, and the full name, venue
+and rationale ride on each row's `title` so detail is one hover away instead of costing
+vertical space. The whole 2025+2026 circuit fits on one screen.
+
+**Filters** across both axes (sector, kind) are plain inline JS. The slug contract between
+the chips' `data-value` and the items' `data-sector`/`data-kind` is load-bearing and fails
+*silently* if broken — a mismatched chip filters to zero, an unslugged item can never be
+shown. `test_published_page_filters_are_wired_to_the_data` pins both directions plus the
+element ids the script addresses.
+
+⚠ **Clicks cannot be tested through Claude-in-Chrome.** The artifact renders in an
+out-of-process iframe, so synthesized CDP input never reaches it and the a11y tree stops at
+the host shell. The interaction was verified by running the page's own script under jsdom
+(`npm i --no-save jsdom`, dispatch `click` on the chips, assert visible counts) — worth
+repeating that way after changing the script, since neither screenshots nor the Python test
+can catch a broken event handler.
+
+**Bookmarked** on `#conferences` as "Conference Calendar". Note the artifact is **private**
+by default — the bookmark resolves only for viewers who can open it; share from the page's
+share menu to widen that.
 
 ## CLI modes
 

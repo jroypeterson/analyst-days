@@ -1,317 +1,255 @@
 <title>Healthcare Conference Circuit</title>
 <style>
-  /* Light is the base set. Every colour below is a token so the dark variants
-     can redefine tokens only — no component rule lives inside a media query. */
+  /* Light is the base set. Every colour is a token, so the two dark variants
+     redefine tokens only and no component rule lives inside a media query. */
   :root {
-    --ground:      #F4F7F5;
-    --surface:     #FFFFFF;
-    --surface-2:   #EDF2EF;
-    --ink:         #0F1618;
-    --ink-2:       #3D4B4C;
-    --ink-3:       #647472;
-    --rule:        #D9E2DE;
-    --rule-2:      #E9EFEC;
-    --accent:      #0B6A56;
-    --accent-ink:  #0B6A56;
-    --accent-soft: #DEEDE7;
-    --amber:       #855312;
-    --amber-soft:  #F3E8D6;
-    --shadow: 0 1px 2px rgba(15,22,24,.05), 0 8px 24px -12px rgba(15,22,24,.18);
-    --display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-    --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+    --ground:#F4F7F5; --surface:#FFFFFF; --surface-2:#EBF1EE;
+    --ink:#0F1618; --ink-2:#3D4B4C; --ink-3:#6B7B79;
+    --rule:#D7E1DD; --rule-2:#E8EEEB;
+    --accent:#0B6A56; --accent-ink:#0B6A56; --accent-soft:#DCEBE5;
+    --amber:#855312; --amber-soft:#F3E8D6;
+    --shadow:0 1px 2px rgba(15,22,24,.05), 0 6px 18px -12px rgba(15,22,24,.22);
+    --display:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ground:      #0B1113;
-      --surface:     #121A1C;
-      --surface-2:   #162023;
-      --ink:         #E4ECE9;
-      --ink-2:       #B3C3BF;
-      --ink-3:       #7E918D;
-      --rule:        #223032;
-      --rule-2:      #1A2527;
-      --accent:      #52C0A0;
-      --accent-ink:  #7FD3B9;
-      --accent-soft: #10302A;
-      --amber:       #D9A860;
-      --amber-soft:  #2E2413;
-      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+      --ground:#0B1113; --surface:#121A1C; --surface-2:#0F1719;
+      --ink:#E4ECE9; --ink-2:#B3C3BF; --ink-3:#849692;
+      --rule:#223032; --rule-2:#1A2527;
+      --accent:#52C0A0; --accent-ink:#7FD3B9; --accent-soft:#12332C;
+      --amber:#D9A860; --amber-soft:#2E2413;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px -12px rgba(0,0,0,.8);
     }
   }
   :root[data-theme="dark"] {
-    --ground:      #0B1113;
-    --surface:     #121A1C;
-    --surface-2:   #162023;
-    --ink:         #E4ECE9;
-    --ink-2:       #B3C3BF;
-    --ink-3:       #7E918D;
-    --rule:        #223032;
-    --rule-2:      #1A2527;
-    --accent:      #52C0A0;
-    --accent-ink:  #7FD3B9;
-    --accent-soft: #10302A;
-    --amber:       #D9A860;
-    --amber-soft:  #2E2413;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    --ground:#0B1113; --surface:#121A1C; --surface-2:#0F1719;
+    --ink:#E4ECE9; --ink-2:#B3C3BF; --ink-3:#849692;
+    --rule:#223032; --rule-2:#1A2527;
+    --accent:#52C0A0; --accent-ink:#7FD3B9; --accent-soft:#12332C;
+    --amber:#D9A860; --amber-soft:#2E2413;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px -12px rgba(0,0,0,.8);
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing:border-box; }
   body {
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--body);
-    font-size: 16px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:var(--body); font-size:15px; line-height:1.45;
+    -webkit-font-smoothing:antialiased;
   }
   .wrap {
-    max-width: 60rem;
-    margin: 0 auto;
-    padding: clamp(2rem, 5vw, 4.5rem) clamp(1rem, 4vw, 2.5rem) 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(2.5rem, 5vw, 4rem);
+    max-width:72rem; margin:0 auto;
+    padding:clamp(1.5rem,3vw,2.5rem) clamp(.9rem,2.5vw,1.75rem) 3rem;
+    display:flex; flex-direction:column; gap:1.5rem;
   }
 
-  /* ---- masthead ---- */
-  header { display: flex; flex-direction: column; gap: .9rem; }
+  header.top { display:flex; flex-direction:column; gap:.35rem; }
   .eyebrow {
-    font-family: var(--mono);
-    font-size: .72rem;
-    letter-spacing: .13em;
-    text-transform: uppercase;
-    color: var(--ink-3);
+    font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3); margin:0;
   }
   h1 {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: clamp(2.1rem, 5.5vw, 3.3rem);
-    line-height: 1.08;
-    letter-spacing: -.015em;
-    margin: 0;
-    text-wrap: balance;
+    font-family:var(--display); font-weight:400; margin:0;
+    font-size:clamp(1.6rem,3.4vw,2.3rem); line-height:1.1;
+    letter-spacing:-.015em; text-wrap:balance;
   }
-  h1 em { font-style: italic; color: var(--accent-ink); }
-  .lede {
-    margin: 0;
-    max-width: 62ch;
-    color: var(--ink-2);
-    font-size: 1.02rem;
+  h1 em { font-style:italic; color:var(--accent-ink); }
+  .sub { margin:.15rem 0 0; color:var(--ink-2); font-size:.88rem; max-width:72ch; }
+
+  /* ---- filter bar ---- */
+  .filters {
+    display:flex; flex-wrap:wrap; align-items:center; gap:.4rem .45rem;
+    padding:.65rem .8rem; background:var(--surface); border-radius:8px;
+    box-shadow:var(--shadow);
+  }
+  .flabel {
+    font-family:var(--mono); font-size:.62rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-3); margin-right:.1rem;
+  }
+  .fgroup { display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; }
+  .fsep { width:1px; align-self:stretch; background:var(--rule); margin:0 .45rem; }
+  button.chip {
+    font:inherit; font-size:.75rem; line-height:1.2;
+    padding:.26rem .58rem; border-radius:999px; cursor:pointer;
+    border:1px solid var(--rule); background:transparent; color:var(--ink-2);
+  }
+  button.chip:hover { border-color:var(--accent); color:var(--accent-ink); }
+  button.chip:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  button.chip.on {
+    background:var(--accent-soft); border-color:var(--accent);
+    color:var(--accent-ink); font-weight:600;
   }
   .tally {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1.6rem;
-    margin-top: .4rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-    font-family: var(--mono);
-    font-size: .8rem;
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
+    margin-left:auto; font-family:var(--mono); font-size:.72rem;
+    color:var(--ink-3); font-variant-numeric:tabular-nums;
   }
-  .tally b { color: var(--ink); font-weight: 600; }
+  .tally b { color:var(--ink); }
 
-  /* ---- year sections ---- */
-  .year-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.1rem;
+  /* ---- year + quarter grid ---- */
+  .year { display:flex; flex-direction:column; gap:.55rem; }
+  .yh { display:flex; align-items:baseline; gap:.7rem; }
+  .yh h2 {
+    font-family:var(--display); font-weight:400; margin:0;
+    font-size:1.45rem; letter-spacing:-.01em;
   }
-  .year-head h2 {
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
-    margin: 0;
-    letter-spacing: -.01em;
+  .ym {
+    font-family:var(--mono); font-size:.7rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
   }
-  .year-count {
-    margin: 0;
-    font-family: var(--mono);
-    font-size: .76rem;
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
+  .grid {
+    display:grid; gap:.65rem;
+    grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
   }
-
-  ol.rows { list-style: none; margin: 0; padding: 0;
-             display: flex; flex-direction: column; }
-  li.row {
-    display: grid;
-    grid-template-columns: 8.5rem minmax(0, 1fr) auto;
-    gap: 0 1.4rem;
-    align-items: baseline;
-    padding: 1rem 1rem 1rem .9rem;
-    border-bottom: 1px solid var(--rule-2);
-    background: var(--surface);
+  article.q {
+    background:var(--surface); border-radius:8px; box-shadow:var(--shadow);
+    padding:.65rem .75rem .75rem; display:flex; flex-direction:column; gap:.4rem;
+    border-top:2px solid transparent;
   }
-  li.row:first-of-type { border-top-left-radius: 6px; border-top-right-radius: 6px; }
-  li.row:last-child { border-bottom: 0;
-                       border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }
-  ol.rows { box-shadow: var(--shadow); border-radius: 6px; overflow: hidden; }
-  li.row.is-past { background: var(--surface-2); }
-
-  .when {
-    font-family: var(--mono);
-    font-size: .82rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--ink-2);
-    letter-spacing: -.01em;
-    white-space: nowrap;
+  /* The quarter we are actually in — the only reason the grid reads as a
+     position in the year rather than a flat archive. */
+  article.q.is-now { border-top-color:var(--accent); }
+  article.q header {
+    display:flex; align-items:baseline; gap:.45rem;
+    padding-bottom:.3rem; border-bottom:1px solid var(--rule-2);
   }
-  li.row:not(.is-past) .when { color: var(--accent-ink); font-weight: 600; }
-
-  .what { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
-  a.name {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--ink);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    align-self: flex-start;
+  article.q h3 {
+    margin:0; font-family:var(--mono); font-size:.78rem; font-weight:700;
+    letter-spacing:.04em; color:var(--ink);
   }
-  a.name:hover, a.name:focus-visible {
-    color: var(--accent-ink);
-    border-bottom-color: var(--accent);
-  }
-  a.name:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .full { font-size: .82rem; color: var(--ink-3); }
-  .why { font-size: .86rem; color: var(--ink-2); margin-top: .3rem; max-width: 58ch; }
-
-  .meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
-           justify-content: flex-end; }
-  .place { font-size: .82rem; color: var(--ink-3); }
-  .chip {
-    font-family: var(--mono);
-    font-size: .64rem;
-    letter-spacing: .09em;
-    text-transform: uppercase;
-    padding: .2rem .45rem;
-    border-radius: 3px;
-    white-space: nowrap;
-  }
-  .chip.next { background: var(--accent-soft); color: var(--accent-ink); }
-  .chip.past { background: transparent; color: var(--ink-3);
-                border: 1px solid var(--rule); }
-  .chip.host { background: var(--amber-soft); color: var(--amber); }
-
-  /* the "we are here" rule */
-  li.now {
-    display: flex; align-items: center; gap: .8rem;
-    padding: .55rem 1rem .55rem .9rem;
-    background: var(--surface);
-    border-bottom: 1px solid var(--rule-2);
-  }
-  .now-date {
-    font-family: var(--mono); font-size: .74rem; color: var(--accent-ink);
-    font-variant-numeric: tabular-nums; width: 7.6rem; flex: none;
-  }
-  .now-rule { flex: 1; height: 1px; background: var(--accent); opacity: .55; }
-  .now-label {
-    font-family: var(--mono); font-size: .64rem; letter-spacing: .13em;
-    text-transform: uppercase; color: var(--accent-ink);
+  article.q.is-now h3 { color:var(--accent-ink); }
+  .qm { font-family:var(--mono); font-size:.64rem; color:var(--ink-3); }
+  .qn {
+    margin-left:auto; font-family:var(--mono); font-size:.64rem;
+    color:var(--ink-3); font-variant-numeric:tabular-nums;
   }
 
-  /* ---- undated ---- */
-  .undated h2 {
-    font-family: var(--display); font-weight: 400;
-    font-size: clamp(1.3rem, 3vw, 1.7rem); margin: 0 0 .6rem;
+  ul.items { list-style:none; margin:0; padding:0;
+             display:flex; flex-direction:column; gap:.26rem; }
+  li.item {
+    display:flex; align-items:baseline; gap:.3rem; flex-wrap:wrap;
+    font-size:.81rem; line-height:1.3;
   }
-  ul.ulist {
-    list-style: none; margin: 1.1rem 0 0; padding: 0;
-    display: grid; gap: .1rem;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    border-radius: 6px; overflow: hidden; box-shadow: var(--shadow);
+  li.item a {
+    color:var(--ink); text-decoration:none; font-weight:600;
+    border-bottom:1px solid transparent;
   }
-  ul.ulist li {
-    background: var(--surface); padding: .8rem 1rem;
-    display: flex; flex-direction: column; gap: .15rem;
+  li.item a:hover, li.item a:focus-visible {
+    color:var(--accent-ink); border-bottom-color:var(--accent);
   }
-  .u-name { font-family: var(--mono); font-size: .82rem; font-weight: 600;
-             color: var(--amber); }
-  .u-why { font-size: .82rem; color: var(--ink-2); }
+  li.item a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  li.item .d {
+    font-family:var(--mono); font-size:.71rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  li.item .h {
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.06em;
+    text-transform:uppercase; padding:.05rem .3rem; border-radius:3px;
+    background:var(--amber-soft); color:var(--amber);
+  }
+  /* Held meetings recede but stay legible — the page is history plus outlook. */
+  li.item.gone a { color:var(--ink-3); font-weight:500; }
+  li.item.gone .d { opacity:.75; }
+  li.item[hidden] { display:none; }
+  p.empty {
+    margin:.1rem 0 0; font-family:var(--mono); font-size:.68rem;
+    color:var(--ink-3); opacity:.7;
+  }
+  p.empty[hidden] { display:none; }
 
   footer {
-    border-top: 1px solid var(--rule);
-    padding-top: 1.2rem;
-    font-size: .8rem;
-    color: var(--ink-3);
-    display: flex; flex-direction: column; gap: .35rem;
+    border-top:1px solid var(--rule); padding-top:.85rem; margin-top:.4rem;
+    font-size:.73rem; color:var(--ink-3);
+    display:flex; flex-direction:column; gap:.25rem;
   }
-  footer code { font-family: var(--mono); font-size: .76rem; color: var(--ink-2); }
+  footer code { font-family:var(--mono); font-size:.71rem; color:var(--ink-2); }
 
-  /* Collapse to one column early. The three-column row needs real width for the
-     date, the name and the location before the middle column starts squeezing,
-     and the artifact viewer can be rendered narrower than a full window. */
-  @media (max-width: 52rem) {
-    li.row { grid-template-columns: 1fr; gap: .35rem; }
-    .meta { justify-content: flex-start; }
-    .now-date { width: auto; }
+  @media (max-width:34rem) {
+    .tally { margin-left:0; width:100%; }
+    .fsep { display:none; }
   }
 </style>
 
 <div class="wrap">
-  <header>
-    <p class="eyebrow">Analyst Days · conference calendar</p>
+  <header class="top">
+    <p class="eyebrow">Analyst Days &middot; conference calendar</p>
     <h1>The meetings that move <em>healthcare</em></h1>
-    <p class="lede">Every conference on the tracked circuit for 2025 & 2026 — the
-      scientific congresses where trial data lands and the investor conferences
-      where guidance resets. Conference-anchored: these are the meetings
-      themselves, not our companies' appearances at them.</p>
-    <p class="tally">
-      <span><b>20</b> meetings</span>
-      <span><b>15</b> held</span>
-      <span><b>5</b> upcoming</span>
-      <span>every date web-verified</span>
-    </p>
+    <p class="sub">Every conference on the tracked circuit for 2025 & 2026, by quarter.
+      Dates are web-verified; hover a meeting for its full name, venue and why it
+      matters. These are the meetings themselves, not our companies' appearances at
+      them.</p>
   </header>
 
-  <section class="year" aria-labelledby="y2026">
-<div class="year-head"><h2 id="y2026">2026</h2><p class="year-count">10 meetings · 5 held · 5 to come</p></div>
-<ol class="rows">
-<li class="row is-past"><span class="when">Jan 8-10</span><span class="what"><a class="name" href="https://www.asco.org/gi" target="_blank" rel="noopener">ASCO GI 2026</a><span class="full">ASCO Gastrointestinal Cancers Symposium 2026</span><span class="why">GI oncology readouts — colorectal, gastric, pancreatic, HCC.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Jan 12-15</span><span class="what"><a class="name" href="https://www.jpmorgan.com/about-us/events-conferences/health-care-conference" target="_blank" rel="noopener">JPM 2026</a><span class="full">J.P. Morgan 44th Annual Healthcare Conference</span><span class="why">THE healthcare investment event of the year. Guidance resets, M&amp;A announcements and the year's strategic tone are set here.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Feb 26-28</span><span class="what"><a class="name" href="https://www.asco.org/gu" target="_blank" rel="noopener">ASCO GU 2026</a><span class="full">ASCO Genitourinary Cancers Symposium 2026</span><span class="why">GU oncology — prostate, bladder, renal.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Apr 17-22</span><span class="what"><a class="name" href="https://www.aacr.org/meeting/aacr-annual-meeting-2026/" target="_blank" rel="noopener">AACR 2026</a><span class="full">AACR Annual Meeting 2026</span><span class="why">Translational/early oncology. Earlier-stage than ASCO — first-in-human and mechanism data, so it moves small/mid-cap biotech hardest.</span></span><span class="meta"><span class="place">San Diego, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">May 29 - Jun 2</span><span class="what"><a class="name" href="https://www.asco.org/annual-meeting" target="_blank" rel="noopener">ASCO 2026</a><span class="full">ASCO Annual Meeting 2026</span><span class="why">The largest oncology meeting. Registrational Phase 3 readouts; the single biggest catalyst cluster of the year for oncology names.</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip past">held</span></span></li>
-<li class="now" aria-label="Today"><span class="now-date">Aug 12</span><span class="now-rule"></span><span class="now-label">today</span></li>
-<li class="row"><span class="when">Oct 23-27</span><span class="what"><a class="name" href="https://www.esmo.org/meeting-calendar/esmo-congress-2026" target="_blank" rel="noopener">ESMO 2026</a><span class="full">ESMO Congress 2026</span><span class="why">Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the venue for EU-first approvals and readouts.</span></span><span class="meta"><span class="place">Madrid, Spain</span><span class="chip next">upcoming</span></span></li>
-<li class="row"><span class="when">Nov 6-9</span><span class="what"><a class="name" href="https://professional.heart.org/en/meetings/scientific-sessions" target="_blank" rel="noopener">AHA 2026</a><span class="full">AHA Scientific Sessions 2026</span><span class="why">Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-metabolic names (GLP-1 CV outcomes, lipid-lowering).</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip next">upcoming</span></span></li>
-<li class="row"><span class="when">Nov 14-17</span><span class="what"><a class="name" href="https://obesityweek.org/" target="_blank" rel="noopener">ObesityWeek 2026</a><span class="full">ObesityWeek 2026</span><span class="why">Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its second-wave competitors.</span></span><span class="meta"><span class="place">Washington, DC</span><span class="chip next">upcoming</span></span></li>
-<li class="row"><span class="when">Nov 29 - Dec 3</span><span class="what"><a class="name" href="https://www.rsna.org/annual-meeting" target="_blank" rel="noopener">RSNA 2026</a><span class="full">RSNA Scientific Assembly and Annual Meeting 2026</span><span class="why">Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase.</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip next">upcoming</span></span></li>
-<li class="row"><span class="when">Dec 12-15</span><span class="what"><a class="name" href="https://www.hematology.org/meetings/annual-meeting" target="_blank" rel="noopener">ASH 2026</a><span class="full">ASH Annual Meeting and Exposition 2026</span><span class="why">Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major biotech catalyst cluster.</span></span><span class="meta"><span class="place">New Orleans, LA</span><span class="chip next">upcoming</span></span></li>
-</ol>
-</section>
-<section class="year" aria-labelledby="y2025">
-<div class="year-head"><h2 id="y2025">2025</h2><p class="year-count">10 meetings · 10 held · 0 to come</p></div>
-<ol class="rows">
-<li class="row is-past"><span class="when">Jan 13-16</span><span class="what"><a class="name" href="https://www.jpmorgan.com/about-us/events-conferences/health-care-conference" target="_blank" rel="noopener">JPM 2025</a><span class="full">J.P. Morgan 43rd Annual Healthcare Conference</span><span class="why">THE healthcare investment event of the year. Guidance resets, M&amp;A announcements and the year's strategic tone are set here.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Jan 23-25</span><span class="what"><a class="name" href="https://www.asco.org/gi" target="_blank" rel="noopener">ASCO GI 2025</a><span class="full">ASCO Gastrointestinal Cancers Symposium 2025</span><span class="why">GI oncology readouts — colorectal, gastric, pancreatic, HCC.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Feb 13-15</span><span class="what"><a class="name" href="https://www.asco.org/gu" target="_blank" rel="noopener">ASCO GU 2025</a><span class="full">ASCO Genitourinary Cancers Symposium 2025</span><span class="why">GU oncology — prostate, bladder, renal.</span></span><span class="meta"><span class="place">San Francisco, CA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Apr 25-30</span><span class="what"><a class="name" href="https://www.aacr.org/professionals/meetings/" target="_blank" rel="noopener">AACR 2025</a><span class="full">AACR Annual Meeting 2025</span><span class="why">Translational/early oncology. Earlier-stage than ASCO — first-in-human and mechanism data, so it moves small/mid-cap biotech hardest.</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">May 30 - Jun 3</span><span class="what"><a class="name" href="https://www.asco.org/annual-meeting" target="_blank" rel="noopener">ASCO 2025</a><span class="full">ASCO Annual Meeting 2025</span><span class="why">The largest oncology meeting. Registrational Phase 3 readouts; the single biggest catalyst cluster of the year for oncology names.</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Oct 17-21</span><span class="what"><a class="name" href="https://www.esmo.org/meeting-calendar/esmo-congress-2025" target="_blank" rel="noopener">ESMO 2025</a><span class="full">ESMO Congress 2025</span><span class="why">Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the venue for EU-first approvals and readouts.</span></span><span class="meta"><span class="place">Berlin, Germany</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Nov 4-7</span><span class="what"><a class="name" href="https://obesityweek.org/" target="_blank" rel="noopener">ObesityWeek 2025</a><span class="full">ObesityWeek 2025</span><span class="why">Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its second-wave competitors.</span></span><span class="meta"><span class="place">Atlanta, GA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Nov 7-10</span><span class="what"><a class="name" href="https://professional.heart.org/en/meetings/scientific-sessions" target="_blank" rel="noopener">AHA 2025</a><span class="full">AHA Scientific Sessions 2025</span><span class="why">Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-metabolic names (GLP-1 CV outcomes, lipid-lowering).</span></span><span class="meta"><span class="place">New Orleans, LA</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Nov 30 - Dec 4</span><span class="what"><a class="name" href="https://www.rsna.org/annual-meeting" target="_blank" rel="noopener">RSNA 2025</a><span class="full">RSNA Scientific Assembly and Annual Meeting 2025</span><span class="why">Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase.</span></span><span class="meta"><span class="place">Chicago, IL</span><span class="chip past">held</span></span></li>
-<li class="row is-past"><span class="when">Dec 6-9</span><span class="what"><a class="name" href="https://www.hematology.org/meetings/annual-meeting" target="_blank" rel="noopener">ASH 2025</a><span class="full">ASH 67th Annual Meeting and Exposition</span><span class="why">Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major biotech catalyst cluster.</span></span><span class="meta"><span class="place">Orlando, FL</span><span class="chip past">held</span></span></li>
-</ol>
-</section>
+  <div class="filters">
+    <span class="flabel">Sector</span>
+    <span class="fgroup"><button class="chip on" data-group="sector" data-value="all" aria-pressed="true">All</button><button class="chip" data-group="sector" data-value="healthcare" aria-pressed="false">Healthcare</button></span>
+    <span class="fsep"></span>
+    <span class="flabel">Type</span>
+    <span class="fgroup"><button class="chip on" data-group="kind" data-value="all" aria-pressed="true">All</button><button class="chip" data-group="kind" data-value="industry-trade-show" aria-pressed="false">Industry trade show</button><button class="chip" data-group="kind" data-value="investor-conference" aria-pressed="false">Investor</button><button class="chip" data-group="kind" data-value="scientific-meeting" aria-pressed="false">Scientific</button></span>
+    <span class="tally"><b id="shown">34</b> of 34 shown &middot;
+      26 held</span>
+  </div>
 
-  <section class="undated" aria-labelledby="undated-h">
-<h2 id="undated-h">On the circuit, not on the calendar</h2>
-<p class="lede">7 meetings are tracked but carry no confirmed date, so they are deliberately absent above. A wrong conference date silently mis-anchors every catalyst hung off it, so nothing here is guessed — a date is either verified against a source or the meeting waits.</p>
-<ul class="ulist"><li><span class="u-name">TCT</span><span class="u-why">Interventional cardiology — structural heart and TAVR/mitral device data. Core medtech catalyst (EW, ABT, MDT, BSX).</span></li><li><span class="u-name">SABCS</span><span class="u-why">Breast cancer — ADC and CDK4/6 readouts.</span></li><li><span class="u-name">ACC</span><span class="u-why">Cardiology — late-breaking CV trials, spring counterpart to AHA.</span></li><li><span class="u-name">ADA</span><span class="u-why">Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with ObesityWeek and EASD.</span></li><li><span class="u-name">HIMSS</span><span class="u-why">Health IT and digital health. Relevant to providers/payers and HC IT names rather than to drug catalysts.</span></li><li><span class="u-name">AdvaMed</span><span class="u-why">The medtech industry's own investor-facing conference.</span></li><li><span class="u-name">AGBT</span><span class="u-why">Genomics/sequencing — the life-science tools product-cycle venue (ILMN, PacBio, Oxford Nanopore, 10x).</span></li></ul>
-</section>
+  <section class="year"><div class="yh"><h2>2026</h2><span class="ym"><span data-year-count>17</span> meetings, 9 held</span></div><div class="grid"><article class="q"><header><h3>Q1</h3><span class="qm">Jan - Mar</span><span class="qn" data-count>6</span></header><ul class="items"><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Gastrointestinal Cancers Symposium 2026 - San Francisco, CA - GI oncology readouts — colorectal, gastric, pancreatic, HCC."><a href="https://www.asco.org/gi" target="_blank" rel="noopener">ASCO GI</a><span class="d">(Jan 8-10)</span></li><li class="item gone" data-sector="healthcare" data-kind="investor-conference" title="J.P. Morgan 44th Annual Healthcare Conference - San Francisco, CA - THE healthcare investment event of the year. Guidance resets, M&amp;A announcements and the year's strategic tone are set here."><a href="https://www.jpmorgan.com/about-us/events-conferences/health-care-conference" target="_blank" rel="noopener">JPM</a><span class="d">(Jan 12-15)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="AGBT General Meeting 2026 - Genomics/sequencing — the life-science tools product-cycle venue. Venue disputed between Marco Island and Orlando; date agrees across sources."><a href="https://www.agbt.org/" target="_blank" rel="noopener">AGBT</a><span class="d">(Feb 23-26)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Genitourinary Cancers Symposium 2026 - San Francisco, CA - GU oncology — prostate, bladder, renal."><a href="https://www.asco.org/gu" target="_blank" rel="noopener">ASCO GU</a><span class="d">(Feb 26-28)</span></li><li class="item gone" data-sector="healthcare" data-kind="industry-trade-show" title="HIMSS Global Health Conference 2026 - Las Vegas, NV - Health IT and digital health. Relevant to providers/payers and HC IT names rather than to drug catalysts."><a href="https://www.himss.org/" target="_blank" rel="noopener">HIMSS</a><span class="d">(Mar 9-12)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ACC Annual Scientific Session 2026 - New Orleans, LA - Cardiology — late-breaking CV trials, spring counterpart to AHA."><a href="https://www.acc.org/" target="_blank" rel="noopener">ACC</a><span class="d">(Mar 28-30)</span></li></ul><p class="empty" hidden>none</p></article><article class="q"><header><h3>Q2</h3><span class="qm">Apr - Jun</span><span class="qn" data-count>3</span></header><ul class="items"><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="AACR Annual Meeting 2026 - San Diego, CA - Translational/early oncology. Earlier-stage than ASCO — first-in-human and mechanism data, so it moves small/mid-cap biotech hardest."><a href="https://www.aacr.org/meeting/aacr-annual-meeting-2026/" target="_blank" rel="noopener">AACR</a><span class="d">(Apr 17-22)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Annual Meeting 2026 - Chicago, IL - The largest oncology meeting. Registrational Phase 3 readouts; the single biggest catalyst cluster of the year for oncology names."><a href="https://www.asco.org/annual-meeting" target="_blank" rel="noopener">ASCO</a><span class="d">(May 29 - Jun 2)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ADA 86th Scientific Sessions - New Orleans, LA - Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with ObesityWeek and EASD."><a href="https://professional.diabetes.org/" target="_blank" rel="noopener">ADA</a><span class="d">(Jun 5-8)</span></li></ul><p class="empty" hidden>none</p></article><article class="q is-now"><header><h3>Q3</h3><span class="qm">Jul - Sep</span><span class="qn" data-count>0</span></header><ul class="items"></ul><p class="empty">none</p></article><article class="q"><header><h3>Q4</h3><span class="qm">Oct - Dec</span><span class="qn" data-count>8</span></header><ul class="items"><li class="item" data-sector="healthcare" data-kind="investor-conference" title="AdvaMed MedTech Conference 2026 - Boston, MA - The medtech industry's own investor-facing conference."><a href="https://advamed.org/" target="_blank" rel="noopener">AdvaMed</a><span class="d">(Oct 18-21)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="ESMO Congress 2026 - Madrid, Spain - Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the venue for EU-first approvals and readouts."><a href="https://www.esmo.org/meeting-calendar/esmo-congress-2026" target="_blank" rel="noopener">ESMO</a><span class="d">(Oct 23-27)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="TCT 2026 (Transcatheter Cardiovascular Therapeutics) - San Diego, CA - Interventional cardiology — structural heart and TAVR/mitral device data. Core medtech catalyst (EW, ABT, MDT, BSX)."><a href="https://www.crf.org/tct" target="_blank" rel="noopener">TCT</a><span class="d">(Oct 31 - Nov 3)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="AHA Scientific Sessions 2026 - Chicago, IL - Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-metabolic names (GLP-1 CV outcomes, lipid-lowering)."><a href="https://professional.heart.org/en/meetings/scientific-sessions" target="_blank" rel="noopener">AHA</a><span class="d">(Nov 6-9)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="ObesityWeek 2026 - Washington, DC - Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its second-wave competitors."><a href="https://obesityweek.org/" target="_blank" rel="noopener">ObesityWeek</a><span class="d">(Nov 14-17)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="RSNA Scientific Assembly and Annual Meeting 2026 - Chicago, IL - Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase."><a href="https://www.rsna.org/annual-meeting" target="_blank" rel="noopener">RSNA</a><span class="d">(Nov 29 - Dec 3)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="San Antonio Breast Cancer Symposium 2026 - San Antonio, TX - Breast cancer — ADC and CDK4/6 readouts."><a href="https://www.sabcs.org/" target="_blank" rel="noopener">SABCS</a><span class="d">(Dec 8-11)</span></li><li class="item" data-sector="healthcare" data-kind="scientific-meeting" title="ASH Annual Meeting and Exposition 2026 - New Orleans, LA - Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major biotech catalyst cluster."><a href="https://www.hematology.org/meetings/annual-meeting" target="_blank" rel="noopener">ASH</a><span class="d">(Dec 12-15)</span></li></ul><p class="empty" hidden>none</p></article></div></section><section class="year"><div class="yh"><h2>2025</h2><span class="ym"><span data-year-count>17</span> meetings, 17 held</span></div><div class="grid"><article class="q"><header><h3>Q1</h3><span class="qm">Jan - Mar</span><span class="qn" data-count>6</span></header><ul class="items"><li class="item gone" data-sector="healthcare" data-kind="investor-conference" title="J.P. Morgan 43rd Annual Healthcare Conference - San Francisco, CA - THE healthcare investment event of the year. Guidance resets, M&amp;A announcements and the year's strategic tone are set here."><a href="https://www.jpmorgan.com/about-us/events-conferences/health-care-conference" target="_blank" rel="noopener">JPM</a><span class="d">(Jan 13-16)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Gastrointestinal Cancers Symposium 2025 - San Francisco, CA - GI oncology readouts — colorectal, gastric, pancreatic, HCC."><a href="https://www.asco.org/gi" target="_blank" rel="noopener">ASCO GI</a><span class="d">(Jan 23-25)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Genitourinary Cancers Symposium 2025 - San Francisco, CA - GU oncology — prostate, bladder, renal."><a href="https://www.asco.org/gu" target="_blank" rel="noopener">ASCO GU</a><span class="d">(Feb 13-15)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="AGBT General Meeting 2025 - Marco Island, FL - Genomics/sequencing — the life-science tools product-cycle venue (ILMN, PacBio, Oxford Nanopore, 10x)."><a href="https://www.agbt.org/" target="_blank" rel="noopener">AGBT</a><span class="d">(Feb 23-26)</span></li><li class="item gone" data-sector="healthcare" data-kind="industry-trade-show" title="HIMSS Global Health Conference 2025 - Las Vegas, NV - Health IT and digital health. Relevant to providers/payers and HC IT names rather than to drug catalysts."><a href="https://www.himss.org/" target="_blank" rel="noopener">HIMSS</a><span class="d">(Mar 3-6)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ACC Annual Scientific Session 2025 - Chicago, IL - Cardiology — late-breaking CV trials, spring counterpart to AHA."><a href="https://www.acc.org/" target="_blank" rel="noopener">ACC</a><span class="d">(Mar 29-31)</span></li></ul><p class="empty" hidden>none</p></article><article class="q"><header><h3>Q2</h3><span class="qm">Apr - Jun</span><span class="qn" data-count>3</span></header><ul class="items"><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="AACR Annual Meeting 2025 - Chicago, IL - Translational/early oncology. Earlier-stage than ASCO — first-in-human and mechanism data, so it moves small/mid-cap biotech hardest."><a href="https://www.aacr.org/professionals/meetings/" target="_blank" rel="noopener">AACR</a><span class="d">(Apr 25-30)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASCO Annual Meeting 2025 - Chicago, IL - The largest oncology meeting. Registrational Phase 3 readouts; the single biggest catalyst cluster of the year for oncology names."><a href="https://www.asco.org/annual-meeting" target="_blank" rel="noopener">ASCO</a><span class="d">(May 30 - Jun 3)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ADA 85th Scientific Sessions - Chicago, IL - Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with ObesityWeek and EASD."><a href="https://professional.diabetes.org/" target="_blank" rel="noopener">ADA</a><span class="d">(Jun 20-23)</span></li></ul><p class="empty" hidden>none</p></article><article class="q"><header><h3>Q3</h3><span class="qm">Jul - Sep</span><span class="qn" data-count>0</span></header><ul class="items"></ul><p class="empty">none</p></article><article class="q"><header><h3>Q4</h3><span class="qm">Oct - Dec</span><span class="qn" data-count>8</span></header><ul class="items"><li class="item gone" data-sector="healthcare" data-kind="investor-conference" title="AdvaMed MedTech Conference 2025 - San Diego, CA - The medtech industry's own investor-facing conference."><a href="https://advamed.org/" target="_blank" rel="noopener">AdvaMed</a><span class="d">(Oct 5-8)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ESMO Congress 2025 - Berlin, Germany - Europe's ASCO equivalent. Often carries practice-changing Phase 3 data, and is the venue for EU-first approvals and readouts."><a href="https://www.esmo.org/meeting-calendar/esmo-congress-2025" target="_blank" rel="noopener">ESMO</a><span class="d">(Oct 17-21)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="TCT 2025 (Transcatheter Cardiovascular Therapeutics) - San Francisco, CA - Interventional cardiology — structural heart and TAVR/mitral device data. Core medtech catalyst (EW, ABT, MDT, BSX)."><a href="https://www.crf.org/tct" target="_blank" rel="noopener">TCT</a><span class="d">(Oct 25-28)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ObesityWeek 2025 - Atlanta, GA - Obesity/cardiometabolic. Directly relevant to the GLP-1 complex and its second-wave competitors."><a href="https://obesityweek.org/" target="_blank" rel="noopener">ObesityWeek</a><span class="d">(Nov 4-7)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="AHA Scientific Sessions 2025 - New Orleans, LA - Cardiovascular outcomes trials — the venue that has repeatedly re-rated cardio-metabolic names (GLP-1 CV outcomes, lipid-lowering)."><a href="https://professional.heart.org/en/meetings/scientific-sessions" target="_blank" rel="noopener">AHA</a><span class="d">(Nov 7-10)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="RSNA Scientific Assembly and Annual Meeting 2025 - Chicago, IL - Radiology and imaging — the medtech/imaging product cycle venue (GEHC, SHL, Philips, Siemens Healthineers) and increasingly the AI-in-imaging showcase."><a href="https://www.rsna.org/annual-meeting" target="_blank" rel="noopener">RSNA</a><span class="d">(Nov 30 - Dec 4)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="ASH 67th Annual Meeting and Exposition - Orlando, FL - Hematology — heme-onc, cell and gene therapy, sickle cell. The year's last major biotech catalyst cluster."><a href="https://www.hematology.org/meetings/annual-meeting" target="_blank" rel="noopener">ASH</a><span class="d">(Dec 6-9)</span></li><li class="item gone" data-sector="healthcare" data-kind="scientific-meeting" title="San Antonio Breast Cancer Symposium 2025 - San Antonio, TX - Breast cancer — ADC and CDK4/6 readouts."><a href="https://www.sabcs.org/" target="_blank" rel="noopener">SABCS</a><span class="d">(Dec 9-12)</span></li></ul><p class="empty" hidden>none</p></article></div></section>
 
   <footer>
-    <span>Curated in <code>analyst-days/src/seed_conferences.py</code> — that
+    <span>Curated in <code>analyst-days/src/seed_conferences.py</code> &mdash; that
       constant is the source of truth; the database is a projection of it.</span>
     <span>Generated 2026-08-12 from <code>data/events.db</code> via
       <code>scripts/build_conference_page.py</code>.</span>
   </footer>
 </div>
+
+<script>
+(function () {
+  var state = { sector: "all", kind: "all" };
+  var items = Array.prototype.slice.call(document.querySelectorAll("li.item"));
+  var cards = Array.prototype.slice.call(document.querySelectorAll("article.q"));
+  var years = Array.prototype.slice.call(document.querySelectorAll("section.year"));
+  var shown = document.getElementById("shown");
+
+  function matches(el) {
+    return (state.sector === "all" || el.dataset.sector === state.sector) &&
+           (state.kind === "all" || el.dataset.kind === state.kind);
+  }
+
+  function apply() {
+    var total = 0;
+    items.forEach(function (el) {
+      var ok = matches(el);
+      el.hidden = !ok;
+      if (ok) { total++; }
+    });
+    // Per-quarter counts, and an explicit "none" so a filtered-empty box reads as
+    // empty rather than as an unexplained gap.
+    cards.forEach(function (card) {
+      var n = card.querySelectorAll("li.item:not([hidden])").length;
+      card.querySelector("[data-count]").textContent = n;
+      card.querySelector("p.empty").hidden = (n !== 0);
+    });
+    years.forEach(function (sec) {
+      sec.querySelector("[data-year-count]").textContent =
+        sec.querySelectorAll("li.item:not([hidden])").length;
+    });
+    shown.textContent = total;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("button.chip"),
+    function (btn) {
+      btn.addEventListener("click", function () {
+        var g = btn.dataset.group;
+        state[g] = btn.dataset.value;
+        Array.prototype.forEach.call(
+          document.querySelectorAll('button.chip[data-group="' + g + '"]'),
+          function (b) {
+            var on = (b === btn);
+            b.classList.toggle("on", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+        apply();
+      });
+    });
+
+  apply();
+})();
+</script>

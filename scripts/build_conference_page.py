@@ -7,7 +7,7 @@ artifact URL whenever the calendar changes — this script exists so the page is
 projection of `data/events.db`, never a hand-maintained copy that drifts from it.
 
 Self-contained by requirement: the artifact CSP blocks every external host, so all
-CSS is inline and no font or script is fetched.
+CSS and JS are inline and no font or script is fetched.
 """
 from __future__ import annotations
 
@@ -26,6 +26,8 @@ DEFAULT_OUT = os.path.join(REPO, "exports", "conference_calendar.html")
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
+QUARTER_MONTHS = {1: "Jan - Mar", 2: "Apr - Jun", 3: "Jul - Sep", 4: "Oct - Dec"}
+
 
 def _esc(s: str | None) -> str:
     return (str(s or "")
@@ -43,30 +45,30 @@ def _why(notes: str | None) -> str:
     return n
 
 
-def _verified_on(notes: str | None) -> str:
-    n = (notes or "").strip()
-    if n.startswith("[") and "]" in n:
-        inner = n[1:n.find("]")].split()
-        return inner[1] if len(inner) > 1 else ""
-    return ""
-
-
 def _span(start: str, end: str | None) -> str:
     """'Jan 13-16' / 'Nov 30 - Dec 4' — the year lives in the section header."""
-    sy, sm, sd = start.split("-")
+    _sy, sm, sd = start.split("-")
     if not end:
         return f"{MONTHS[int(sm) - 1]} {int(sd)}"
-    ey, em, ed = end.split("-")
+    _ey, em, ed = end.split("-")
     if sm == em:
         return f"{MONTHS[int(sm) - 1]} {int(sd)}-{int(ed)}"
     return f"{MONTHS[int(sm) - 1]} {int(sd)} - {MONTHS[int(em) - 1]} {int(ed)}"
+
+
+def _quarter(iso: str) -> int:
+    return (int(iso[5:7]) - 1) // 3 + 1
+
+
+def _slug(s: str | None) -> str:
+    return "".join(ch.lower() if ch.isalnum() else "-" for ch in (s or "none"))
 
 
 def load(db_path: str, years: list[str]):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        "SELECT name, short_name, series, sector, host_ticker, start_date, "
+        "SELECT name, short_name, series, sector, kind, host_ticker, start_date, "
         "end_date, location, url, notes FROM conferences ORDER BY start_date ASC"
     ).fetchall()
     conn.close()
@@ -74,388 +76,348 @@ def load(db_path: str, years: list[str]):
 
 
 def build(rows, years: list[str], today_iso: str) -> str:
-    by_year: dict[str, list] = {y: [] for y in years}
-    for r in rows:
-        by_year[r["start_date"][:4]].append(r)
+    """Quarterly grid: four boxes per year, each listing `Name (dates)`.
 
-    held = sum(1 for r in rows if r["start_date"] < today_iso)
-    upcoming = len(rows) - held
+    Compact by construction — one line per meeting and no prose inside the grid.
+    The detail (full name, venue, why it matters) rides on each row's `title`, so
+    it stays available on hover without costing vertical space.
+    """
+    sectors = sorted({(r["sector"] or "Unclassified") for r in rows})
+    kinds = sorted({(r["kind"] or "Unclassified") for r in rows})
+    today_q, today_y = _quarter(today_iso), today_iso[:4]
 
-    # Undated circuit entries — imported so the page states what it is NOT showing
-    # rather than silently presenting itself as the whole circuit.
-    from src.seed_conferences import unconfirmed
-    undated = unconfirmed()
-
-    sections = []
-    # Newest year first: "this year" is the one being planned around.
+    year_blocks = []
     for y in sorted(years, reverse=True):
-        yr_rows = by_year.get(y, [])
-        if not yr_rows:
+        yr = [r for r in rows if r["start_date"][:4] == y]
+        if not yr:
             continue
-        y_held = sum(1 for r in yr_rows if r["start_date"] < today_iso)
-        items = []
-        marker_done = False
-        for r in yr_rows:
-            is_past = r["start_date"] < today_iso
-            # The "we are here" rule drops in once, before the first future row of
-            # the current year. It is the only reason the year reads as a position
-            # rather than a list.
-            if not is_past and not marker_done and y == today_iso[:4]:
+        cards = []
+        for q in (1, 2, 3, 4):
+            in_q = [r for r in yr if _quarter(r["start_date"]) == q]
+            items = []
+            for r in in_q:
+                past = r["start_date"] < today_iso
+                tip = r["name"]
+                if r["location"]:
+                    tip += " - " + r["location"]
+                tip += " - " + _why(r["notes"])
+                host = ""
+                if r["host_ticker"]:
+                    host = '<span class="h">' + _esc(r["host_ticker"]) + "</span>"
                 items.append(
-                    '<li class="now" aria-label="Today">'
-                    f'<span class="now-date">{_esc(_span(today_iso, None))}</span>'
-                    '<span class="now-rule"></span>'
-                    '<span class="now-label">today</span></li>'
+                    '<li class="item{cls}" data-sector="{sec}" data-kind="{kind}" '
+                    'title="{tip}">'
+                    '<a href="{url}" target="_blank" rel="noopener">{short}</a>'
+                    '<span class="d">({when})</span>{host}</li>'.format(
+                        cls=" gone" if past else "",
+                        sec=_slug(r["sector"] or "Unclassified"),
+                        kind=_slug(r["kind"] or "Unclassified"),
+                        tip=_esc(tip),
+                        url=_esc(r["url"] or "#"),
+                        short=_esc((r["short_name"] or r["name"]).replace(" " + y, "")),
+                        when=_esc(_span(r["start_date"], r["end_date"])),
+                        host=host,
+                    )
                 )
-                marker_done = True
-            v = _verified_on(r["notes"])
-            items.append(
-                '<li class="row{cls}">'
-                '<span class="when">{when}</span>'
-                '<span class="what">'
-                '<a class="name" href="{url}" target="_blank" rel="noopener">{short}</a>'
-                '<span class="full">{full}</span>'
-                '<span class="why">{why}</span>'
-                '</span>'
-                '<span class="meta">'
-                '<span class="place">{place}</span>'
-                '<span class="chip {chipcls}">{chip}</span>'
-                '{host}'
-                '</span>'
-                '</li>'.format(
-                    cls=" is-past" if is_past else "",
-                    when=_esc(_span(r["start_date"], r["end_date"])),
-                    url=_esc(r["url"] or "#"),
-                    short=_esc(r["short_name"] or r["name"]),
-                    full=_esc(r["name"]),
-                    why=_esc(_why(r["notes"])),
-                    place=_esc(r["location"] or "—"),
-                    chipcls="past" if is_past else "next",
-                    chip="held" if is_past else "upcoming",
-                    host=(f'<span class="chip host">{_esc(r["host_ticker"])}</span>'
-                          if r["host_ticker"] else ""),
+            is_now = (y == today_y and q == today_q)
+            cards.append(
+                '<article class="q{now}">'
+                "<header><h3>Q{q}</h3><span class=\"qm\">{months}</span>"
+                '<span class="qn" data-count>{n}</span></header>'
+                '<ul class="items">{items}</ul>'
+                '<p class="empty"{hide}>none</p>'
+                "</article>".format(
+                    now=" is-now" if is_now else "",
+                    q=q, months=QUARTER_MONTHS[q], n=len(in_q),
+                    items="".join(items),
+                    hide="" if not in_q else " hidden",
                 )
             )
-        sections.append(
-            f'<section class="year" aria-labelledby="y{y}">\n'
-            f'<div class="year-head">'
-            f'<h2 id="y{y}">{y}</h2>'
-            f'<p class="year-count">{len(yr_rows)} meetings · '
-            f'{y_held} held · {len(yr_rows) - y_held} to come</p>'
-            f'</div>\n<ol class="rows">\n' + "\n".join(items) + "\n</ol>\n</section>"
+        held = sum(1 for r in yr if r["start_date"] < today_iso)
+        year_blocks.append(
+            '<section class="year">'
+            '<div class="yh"><h2>{y}</h2>'
+            '<span class="ym"><span data-year-count>{n}</span> meetings, {held} held</span>'
+            '</div><div class="grid">{cards}</div></section>'.format(
+                y=y, n=len(yr), held=held, cards="".join(cards))
         )
 
-    undated_html = ""
-    if undated:
-        chips = "".join(
-            f'<li><span class="u-name">{_esc(c.short_name)}</span>'
-            f'<span class="u-why">{_esc(c.why_it_matters.replace(" CONFIRM DATE.", "").replace(" CONFIRM DATE before relying on it.", ""))}</span></li>'
-            for c in undated
-        )
-        undated_html = (
-            '<section class="undated" aria-labelledby="undated-h">\n'
-            '<h2 id="undated-h">On the circuit, not on the calendar</h2>\n'
-            f'<p class="lede">{len(undated)} meetings are tracked but carry no confirmed '
-            'date, so they are deliberately absent above. A wrong conference date '
-            'silently mis-anchors every catalyst hung off it, so nothing here is '
-            'guessed — a date is either verified against a source or the meeting waits.</p>\n'
-            f'<ul class="ulist">{chips}</ul>\n</section>'
-        )
+    def chips(group, values):
+        out = ['<button class="chip on" data-group="' + group + '" data-value="all" '
+               'aria-pressed="true">All</button>']
+        for v in values:
+            label = v.replace(" meeting", "").replace(" conference", "")
+            out.append(
+                '<button class="chip" data-group="' + group + '" data-value="'
+                + _slug(v) + '" aria-pressed="false">' + _esc(label) + "</button>")
+        return "".join(out)
 
-    return PAGE.format(
-        sections="\n".join(sections),
-        undated=undated_html,
-        total=len(rows),
-        held=held,
-        upcoming=upcoming,
-        span=" & ".join(sorted(years)),
-        generated=today_iso,
-    )
+    held_total = sum(1 for r in rows if r["start_date"] < today_iso)
+    return (PAGE
+            .replace("%%YEARS%%", "".join(year_blocks))
+            .replace("%%SECTOR_CHIPS%%", chips("sector", sectors))
+            .replace("%%KIND_CHIPS%%", chips("kind", kinds))
+            .replace("%%TOTAL%%", str(len(rows)))
+            .replace("%%HELD%%", str(held_total))
+            .replace("%%SPAN%%", " & ".join(sorted(years)))
+            .replace("%%GENERATED%%", today_iso))
 
 
 PAGE = """<title>Healthcare Conference Circuit</title>
 <style>
-  /* Light is the base set. Every colour below is a token so the dark variants
-     can redefine tokens only — no component rule lives inside a media query. */
-  :root {{
-    --ground:      #F4F7F5;
-    --surface:     #FFFFFF;
-    --surface-2:   #EDF2EF;
-    --ink:         #0F1618;
-    --ink-2:       #3D4B4C;
-    --ink-3:       #647472;
-    --rule:        #D9E2DE;
-    --rule-2:      #E9EFEC;
-    --accent:      #0B6A56;
-    --accent-ink:  #0B6A56;
-    --accent-soft: #DEEDE7;
-    --amber:       #855312;
-    --amber-soft:  #F3E8D6;
-    --shadow: 0 1px 2px rgba(15,22,24,.05), 0 8px 24px -12px rgba(15,22,24,.18);
-    --display: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-    --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
-  }}
-  @media (prefers-color-scheme: dark) {{
-    :root:not([data-theme="light"]) {{
-      --ground:      #0B1113;
-      --surface:     #121A1C;
-      --surface-2:   #162023;
-      --ink:         #E4ECE9;
-      --ink-2:       #B3C3BF;
-      --ink-3:       #7E918D;
-      --rule:        #223032;
-      --rule-2:      #1A2527;
-      --accent:      #52C0A0;
-      --accent-ink:  #7FD3B9;
-      --accent-soft: #10302A;
-      --amber:       #D9A860;
-      --amber-soft:  #2E2413;
-      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
-    }}
-  }}
-  :root[data-theme="dark"] {{
-    --ground:      #0B1113;
-    --surface:     #121A1C;
-    --surface-2:   #162023;
-    --ink:         #E4ECE9;
-    --ink-2:       #B3C3BF;
-    --ink-3:       #7E918D;
-    --rule:        #223032;
-    --rule-2:      #1A2527;
-    --accent:      #52C0A0;
-    --accent-ink:  #7FD3B9;
-    --accent-soft: #10302A;
-    --amber:       #D9A860;
-    --amber-soft:  #2E2413;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
-  }}
+  /* Light is the base set. Every colour is a token, so the two dark variants
+     redefine tokens only and no component rule lives inside a media query. */
+  :root {
+    --ground:#F4F7F5; --surface:#FFFFFF; --surface-2:#EBF1EE;
+    --ink:#0F1618; --ink-2:#3D4B4C; --ink-3:#6B7B79;
+    --rule:#D7E1DD; --rule-2:#E8EEEB;
+    --accent:#0B6A56; --accent-ink:#0B6A56; --accent-soft:#DCEBE5;
+    --amber:#855312; --amber-soft:#F3E8D6;
+    --shadow:0 1px 2px rgba(15,22,24,.05), 0 6px 18px -12px rgba(15,22,24,.22);
+    --display:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:#0B1113; --surface:#121A1C; --surface-2:#0F1719;
+      --ink:#E4ECE9; --ink-2:#B3C3BF; --ink-3:#849692;
+      --rule:#223032; --rule-2:#1A2527;
+      --accent:#52C0A0; --accent-ink:#7FD3B9; --accent-soft:#12332C;
+      --amber:#D9A860; --amber-soft:#2E2413;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px -12px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#0B1113; --surface:#121A1C; --surface-2:#0F1719;
+    --ink:#E4ECE9; --ink-2:#B3C3BF; --ink-3:#849692;
+    --rule:#223032; --rule-2:#1A2527;
+    --accent:#52C0A0; --accent-ink:#7FD3B9; --accent-soft:#12332C;
+    --amber:#D9A860; --amber-soft:#2E2413;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px -12px rgba(0,0,0,.8);
+  }
 
-  * {{ box-sizing: border-box; }}
-  body {{
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--body);
-    font-size: 16px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }}
-  .wrap {{
-    max-width: 60rem;
-    margin: 0 auto;
-    padding: clamp(2rem, 5vw, 4.5rem) clamp(1rem, 4vw, 2.5rem) 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(2.5rem, 5vw, 4rem);
-  }}
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:var(--body); font-size:15px; line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap {
+    max-width:72rem; margin:0 auto;
+    padding:clamp(1.5rem,3vw,2.5rem) clamp(.9rem,2.5vw,1.75rem) 3rem;
+    display:flex; flex-direction:column; gap:1.5rem;
+  }
 
-  /* ---- masthead ---- */
-  header {{ display: flex; flex-direction: column; gap: .9rem; }}
-  .eyebrow {{
-    font-family: var(--mono);
-    font-size: .72rem;
-    letter-spacing: .13em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }}
-  h1 {{
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: clamp(2.1rem, 5.5vw, 3.3rem);
-    line-height: 1.08;
-    letter-spacing: -.015em;
-    margin: 0;
-    text-wrap: balance;
-  }}
-  h1 em {{ font-style: italic; color: var(--accent-ink); }}
-  .lede {{
-    margin: 0;
-    max-width: 62ch;
-    color: var(--ink-2);
-    font-size: 1.02rem;
-  }}
-  .tally {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1.6rem;
-    margin-top: .4rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-    font-family: var(--mono);
-    font-size: .8rem;
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
-  }}
-  .tally b {{ color: var(--ink); font-weight: 600; }}
+  header.top { display:flex; flex-direction:column; gap:.35rem; }
+  .eyebrow {
+    font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3); margin:0;
+  }
+  h1 {
+    font-family:var(--display); font-weight:400; margin:0;
+    font-size:clamp(1.6rem,3.4vw,2.3rem); line-height:1.1;
+    letter-spacing:-.015em; text-wrap:balance;
+  }
+  h1 em { font-style:italic; color:var(--accent-ink); }
+  .sub { margin:.15rem 0 0; color:var(--ink-2); font-size:.88rem; max-width:72ch; }
 
-  /* ---- year sections ---- */
-  .year-head {{
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.1rem;
-  }}
-  .year-head h2 {{
-    font-family: var(--display);
-    font-weight: 400;
-    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
-    margin: 0;
-    letter-spacing: -.01em;
-  }}
-  .year-count {{
-    margin: 0;
-    font-family: var(--mono);
-    font-size: .76rem;
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
-  }}
+  /* ---- filter bar ---- */
+  .filters {
+    display:flex; flex-wrap:wrap; align-items:center; gap:.4rem .45rem;
+    padding:.65rem .8rem; background:var(--surface); border-radius:8px;
+    box-shadow:var(--shadow);
+  }
+  .flabel {
+    font-family:var(--mono); font-size:.62rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-3); margin-right:.1rem;
+  }
+  .fgroup { display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; }
+  .fsep { width:1px; align-self:stretch; background:var(--rule); margin:0 .45rem; }
+  button.chip {
+    font:inherit; font-size:.75rem; line-height:1.2;
+    padding:.26rem .58rem; border-radius:999px; cursor:pointer;
+    border:1px solid var(--rule); background:transparent; color:var(--ink-2);
+  }
+  button.chip:hover { border-color:var(--accent); color:var(--accent-ink); }
+  button.chip:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  button.chip.on {
+    background:var(--accent-soft); border-color:var(--accent);
+    color:var(--accent-ink); font-weight:600;
+  }
+  .tally {
+    margin-left:auto; font-family:var(--mono); font-size:.72rem;
+    color:var(--ink-3); font-variant-numeric:tabular-nums;
+  }
+  .tally b { color:var(--ink); }
 
-  ol.rows {{ list-style: none; margin: 0; padding: 0;
-             display: flex; flex-direction: column; }}
-  li.row {{
-    display: grid;
-    grid-template-columns: 8.5rem minmax(0, 1fr) auto;
-    gap: 0 1.4rem;
-    align-items: baseline;
-    padding: 1rem 1rem 1rem .9rem;
-    border-bottom: 1px solid var(--rule-2);
-    background: var(--surface);
-  }}
-  li.row:first-of-type {{ border-top-left-radius: 6px; border-top-right-radius: 6px; }}
-  li.row:last-child {{ border-bottom: 0;
-                       border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }}
-  ol.rows {{ box-shadow: var(--shadow); border-radius: 6px; overflow: hidden; }}
-  li.row.is-past {{ background: var(--surface-2); }}
+  /* ---- year + quarter grid ---- */
+  .year { display:flex; flex-direction:column; gap:.55rem; }
+  .yh { display:flex; align-items:baseline; gap:.7rem; }
+  .yh h2 {
+    font-family:var(--display); font-weight:400; margin:0;
+    font-size:1.45rem; letter-spacing:-.01em;
+  }
+  .ym {
+    font-family:var(--mono); font-size:.7rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+  .grid {
+    display:grid; gap:.65rem;
+    grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+  }
+  article.q {
+    background:var(--surface); border-radius:8px; box-shadow:var(--shadow);
+    padding:.65rem .75rem .75rem; display:flex; flex-direction:column; gap:.4rem;
+    border-top:2px solid transparent;
+  }
+  /* The quarter we are actually in — the only reason the grid reads as a
+     position in the year rather than a flat archive. */
+  article.q.is-now { border-top-color:var(--accent); }
+  article.q header {
+    display:flex; align-items:baseline; gap:.45rem;
+    padding-bottom:.3rem; border-bottom:1px solid var(--rule-2);
+  }
+  article.q h3 {
+    margin:0; font-family:var(--mono); font-size:.78rem; font-weight:700;
+    letter-spacing:.04em; color:var(--ink);
+  }
+  article.q.is-now h3 { color:var(--accent-ink); }
+  .qm { font-family:var(--mono); font-size:.64rem; color:var(--ink-3); }
+  .qn {
+    margin-left:auto; font-family:var(--mono); font-size:.64rem;
+    color:var(--ink-3); font-variant-numeric:tabular-nums;
+  }
 
-  .when {{
-    font-family: var(--mono);
-    font-size: .82rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--ink-2);
-    letter-spacing: -.01em;
-    white-space: nowrap;
-  }}
-  li.row:not(.is-past) .when {{ color: var(--accent-ink); font-weight: 600; }}
+  ul.items { list-style:none; margin:0; padding:0;
+             display:flex; flex-direction:column; gap:.26rem; }
+  li.item {
+    display:flex; align-items:baseline; gap:.3rem; flex-wrap:wrap;
+    font-size:.81rem; line-height:1.3;
+  }
+  li.item a {
+    color:var(--ink); text-decoration:none; font-weight:600;
+    border-bottom:1px solid transparent;
+  }
+  li.item a:hover, li.item a:focus-visible {
+    color:var(--accent-ink); border-bottom-color:var(--accent);
+  }
+  li.item a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  li.item .d {
+    font-family:var(--mono); font-size:.71rem; color:var(--ink-3);
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  li.item .h {
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.06em;
+    text-transform:uppercase; padding:.05rem .3rem; border-radius:3px;
+    background:var(--amber-soft); color:var(--amber);
+  }
+  /* Held meetings recede but stay legible — the page is history plus outlook. */
+  li.item.gone a { color:var(--ink-3); font-weight:500; }
+  li.item.gone .d { opacity:.75; }
+  li.item[hidden] { display:none; }
+  p.empty {
+    margin:.1rem 0 0; font-family:var(--mono); font-size:.68rem;
+    color:var(--ink-3); opacity:.7;
+  }
+  p.empty[hidden] { display:none; }
 
-  .what {{ display: flex; flex-direction: column; gap: .15rem; min-width: 0; }}
-  a.name {{
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--ink);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    align-self: flex-start;
-  }}
-  a.name:hover, a.name:focus-visible {{
-    color: var(--accent-ink);
-    border-bottom-color: var(--accent);
-  }}
-  a.name:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 3px; }}
-  .full {{ font-size: .82rem; color: var(--ink-3); }}
-  .why {{ font-size: .86rem; color: var(--ink-2); margin-top: .3rem; max-width: 58ch; }}
+  footer {
+    border-top:1px solid var(--rule); padding-top:.85rem; margin-top:.4rem;
+    font-size:.73rem; color:var(--ink-3);
+    display:flex; flex-direction:column; gap:.25rem;
+  }
+  footer code { font-family:var(--mono); font-size:.71rem; color:var(--ink-2); }
 
-  .meta {{ display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
-           justify-content: flex-end; }}
-  .place {{ font-size: .82rem; color: var(--ink-3); }}
-  .chip {{
-    font-family: var(--mono);
-    font-size: .64rem;
-    letter-spacing: .09em;
-    text-transform: uppercase;
-    padding: .2rem .45rem;
-    border-radius: 3px;
-    white-space: nowrap;
-  }}
-  .chip.next {{ background: var(--accent-soft); color: var(--accent-ink); }}
-  .chip.past {{ background: transparent; color: var(--ink-3);
-                border: 1px solid var(--rule); }}
-  .chip.host {{ background: var(--amber-soft); color: var(--amber); }}
-
-  /* the "we are here" rule */
-  li.now {{
-    display: flex; align-items: center; gap: .8rem;
-    padding: .55rem 1rem .55rem .9rem;
-    background: var(--surface);
-    border-bottom: 1px solid var(--rule-2);
-  }}
-  .now-date {{
-    font-family: var(--mono); font-size: .74rem; color: var(--accent-ink);
-    font-variant-numeric: tabular-nums; width: 7.6rem; flex: none;
-  }}
-  .now-rule {{ flex: 1; height: 1px; background: var(--accent); opacity: .55; }}
-  .now-label {{
-    font-family: var(--mono); font-size: .64rem; letter-spacing: .13em;
-    text-transform: uppercase; color: var(--accent-ink);
-  }}
-
-  /* ---- undated ---- */
-  .undated h2 {{
-    font-family: var(--display); font-weight: 400;
-    font-size: clamp(1.3rem, 3vw, 1.7rem); margin: 0 0 .6rem;
-  }}
-  ul.ulist {{
-    list-style: none; margin: 1.1rem 0 0; padding: 0;
-    display: grid; gap: .1rem;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    border-radius: 6px; overflow: hidden; box-shadow: var(--shadow);
-  }}
-  ul.ulist li {{
-    background: var(--surface); padding: .8rem 1rem;
-    display: flex; flex-direction: column; gap: .15rem;
-  }}
-  .u-name {{ font-family: var(--mono); font-size: .82rem; font-weight: 600;
-             color: var(--amber); }}
-  .u-why {{ font-size: .82rem; color: var(--ink-2); }}
-
-  footer {{
-    border-top: 1px solid var(--rule);
-    padding-top: 1.2rem;
-    font-size: .8rem;
-    color: var(--ink-3);
-    display: flex; flex-direction: column; gap: .35rem;
-  }}
-  footer code {{ font-family: var(--mono); font-size: .76rem; color: var(--ink-2); }}
-
-  /* Collapse to one column early. The three-column row needs real width for the
-     date, the name and the location before the middle column starts squeezing,
-     and the artifact viewer can be rendered narrower than a full window. */
-  @media (max-width: 52rem) {{
-    li.row {{ grid-template-columns: 1fr; gap: .35rem; }}
-    .meta {{ justify-content: flex-start; }}
-    .now-date {{ width: auto; }}
-  }}
+  @media (max-width:34rem) {
+    .tally { margin-left:0; width:100%; }
+    .fsep { display:none; }
+  }
 </style>
 
 <div class="wrap">
-  <header>
-    <p class="eyebrow">Analyst Days · conference calendar</p>
+  <header class="top">
+    <p class="eyebrow">Analyst Days &middot; conference calendar</p>
     <h1>The meetings that move <em>healthcare</em></h1>
-    <p class="lede">Every conference on the tracked circuit for {span} — the
-      scientific congresses where trial data lands and the investor conferences
-      where guidance resets. Conference-anchored: these are the meetings
-      themselves, not our companies' appearances at them.</p>
-    <p class="tally">
-      <span><b>{total}</b> meetings</span>
-      <span><b>{held}</b> held</span>
-      <span><b>{upcoming}</b> upcoming</span>
-      <span>every date web-verified</span>
-    </p>
+    <p class="sub">Every conference on the tracked circuit for %%SPAN%%, by quarter.
+      Dates are web-verified; hover a meeting for its full name, venue and why it
+      matters. These are the meetings themselves, not our companies' appearances at
+      them.</p>
   </header>
 
-  {sections}
+  <div class="filters">
+    <span class="flabel">Sector</span>
+    <span class="fgroup">%%SECTOR_CHIPS%%</span>
+    <span class="fsep"></span>
+    <span class="flabel">Type</span>
+    <span class="fgroup">%%KIND_CHIPS%%</span>
+    <span class="tally"><b id="shown">%%TOTAL%%</b> of %%TOTAL%% shown &middot;
+      %%HELD%% held</span>
+  </div>
 
-  {undated}
+  %%YEARS%%
 
   <footer>
-    <span>Curated in <code>analyst-days/src/seed_conferences.py</code> — that
+    <span>Curated in <code>analyst-days/src/seed_conferences.py</code> &mdash; that
       constant is the source of truth; the database is a projection of it.</span>
-    <span>Generated {generated} from <code>data/events.db</code> via
+    <span>Generated %%GENERATED%% from <code>data/events.db</code> via
       <code>scripts/build_conference_page.py</code>.</span>
   </footer>
 </div>
+
+<script>
+(function () {
+  var state = { sector: "all", kind: "all" };
+  var items = Array.prototype.slice.call(document.querySelectorAll("li.item"));
+  var cards = Array.prototype.slice.call(document.querySelectorAll("article.q"));
+  var years = Array.prototype.slice.call(document.querySelectorAll("section.year"));
+  var shown = document.getElementById("shown");
+
+  function matches(el) {
+    return (state.sector === "all" || el.dataset.sector === state.sector) &&
+           (state.kind === "all" || el.dataset.kind === state.kind);
+  }
+
+  function apply() {
+    var total = 0;
+    items.forEach(function (el) {
+      var ok = matches(el);
+      el.hidden = !ok;
+      if (ok) { total++; }
+    });
+    // Per-quarter counts, and an explicit "none" so a filtered-empty box reads as
+    // empty rather than as an unexplained gap.
+    cards.forEach(function (card) {
+      var n = card.querySelectorAll("li.item:not([hidden])").length;
+      card.querySelector("[data-count]").textContent = n;
+      card.querySelector("p.empty").hidden = (n !== 0);
+    });
+    years.forEach(function (sec) {
+      sec.querySelector("[data-year-count]").textContent =
+        sec.querySelectorAll("li.item:not([hidden])").length;
+    });
+    shown.textContent = total;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("button.chip"),
+    function (btn) {
+      btn.addEventListener("click", function () {
+        var g = btn.dataset.group;
+        state[g] = btn.dataset.value;
+        Array.prototype.forEach.call(
+          document.querySelectorAll('button.chip[data-group="' + g + '"]'),
+          function (b) {
+            var on = (b === btn);
+            b.classList.toggle("on", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+        apply();
+      });
+    });
+
+  apply();
+})();
+</script>
 """
 
 

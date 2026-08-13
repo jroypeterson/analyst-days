@@ -45,6 +45,17 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "events.db")
 # Sector vocabulary. Healthcare dominates today; tech and consumer are planned.
 SECTORS = ("Healthcare", "Technology", "Consumer")
 
+# Kind vocabulary — what SHAPE of meeting it is, independent of sector.
+#   Scientific meeting  — trial data / late-breakers drop here (ASCO, AHA, ASH)
+#   Investor conference — companies present to investors; guidance resets (JPM, CAGNY)
+#   Industry trade show — vendor floor, product cycle, no single host (CES, HIMSS)
+#   Vendor event        — one company's own launch stage (WWDC, GTC) -> has host_ticker
+KINDS = ("Scientific meeting", "Investor conference", "Industry trade show",
+         "Vendor event")
+SCIENTIFIC = "Scientific meeting"
+INVESTOR = "Investor conference"
+TRADE_SHOW = "Industry trade show"
+
 
 @dataclass(frozen=True)
 class Conference:
@@ -73,6 +84,7 @@ class Conference:
     verified_on: Optional[str]
     why_it_matters: str
     sector: str = "Healthcare"
+    kind: str = SCIENTIFIC
     host_ticker: Optional[str] = None
 
 
@@ -93,7 +105,7 @@ CONFERENCES: list[Conference] = [
       "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
       "verified", "2026-08-12",
       "THE healthcare investment event of the year. Guidance resets, M&A announcements "
-      "and the year's strategic tone are set here."),
+      "and the year's strategic tone are set here.", kind=INVESTOR),
     C("ASCO Gastrointestinal Cancers Symposium 2025", "ASCO GI 2025", "asco-gi",
       "2025-01-23", "2025-01-25", "San Francisco, CA",
       "https://www.asco.org/gi", "verified", "2026-08-12",
@@ -147,7 +159,7 @@ CONFERENCES: list[Conference] = [
       "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
       "verified", "2026-08-12",
       "THE healthcare investment event of the year. Guidance resets, M&A announcements "
-      "and the year's strategic tone are set here."),
+      "and the year's strategic tone are set here.", kind=INVESTOR),
     C("ASCO Genitourinary Cancers Symposium 2026", "ASCO GU 2026", "asco-gu",
       "2026-02-26", "2026-02-28", "San Francisco, CA",
       "https://www.asco.org/gu", "verified", "2026-08-12",
@@ -195,7 +207,8 @@ CONFERENCES: list[Conference] = [
       "https://jpmannualhealthcareconference.com/", "verified", "2026-08-05",
       "THE healthcare investment event of the year. ~8,000 attendees, 500+ company "
       "presentations. Invitation-only. Guidance resets, M&A announcements and the year's "
-      "strategic tone are set here; the week itself moves the whole sector."),
+      "strategic tone are set here; the week itself moves the whole sector.",
+      kind=INVESTOR),
     C("ASCO Gastrointestinal Cancers Symposium 2027", "ASCO GI 2027", "asco-gi",
       "2027-01-21", "2027-01-23", "San Francisco, CA",
       "https://www.asco.org/calendar", "verified", "2026-08-05",
@@ -215,51 +228,90 @@ CONFERENCES: list[Conference] = [
       "The largest oncology meeting. Registrational Phase 3 readouts; the single biggest "
       "catalyst cluster of the year for oncology names."),
 
-    # ---- on the circuit, DATE NOT CONFIRMED — stored dateless on purpose --------------
-    C("TCT (Transcatheter Cardiovascular Therapeutics)", "TCT", "tct",
-      None, None, None,
-      "https://www.crf.org/tct", "unconfirmed", None,
-      "Interventional cardiology — structural heart and TAVR/mitral device data. Core "
-      "medtech catalyst (EW, ABT, MDT, BSX). CONFIRM DATE before relying on it."),
-    C("San Antonio Breast Cancer Symposium", "SABCS", "sabcs",
-      None, None, "San Antonio, TX",
-      "https://www.sabcs.org/", "unconfirmed", None,
-      "Breast cancer — ADC and CDK4/6 readouts. CONFIRM DATE."),
-    C("ACC Annual Scientific Session", "ACC", "acc",
-      None, None, None,
-      "https://www.acc.org/", "unconfirmed", None,
-      "Cardiology — late-breaking CV trials, spring counterpart to AHA. CONFIRM DATE."),
-    C("ADA Scientific Sessions", "ADA", "ada",
-      None, None, None,
-      "https://professional.diabetes.org/", "unconfirmed", None,
-      "Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with "
-      "ObesityWeek and EASD. CONFIRM DATE."),
-    C("HIMSS Global Health Conference", "HIMSS", "himss",
-      None, None, None,
-      "https://www.himss.org/", "unconfirmed", None,
-      "Health IT and digital health. Relevant to providers/payers and HC IT names rather "
-      "than to drug catalysts. CONFIRM DATE."),
-    C("AdvaMed MedTech Conference", "AdvaMed", "advamed",
-      None, None, None,
-      "https://advamed.org/", "unconfirmed", None,
-      "The medtech industry's own investor-facing conference. CONFIRM DATE."),
-    C("AGBT General Meeting", "AGBT", "agbt",
-      None, None, "Marco Island, FL",
-      "https://www.agbt.org/", "unconfirmed", None,
+    # ---- SECOND-WAVE CIRCUIT — dated 2026-08-12 by web search -------------------------
+    # These seven series were carried dateless for a week because their dates had never
+    # been confirmed. They are confirmed now, per instance, so they join the calendar
+    # rather than sitting in a "dates needed" list. The policy did its job: nothing was
+    # ever guessed, and the rows waited until there was evidence.
+    C("AGBT General Meeting 2025", "AGBT 2025", "agbt",
+      "2025-02-23", "2025-02-26", "Marco Island, FL",
+      "https://www.agbt.org/", "verified", "2026-08-12",
       "Genomics/sequencing — the life-science tools product-cycle venue (ILMN, PacBio, "
-      "Oxford Nanopore, 10x). CONFIRM DATE."),
+      "Oxford Nanopore, 10x)."),
+    C("HIMSS Global Health Conference 2025", "HIMSS 2025", "himss",
+      "2025-03-03", "2025-03-06", "Las Vegas, NV",
+      "https://www.himss.org/", "verified", "2026-08-12",
+      "Health IT and digital health. Relevant to providers/payers and HC IT names rather "
+      "than to drug catalysts.", kind=TRADE_SHOW),
+    C("ACC Annual Scientific Session 2025", "ACC 2025", "acc",
+      "2025-03-29", "2025-03-31", "Chicago, IL",
+      "https://www.acc.org/", "verified", "2026-08-12",
+      "Cardiology — late-breaking CV trials, spring counterpart to AHA."),
+    C("ADA 85th Scientific Sessions", "ADA 2025", "ada",
+      "2025-06-20", "2025-06-23", "Chicago, IL",
+      "https://professional.diabetes.org/", "verified", "2026-08-12",
+      "Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with "
+      "ObesityWeek and EASD."),
+    C("AdvaMed MedTech Conference 2025", "AdvaMed 2025", "advamed",
+      "2025-10-05", "2025-10-08", "San Diego, CA",
+      "https://advamed.org/", "verified", "2026-08-12",
+      "The medtech industry's own investor-facing conference.", kind=INVESTOR),
+    C("TCT 2025 (Transcatheter Cardiovascular Therapeutics)", "TCT 2025", "tct",
+      "2025-10-25", "2025-10-28", "San Francisco, CA",
+      "https://www.crf.org/tct", "verified", "2026-08-12",
+      "Interventional cardiology — structural heart and TAVR/mitral device data. Core "
+      "medtech catalyst (EW, ABT, MDT, BSX)."),
+    C("San Antonio Breast Cancer Symposium 2025", "SABCS 2025", "sabcs",
+      "2025-12-09", "2025-12-12", "San Antonio, TX",
+      "https://www.sabcs.org/", "verified", "2026-08-12",
+      "Breast cancer — ADC and CDK4/6 readouts."),
+    # AGBT 2026: the DATE is consistent across sources, the LOCATION is not — Marco Island
+    # and Orlando both appear. Location stays NULL rather than asserting a disputed fact;
+    # the same rule that governs dates governs every other field.
+    C("AGBT General Meeting 2026", "AGBT 2026", "agbt",
+      "2026-02-23", "2026-02-26", None,
+      "https://www.agbt.org/", "verified", "2026-08-12",
+      "Genomics/sequencing — the life-science tools product-cycle venue. Venue disputed "
+      "between Marco Island and Orlando; date agrees across sources."),
+    C("HIMSS Global Health Conference 2026", "HIMSS 2026", "himss",
+      "2026-03-09", "2026-03-12", "Las Vegas, NV",
+      "https://www.himss.org/", "verified", "2026-08-12",
+      "Health IT and digital health. Relevant to providers/payers and HC IT names rather "
+      "than to drug catalysts.", kind=TRADE_SHOW),
+    C("ACC Annual Scientific Session 2026", "ACC 2026", "acc",
+      "2026-03-28", "2026-03-30", "New Orleans, LA",
+      "https://www.acc.org/", "verified", "2026-08-12",
+      "Cardiology — late-breaking CV trials, spring counterpart to AHA."),
+    C("ADA 86th Scientific Sessions", "ADA 2026", "ada",
+      "2026-06-05", "2026-06-08", "New Orleans, LA",
+      "https://professional.diabetes.org/", "verified", "2026-08-12",
+      "Diabetes — the other half of the cardiometabolic/GLP-1 catalyst calendar with "
+      "ObesityWeek and EASD."),
+    C("AdvaMed MedTech Conference 2026", "AdvaMed 2026", "advamed",
+      "2026-10-18", "2026-10-21", "Boston, MA",
+      "https://advamed.org/", "verified", "2026-08-12",
+      "The medtech industry's own investor-facing conference.", kind=INVESTOR),
+    C("TCT 2026 (Transcatheter Cardiovascular Therapeutics)", "TCT 2026", "tct",
+      "2026-10-31", "2026-11-03", "San Diego, CA",
+      "https://www.crf.org/tct", "verified", "2026-08-12",
+      "Interventional cardiology — structural heart and TAVR/mitral device data. Core "
+      "medtech catalyst (EW, ABT, MDT, BSX)."),
+    C("San Antonio Breast Cancer Symposium 2026", "SABCS 2026", "sabcs",
+      "2026-12-08", "2026-12-11", "San Antonio, TX",
+      "https://www.sabcs.org/", "verified", "2026-08-12",
+      "Breast cancer — ADC and CDK4/6 readouts."),
 ]
 
 
 def rows_for_seed() -> list[tuple]:
-    """(short_name, name, series, sector, host_ticker, start, end, loc, url, notes)."""
+    """(short_name, name, series, sector, kind, host_ticker, start, end, loc, url, notes)."""
     out = []
     for c in CONFERENCES:
         note = f"[{c.date_status}"
         if c.verified_on:
             note += f" {c.verified_on}"
         note += f"] {c.why_it_matters}"
-        out.append((c.short_name, c.name, c.series, c.sector, c.host_ticker,
+        out.append((c.short_name, c.name, c.series, c.sector, c.kind, c.host_ticker,
                     c.start, c.end, c.location, c.url, note))
     return out
 
@@ -289,23 +341,23 @@ def seed(db_path: str = DB_PATH, dry_run: bool = False) -> tuple[int, int]:
     added = updated = 0
     # Dated rows only. The table requires start_date AND end_date, and an undated
     # conference is a lead to chase, not a calendar entry.
-    for (short, name, series, sector, host, start, end, loc, url, note) in rows_for_seed():
+    for (short, name, series, sector, kind, host, start, end, loc, url, note) in rows_for_seed():
         if not (start and end):
             continue
         if short in existing:
             if not dry_run:
                 conn.execute(
-                    "UPDATE conferences SET name=?,series=?,sector=?,host_ticker=?,"
+                    "UPDATE conferences SET name=?,series=?,sector=?,kind=?,host_ticker=?,"
                     "start_date=?,end_date=?,location=?,url=?,notes=? WHERE short_name=?",
-                    (name, series, sector, host, start, end, loc, url, note, short))
+                    (name, series, sector, kind, host, start, end, loc, url, note, short))
             updated += 1
         else:
             if not dry_run:
                 conn.execute(
-                    "INSERT INTO conferences (name,short_name,series,sector,host_ticker,"
-                    "start_date,end_date,location,url,notes) "
-                    "VALUES (?,?,?,?,?,?,?,?,?,?)",
-                    (name, short, series, sector, host, start, end, loc, url, note))
+                    "INSERT INTO conferences (name,short_name,series,sector,kind,"
+                    "host_ticker,start_date,end_date,location,url,notes) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    (name, short, series, sector, kind, host, start, end, loc, url, note))
             added += 1
     if not dry_run:
         conn.commit()

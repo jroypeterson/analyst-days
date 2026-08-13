@@ -10,7 +10,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-CURRENT_SCHEMA_VERSION = 3
+CURRENT_SCHEMA_VERSION = 4
 
 
 EVENT_TYPES = (
@@ -196,12 +196,40 @@ def _migrate_v3(conn: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_v4(conn: sqlite3.Connection) -> None:
+    """Add conferences.kind — what SHAPE of meeting it is.
+
+    Orthogonal to `sector`, and the pair is the reason both exist. Sector says
+    which book a meeting belongs to; kind says what actually happens there, and
+    the two do not imply each other:
+
+        ASCO   = Healthcare + scientific meeting   (trial data drops)
+        JPM    = Healthcare + investor conference  (guidance resets)
+        CAGNY  = Consumer   + investor conference
+        CES    = Technology + industry trade show
+        GTC    = Technology + vendor event         (one company's launch)
+
+    Collapsed into one field, "show me every venue where DATA lands" — which cuts
+    across sectors — becomes unaskable. It was deliberately deferred when the
+    table had no reader (designing schema against an imagined query is what left
+    this table empty for a year); the published calendar's filters are the
+    concrete consumer that earns it.
+    """
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(conferences)").fetchall()}
+    if "kind" not in cols:
+        conn.execute("ALTER TABLE conferences ADD COLUMN kind TEXT")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_conferences_kind ON conferences(kind)"
+    )
+
+
 # Ordered list of migrations. Each entry is (target_version, callable).
 # Call only the migrations whose target_version > current.
 _MIGRATIONS: list[tuple[int, callable]] = [
     (1, _create_v1),
     (2, _migrate_v2),
     (3, _migrate_v3),
+    (4, _migrate_v4),
 ]
 
 
