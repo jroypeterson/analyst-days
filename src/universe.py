@@ -120,6 +120,36 @@ def _row_to_ticker(row: dict) -> Ticker:
     )
 
 
+def _read_position_rows(cm_root: Path, filename: str) -> list[dict]:
+    """Rows from one of CM's per-state JSON exports, shaped like a CSV row.
+
+    Returns [] when the file is absent rather than raising: a missing optional
+    state file must degrade this lane to its previous behaviour, not take out the
+    whole run for the sake of an addition.
+    """
+    p = cm_root / "exports" / filename
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:                                    # noqa: BLE001
+        return []
+    rows = []
+    for ticker, entry in (data or {}).items():
+        row = dict(entry)
+        row["Ticker"] = ticker
+        # The JSON carries lower-case joined keys; `_row_to_ticker` reads the
+        # CSV-style headers, so bridge the two the same way the JSON export built
+        # them rather than duplicating the mapping.
+        row.setdefault("Company Name", entry.get("name", ""))
+        row.setdefault("Sector (JP)", entry.get("sector", ""))
+        row.setdefault("Subsector (JP)", entry.get("subsector", ""))
+        row.setdefault("Sub-subsector (JP)", entry.get("sub_subsector", ""))
+        row.setdefault("Core", entry.get("core", ""))
+        rows.append(row)
+    return rows
+
+
 def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
     """Return all watchlist rows where Core == 'Y'.
 
@@ -135,6 +165,7 @@ def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
 
     csv_path = cm_root / "exports" / "watchlist.csv"
     out: list[Ticker] = []
+    seen: set[str] = set()
     # utf-8-sig: a BOM on CM's export otherwise makes the first field "﻿Ticker"
     # and every Sector (JP) row silently fails to match.
     with csv_path.open(newline="", encoding="utf-8-sig") as f:
@@ -142,6 +173,30 @@ def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
         for row in reader:
             if (row.get("Core") or "").strip().upper() == "Y":
                 out.append(_row_to_ticker(row))
+                seen.add((row.get("Ticker") or "").strip().upper())
+
+    # ---- Following for Interest, added 2026-08-23 ----------------------------
+    # JP described what the state is FOR: *"Following for interest probably means
+    # something like I would be interested in particular in what they are saying on
+    # their earnings calls... other companies are like bellwethers in their category
+    # and so maybe their transcripts or anything incremental for the analyst days
+    # sounds interesting."* Analyst days are exactly that, and this lane could not
+    # see them: `watchlist.csv` is a deprecated back-compat view filtered to
+    # Portfolio + Researching, so all 16 FFI names were invisible here while
+    # transcripts, earnings_agent and sigma-alert all received them.
+    #
+    # NOT gated on `Core`, deliberately, unlike the rows above. Core answers "do I
+    # model this company"; FFI answers "do I want to hear what they say". They are
+    # different axes and half the list fails the first one -- measured 2026-08-23,
+    # 8 of 16 are Core, and the ones dropped include TSM and LULU, which are
+    # bellwethers-in-their-category in the exact sense he meant. The FFI flag is
+    # itself a hand-curated statement of interest; filtering it again would be
+    # second-guessing the operator with a column that answers another question.
+    for row in _read_position_rows(cm_root, "following_for_interest.json"):
+        t = (row.get("Ticker") or "").strip().upper()
+        if t and t not in seen:
+            out.append(_row_to_ticker(row))
+            seen.add(t)
     return out
 
 
