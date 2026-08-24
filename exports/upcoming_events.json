@@ -1,24 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-08-17T13:07:37Z",
+  "generated_at": "2026-08-24T13:15:54Z",
   "window": {
-    "start": "2026-08-17",
-    "end": "2026-10-16"
+    "start": "2026-08-24",
+    "end": "2026-10-23"
   },
   "counts": {
-    "events": 5
+    "events": 12
   },
   "events": [
-    {
-      "ticker": "LIN",
-      "company_name": "Linde plc",
-      "event_type": "conference",
-      "start_date": "2026-08-19",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "WAY",
       "company_name": "Waystar Holding Corp",
@@ -26,7 +17,7 @@
       "start_date": "2026-08-25",
       "end_date": null,
       "multi_day": false,
-      "status": "reminded_7"
+      "status": "day_of"
     },
     {
       "ticker": "FMS",
@@ -38,10 +29,82 @@
       "status": "confirmed"
     },
     {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-09-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-09-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "AFRM",
+      "company_name": "Affirm Holdings Inc",
+      "event_type": "conference",
+      "start_date": "2026-09-08",
+      "end_date": "2026-09-09",
+      "multi_day": true,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-09-08",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FIVE",
+      "company_name": "Five Below Inc",
+      "event_type": "conference",
+      "start_date": "2026-09-09",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "LIN",
       "company_name": "Linde plc",
       "event_type": "conference",
       "start_date": "2026-09-09",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "AFRM",
+      "company_name": "Affirm Holdings Inc",
+      "event_type": "conference",
+      "start_date": "2026-09-15",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FIVE",
+      "company_name": "Five Below Inc",
+      "event_type": "conference",
+      "start_date": "2026-09-15",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "JPM",
+      "company_name": "JPMorgan Chase & Co",
+      "event_type": "conference",
+      "start_date": "2026-09-15",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
