@@ -2,6 +2,13 @@
 
 > 🚧 **Maturity: Work in progress.** This project is partially built / not yet in routine production use. Review it for **direction and approach, not production hardening** — don't over-invest in edge-case, test-coverage, or polish feedback. §2 (status) and §5 (gaps) mark what's intentionally unbuilt.
 
+> **Staleness -- check before trusting any figure below.** This file is not auto-updated:
+> `python ../scripts/audit_project_briefs.py --repo "analyst-days"` counts the behaviour-changing
+> commits landed since it was last touched. Section 3 rationale and section 4 non-goals age
+> well; section 2 status, and every count, version, path and line number here, is a
+> **hypothesis** until checked against the code -- and a disagreement between this file and
+> the repo is a defect worth reporting, not a documentation nit.
+
 This file exists so a reviewer can (1) judge how close the project is to its
 intended goal and (2) understand the key design decisions **before** giving
 feedback. For mechanics — pipeline, schema, CLI modes, secrets, module map — see
