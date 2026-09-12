@@ -279,6 +279,13 @@ def test_a_skipped_conference_post_makes_the_weekly_heartbeat_partial(monkeypatc
     assert any("SLACK_WEBHOOK_CONFERENCES" in w for w in hb.warnings)
 
 
+# The page generator is invoked with cwd=REPO and every path it is given is
+# absolute and under tmp_path, so it writes nothing real -- but that combination
+# is exactly what tests/conftest.py refuses by default after the 2026-09-11 fleet
+# guard caught the breadcrumb test writing the repo's own `.health/crash.txt` from
+# a child process. Marked, so "this child may run in the repo" is a decision on
+# the record rather than the default nobody checked.
+@pytest.mark.repo_cwd
 def test_published_page_filters_are_wired_to_the_data(tmp_path):
     """Every filter chip must match real items, and every item must be reachable.
 

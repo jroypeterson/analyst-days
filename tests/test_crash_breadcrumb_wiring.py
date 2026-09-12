@@ -12,6 +12,7 @@ untested one.
 
 These run the module the way the workflows do: `python -m src.cli`.
 """
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -22,9 +23,25 @@ REPO = Path(__file__).resolve().parents[1]
 def _run(args, env_extra, cwd):
     env = {**dict(__import__("os").environ), **env_extra}
     env.pop("SLACK_WEBHOOK_STATUS_REPORTS", None)   # never post from a test
+    # `src.cli` is importable because the repo is on PYTHONPATH, NOT because the
+    # child's cwd is the repo -- see the comment on the test below. Prepending
+    # keeps a stray installed `src` package from shadowing this one.
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(REPO)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
     return subprocess.run(
         [sys.executable, "-m", "src.cli", *args],
         cwd=str(cwd), env=env, capture_output=True, text=True, timeout=120)
+
+
+def _repo_crumb_state() -> bytes | None:
+    """The repo's real breadcrumb, byte-for-byte, or None if absent.
+
+    Compared before/after so the check reports "this test touched production"
+    without assuming production was clean to begin with -- a genuine local crash
+    may have left a real traceback there, and that file is evidence.
+    """
+    crumb = REPO / ".health" / "crash.txt"
+    return crumb.read_bytes() if crumb.exists() else None
 
 
 def test_a_crash_under_dunder_main_writes_the_breadcrumb(tmp_path):
@@ -36,25 +53,41 @@ def test_a_crash_under_dunder_main_writes_the_breadcrumb(tmp_path):
     the phase isolation working. So the breadcrumb path needs a crash that is
     genuinely outside a phase: `--discover` is dispatched directly by `main()`.
     No test-only hook is used -- a hook would itself be the thing that rots.
+
+    ⛑ **The child runs in `tmp_path`, never in the repo.** Until 2026-09-11 it
+    ran with `cwd=REPO`, and `cli.CRASH_PATH` is the RELATIVE `.health/crash.txt`
+    -- so this test wrote the repo's real health breadcrumb and then `unlink()`ed
+    it in a `finally`. Two harms, and the second is the worse one: `.health/` is
+    where a genuine local crash leaves its traceback for
+    `_clear_crash_breadcrumb`/the workflow fallback to report, so a `pytest` run
+    DESTROYED that diagnostic, and the deletion is indistinguishable from "no
+    crash happened". Found by `scripts/pytest_fleet_guard.py` (fleet board #368
+    Phase 2) refusing the write and the delete; no assertion here could have,
+    because the test asserted on exactly the file it was clobbering.
+
+    Running in `tmp_path` is the same isolation every in-process breadcrumb test
+    in `tests/test_cli_weekly_isolation.py` already uses (`monkeypatch.chdir`) --
+    the relative path is the mechanism under test, so pointing the CWD somewhere
+    disposable exercises it honestly rather than patching it away.
     """
+    before = _repo_crumb_state()
     r = _run(["--discover"],
              {"COVERAGE_MANAGER_PATH": str(tmp_path / "does-not-exist"),
               "CI": "true"},
-             cwd=REPO)
+             cwd=tmp_path)
 
-    crumb = REPO / ".health" / "crash.txt"
-    try:
-        assert r.returncode != 0, f"expected a non-zero exit, got {r.returncode}"
-        assert crumb.exists(), (
-            "no .health/crash.txt -- the __main__ handler did not run. "
-            f"stdout={r.stdout[-400:]!r} stderr={r.stderr[-400:]!r}")
-        body = crumb.read_text(encoding="utf-8")
-        assert "Traceback" in body, body[:400]
-        assert "FileNotFoundError" in body, body[:400]
-        body.encode("ascii")            # must be cp1252-safe
-    finally:
-        if crumb.exists():
-            crumb.unlink()
+    crumb = tmp_path / ".health" / "crash.txt"
+    assert r.returncode != 0, f"expected a non-zero exit, got {r.returncode}"
+    assert crumb.exists(), (
+        "no .health/crash.txt -- the __main__ handler did not run. "
+        f"stdout={r.stdout[-400:]!r} stderr={r.stderr[-400:]!r}")
+    body = crumb.read_text(encoding="utf-8")
+    assert "Traceback" in body, body[:400]
+    assert "FileNotFoundError" in body, body[:400]
+    body.encode("ascii")            # must be cp1252-safe
+    assert _repo_crumb_state() == before, (
+        "the child touched the REPO's own .health/crash.txt -- it is not running "
+        "in tmp_path")
 
 
 def test_the_entry_point_still_routes_through_the_handler():
