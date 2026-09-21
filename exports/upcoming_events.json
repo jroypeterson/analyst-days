@@ -1,47 +1,29 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-09-14T18:09:48Z",
+  "generated_at": "2026-09-21T18:18:27Z",
   "window": {
-    "start": "2026-09-14",
-    "end": "2026-11-13"
+    "start": "2026-09-21",
+    "end": "2026-11-20"
   },
   "counts": {
-    "events": 6
+    "events": 4
   },
   "events": [
-    {
-      "ticker": "AFRM",
-      "company_name": "Affirm Holdings Inc",
-      "event_type": "conference",
-      "start_date": "2026-09-15",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "FIVE",
-      "company_name": "Five Below Inc",
-      "event_type": "conference",
-      "start_date": "2026-09-15",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "JPM",
-      "company_name": "JPMorgan Chase & Co",
-      "event_type": "conference",
-      "start_date": "2026-09-15",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "MMED",
       "company_name": "MiniMed Group Inc",
       "event_type": "conference",
       "start_date": "2026-09-23",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-09-29",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
@@ -53,7 +35,7 @@
       "start_date": "2026-09-30",
       "end_date": null,
       "multi_day": false,
-      "status": "reminded_30"
+      "status": "reminded_7"
     },
     {
       "ticker": "LLY",
