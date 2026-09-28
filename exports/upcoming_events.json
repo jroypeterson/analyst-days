@@ -1,24 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-09-21T18:18:27Z",
+  "generated_at": "2026-09-28T19:45:14Z",
   "window": {
-    "start": "2026-09-21",
-    "end": "2026-11-20"
+    "start": "2026-09-28",
+    "end": "2026-11-27"
   },
   "counts": {
-    "events": 4
+    "events": 3
   },
   "events": [
-    {
-      "ticker": "MMED",
-      "company_name": "MiniMed Group Inc",
-      "event_type": "conference",
-      "start_date": "2026-09-23",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "FER",
       "company_name": "Ferrovial SE",
@@ -35,7 +26,7 @@
       "start_date": "2026-09-30",
       "end_date": null,
       "multi_day": false,
-      "status": "reminded_7"
+      "status": "day_of"
     },
     {
       "ticker": "LLY",
