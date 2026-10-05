@@ -179,6 +179,50 @@ can catch a broken event handler.
 by default — the bookmark resolves only for viewers who can open it; share from the page's
 share menu to widen that.
 
+## The analyst-day listing page (board #439, 2026-10-04)
+
+```
+python scripts/build_analyst_day_page.py --fetch      # pull the CI DB (gh), then render
+python scripts/build_analyst_day_page.py              # re-render from the last fetched snapshot
+```
+
+Renders `exports/analyst_day_listing.html` (gitignored) — every investor / analyst / R&D /
+capital-markets day recorded for last year and this year, tagged Portfolio / Researching /
+Core / Following from CM's exports, each row linking its stored sources. Published as a
+private Claude Artifact at **https://claude.ai/artifact/QEoTg9x9PsD1wYjnsz598D**; re-publish
+the same file path to update in place. Plan + Fable reviews: `plans/439_*`.
+
+**It never reads `data/events.db`.** The real database exists only as the `analyst-days-db`
+GitHub Actions artifact; the local file is an April-2026 sandbox with 3 rows that would
+render plausibly and wrongly. `--fetch` picks the newest non-expired artifact from a
+**successful** master run — the same choice `monday.yml`'s restore makes, because the DB is
+uploaded `if: always()` and the newest artifact can be from a failed run production will
+discard. Skipped newer-failed runs are recorded in `data/ci_snapshot/provenance.json` and
+announced on the page. Without a snapshot the script exits 2; it does not fall back.
+
+**What the data can answer, measured 2026-10-04:** 55 rows, first record 2026-07-06, 14
+analyst-day rows shown (10 dated 2026, 0 dated 2025, 4 undated), 37 conference
+appearances, 2 retired, 2 in 2027. **2025 is empty by design** — `classify.py` rule 1 drops
+past events, and `status='historical'` is defined but never set — so the page says "not
+searched, a gap not an absence" rather than listing a year it never looked at. The Phase 4
+backfill is what closes that, and it needs a past-events classifier mode.
+
+**Guards, all tested with mutations (`tests/test_analyst_day_page.py`):** every row lands in
+exactly one bucket by precedence (retired → conference → unknown type → undated/imprecise →
+listed → other year), asserted disjoint and exhaustive by `events.id`; a `min(first_seen_at)`
+later than `HISTORY_FLOOR` (2026-07-06) + 1 day renders a red "history is missing" banner
+(board #456's silent reset, or deleted rows); a skipped failed run renders amber; an
+explicit `--db` with no sibling `provenance.json` renders "unverified". **Staleness is
+measured from the newest successful *scheduled* run** (`last_scheduled_success_at`), never
+a `workflow_dispatch`: a dry-run dispatch re-uploads the unchanged DB under a new date, and
+the run API does not expose the `dry_run` input. **It is re-checked in the viewer's
+browser** by the page's inline script, because the page is static and outlives its build
+(older than 8 days → amber, even if nobody rebuilds). Source URLs are classifier output
+over web results, so only `http(s)` ever becomes a link. (Codex rounds 1-2, 2026-10-04.)
+Discovery scans watchlist Core=Y ∪ FFI (75); the page names the 19 Portfolio/Researching
+and counts the 277 Core-coverage tickers that are **not scanned**, with an EDGAR full-text
+link per unscanned or empty name as the manual check.
+
 ## CLI modes
 
 ```

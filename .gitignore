@@ -42,3 +42,7 @@ codex_feedback/
 
 # Health heartbeat local artifacts (sentinel + fallback payload)
 .health/
+
+# #439 analyst-day listing: fetched CI DB snapshot + the generated page (published as a private Artifact, never committed)
+data/ci_snapshot/
+exports/analyst_day_listing.html
