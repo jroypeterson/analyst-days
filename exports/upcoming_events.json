@@ -1,38 +1,29 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-09-28T19:45:14Z",
+  "generated_at": "2026-10-05T15:45:38Z",
   "window": {
-    "start": "2026-09-28",
-    "end": "2026-11-27"
+    "start": "2026-10-05",
+    "end": "2026-12-04"
   },
   "counts": {
-    "events": 3
+    "events": 2
   },
   "events": [
-    {
-      "ticker": "FER",
-      "company_name": "Ferrovial SE",
-      "event_type": "conference",
-      "start_date": "2026-09-29",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "CI",
-      "company_name": "Cigna Group",
-      "event_type": "investor_day",
-      "start_date": "2026-09-30",
-      "end_date": null,
-      "multi_day": false,
-      "status": "day_of"
-    },
     {
       "ticker": "LLY",
       "company_name": "Eli Lilly And Co",
       "event_type": "conference",
       "start_date": "2026-10-29",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ARE",
+      "company_name": "Alexandria Real Estate Equities Inc",
+      "event_type": "investor_day",
+      "start_date": "2026-12-02",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
