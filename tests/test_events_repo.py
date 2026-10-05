@@ -19,6 +19,30 @@ from src.state.events_repo import (
 )
 import pytest
 
+import src.state.events_repo as events_repo
+
+
+# The fixture event below is dated 2026-09-15. `upsert_event` and
+# `recompute_statuses` default `today_iso` to the wall clock and deliberately
+# refuse to confirm a past-dated event (the past-date backstop). So from
+# 2026-09-16 onward, every test here that expects a default-today confirm
+# started failing on a clean checkout -- not a code bug, date-rot in the test.
+# Freeze "today" for the whole module instead of chasing the calendar forward:
+# tests that care about the backstop still pass `today_iso=` explicitly.
+FROZEN_TODAY = "2026-09-01"
+
+
+@pytest.fixture(autouse=True)
+def _freeze_today(monkeypatch):
+    monkeypatch.setattr(events_repo, "_today_iso", lambda: FROZEN_TODAY)
+
+
+def test_frozen_today_precedes_fixture_dates():
+    """Guard the guard: the frozen clock must sit BEFORE the fixture's date, or
+    every default-today confirm test would be asserting against the backstop."""
+    assert FROZEN_TODAY < "2026-09-15"
+    assert events_repo._today_iso() == FROZEN_TODAY
+
 
 def _candidate(**overrides):
     base = dict(
