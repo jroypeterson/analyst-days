@@ -1,15 +1,33 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-10-05T15:45:38Z",
+  "generated_at": "2026-10-05T20:43:08Z",
   "window": {
     "start": "2026-10-05",
     "end": "2026-12-04"
   },
   "counts": {
-    "events": 2
+    "events": 4
   },
   "events": [
+    {
+      "ticker": "TSM",
+      "company_name": "Taiwan Semiconductor Manufacturing Company Limited",
+      "event_type": "conference",
+      "start_date": "2026-10-15",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ISRG",
+      "company_name": "Intuitive Surgical Inc",
+      "event_type": "conference",
+      "start_date": "2026-10-20",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
     {
       "ticker": "LLY",
       "company_name": "Eli Lilly And Co",
