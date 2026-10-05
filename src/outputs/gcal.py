@@ -32,6 +32,7 @@ import json
 import logging
 import os
 import sqlite3
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Optional
 
@@ -185,17 +186,47 @@ def _build_event_body(event_row, source_url: Optional[str], rationale: Optional[
 # ---------------------------------------------------------------------------
 
 
+@dataclass(frozen=True)
+class PushResult:
+    """What fan-out did for one row. `action` is one of:
+    created          -- a new calendar event was inserted
+    updated          -- the stored id was updated in place
+    adopted          -- no stored id, but a LIVE event with our natural key already
+                        existed (DB rebuilt, board #456) -> re-attached, not duplicated
+    cancelled_match  -- no stored id and the only event with our key is cancelled/
+                        trashed: it was fanned out before and then removed (`--retire`
+                        or by hand). Nothing inserted; the id is NOT stored (updating a
+                        cancelled event is undefined). The caller treats this as
+                        evidence the row was retired and skips TickTick + Slack too.
+    """
+    gcal_id: Optional[str]
+    action: str
+
+
+def _http_status(exc: Exception) -> Optional[int]:
+    resp = getattr(exc, "resp", None)
+    status = getattr(resp, "status", None)
+    try:
+        return int(status) if status is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 def upsert_calendar_event(
     service,
     conn: sqlite3.Connection,
     event_row,
-) -> str:
-    """Create or update the calendar event for one analyst-days event row.
+) -> PushResult:
+    """Create, update or re-attach the calendar event for one analyst-days row.
 
-    Returns the Google Calendar event ID. Also persists it on
-    events.calendar_event_id so subsequent runs update in place.
+    Persists the Google id on events.calendar_event_id so later runs update in
+    place. NEVER blind-inserts: a row without a stored id is first looked up by
+    its natural key (`find_existing_event`), and a stored id that fails to update
+    is re-created only when Google says it is gone (404/410) -- any other error
+    propagates and is counted by the caller, because an insert we cannot prove
+    is unique is how a rebuilt DB doubled the calendar (board #456).
 
-    Conferences are tracked but not pushed — caller should filter on
+    Conferences are tracked but not pushed -- caller should filter on
     PUSHABLE_EVENT_TYPES before calling this; this function will raise
     if asked to write a non-pushable event (defense in depth).
     """
@@ -222,6 +253,13 @@ def upsert_calendar_event(
 
     body = _build_event_body(event_row, source_url, rationale)
 
+    def _persist(gcal_id: str) -> None:
+        conn.execute(
+            "UPDATE events SET calendar_event_id = ? WHERE id = ?",
+            (gcal_id, event_row["id"]),
+        )
+        conn.commit()
+
     existing_id = event_row["calendar_event_id"]
     if existing_id:
         try:
@@ -229,25 +267,37 @@ def upsert_calendar_event(
                 calendarId=cal_id, eventId=existing_id, body=body
             ).execute()
             logger.info("gcal updated event_id=%s gcal_id=%s", event_row["id"], existing_id)
-            return existing_id
+            return PushResult(existing_id, "updated")
         except Exception as e:
-            # Fall through and re-create. Most common cause: event was deleted
-            # from the calendar manually.
+            if _http_status(e) not in (404, 410):
+                raise  # transient / auth / quota: retry next run, never duplicate
             logger.warning(
-                "gcal update failed for event_id=%s gcal_id=%s; re-creating: %s",
+                "gcal event gone for event_id=%s gcal_id=%s; looking up by key: %s",
                 event_row["id"], existing_id, e,
             )
 
-    # Create new
+    # No usable stored id: re-attach before creating. A lookup error propagates.
+    found = find_existing_event(service, event_row)
+    if found is not None:
+        if found.get("status") == "cancelled":
+            logger.warning(
+                "gcal: only a CANCELLED event carries key %s for event_id=%s; "
+                "treating as retired, not re-creating",
+                _event_key(event_row), event_row["id"],
+            )
+            return PushResult(None, "cancelled_match")
+        service.events().update(
+            calendarId=cal_id, eventId=found["id"], body=body
+        ).execute()
+        _persist(found["id"])
+        logger.info("gcal adopted event_id=%s gcal_id=%s", event_row["id"], found["id"])
+        return PushResult(found["id"], "adopted")
+
     created = service.events().insert(calendarId=cal_id, body=body).execute()
     new_gcal_id = created["id"]
-    conn.execute(
-        "UPDATE events SET calendar_event_id = ? WHERE id = ?",
-        (new_gcal_id, event_row["id"]),
-    )
-    conn.commit()
+    _persist(new_gcal_id)
     logger.info("gcal created event_id=%s gcal_id=%s", event_row["id"], new_gcal_id)
-    return new_gcal_id
+    return PushResult(new_gcal_id, "created")
 
 
 def delete_calendar_event(service, conn: sqlite3.Connection, event_id: int) -> bool:
@@ -272,28 +322,47 @@ def delete_calendar_event(service, conn: sqlite3.Connection, event_id: int) -> b
     return True
 
 
-def find_existing_by_event_key(service, event_row) -> Optional[str]:
-    """Find a calendar event by our deterministic extended-property key. Used to
-    recover after a DB rebuild (CI artifact loss) — we can re-attach to existing
-    calendar entries instead of creating duplicates. Keyed on the stable natural
-    key (see _event_key), so it survives row-id churn from a rebuilt DB.
+def find_existing_event(service, event_row) -> Optional[dict]:
+    """Find the calendar event carrying our deterministic extended-property key.
+
+    This is how fan-out survives a DB rebuild (CI artifact loss, board #456):
+    AUTOINCREMENT ids and the stored Google ids are gone, but the natural key
+    (`_event_key`) is not. `showDeleted=True` so an entry JP deleted by hand or
+    `--retire` removed is still seen: a cancelled match means "fanned out
+    before, then removed", and the caller must not resurrect it. A live match is
+    preferred over a cancelled one. Note Google purges trashed events after
+    ~30 days, after which a retired event rediscovered by a rebuilt DB WILL be
+    re-created -- the window is bounded, not closed.
+
+    Returns the event resource (at least `id` and `status`) or None. Any API
+    error propagates: an insert we cannot prove is unique is the defect.
     """
     cal_id = _calendar_id()
     key = _event_key(event_row)
     resp = service.events().list(
         calendarId=cal_id,
         privateExtendedProperty=f"{EXT_PROP_KEY}={key}",
-        maxResults=2,
+        maxResults=10,
         singleEvents=True,
+        showDeleted=True,
     ).execute()
-    items = resp.get("items", [])
+    items = resp.get("items", []) or []
     if not items:
         return None
-    if len(items) > 1:
+    live = [it for it in items if it.get("status") != "cancelled"]
+    if len(live) > 1:
         logger.warning(
-            "Multiple gcal events match %s=%s; using first", EXT_PROP_KEY, key,
+            "Multiple live gcal events match %s=%s; using first", EXT_PROP_KEY, key,
         )
-    return items[0]["id"]
+    return live[0] if live else items[0]
+
+
+def find_existing_by_event_key(service, event_row) -> Optional[str]:
+    """Back-compat shim: the id of the LIVE event with our key, or None."""
+    found = find_existing_event(service, event_row)
+    if found is None or found.get("status") == "cancelled":
+        return None
+    return found["id"]
 
 
 # ---------------------------------------------------------------------------

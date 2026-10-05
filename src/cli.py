@@ -55,6 +55,7 @@ from src.state.schema import init_db, schema_version, CURRENT_SCHEMA_VERSION
 from src.universe import Ticker, load_core_watchlist
 from src import reminders as reminders_mod
 from src import health as health_mod
+from src import state_guard
 
 
 CONFIRMED_STATUSES = ("confirmed", "reminded_30", "reminded_7", "day_of")
@@ -199,8 +200,15 @@ def cmd_discover(args: argparse.Namespace) -> int:
     # DB connection only opens when we'll actually write.
     conn = None
     if not args.dry_run:
+        # Board #456: under CI a missing state DB is a loss event, not a first run.
+        # cmd_weekly runs this guard before any phase; this is the direct
+        # `--discover` path, and the backstop if the workflow step is removed.
+        if state_guard.require_state(Path(args.db)):
+            args.health_db_bootstrap = True
         conn = init_db(args.db)
         assert schema_version(conn) == CURRENT_SCHEMA_VERSION
+        if getattr(args, "health_db_bootstrap", False):
+            state_guard.record_bootstrap(conn)
 
     summary = {
         "tickers_scanned": 0,
@@ -352,9 +360,27 @@ def _fanout_candidates(conn, today_iso: str) -> list:
 def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
     """Post any confirmed event missing slack/calendar/ticktick output rows.
 
-    Idempotent — uses the events.{slack_posted_at, calendar_event_id,
-    ticktick_task_id} columns to skip already-fanned-out events. A
-    failed channel will simply be retried on the next run.
+    Idempotent in two layers. The cheap one is the events.{slack_posted_at,
+    calendar_event_id, ticktick_task_id} columns. The one that survives a DB
+    REBUILD (board #456: the CI artifact is the only copy of those columns) is
+    the natural-key lookup inside gcal.upsert_calendar_event /
+    ticktick.upsert_event_task: an existing Calendar event or TickTick task is
+    adopted, never duplicated. Slack has no lookup (webhook), so per row the
+    order is Calendar -> TickTick -> Slack and an adoption on either is taken as
+    proof the event was announced before: slack_posted_at is set, no re-ping.
+    A CANCELLED calendar match means the event was retired after fan-out
+    (`--retire` or by hand) and the DB that knew it was lost: the row is
+    retired as `cancelled` (so reminders, digests and the export skip it in this
+    same run), nothing is pushed, and it is named in the heartbeat with the
+    one-line SQL to undo it if the deletion was an accident.
+
+    Failures are counted and NAMED in the returned summary (`fanout_errors`,
+    `fanout_failures`) so the weekly heartbeat can report `partial` instead of
+    `ok`. They deliberately do NOT change cmd_discover's return code: a red
+    Monday run's DB is never restored (the restore filters on run conclusion),
+    so failing the job over a Calendar outage would roll state back a week
+    (Fable review r1, 2026-10-04). A `--no-*` flag is operator intent, never an
+    error. A failed channel is retried on the next run.
 
     Runs recompute_statuses() first so events that newly clear their
     per-type threshold (e.g. after a threshold change) get fanned out
@@ -366,34 +392,39 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
 
     rows = _fanout_candidates(conn, date.today().isoformat())
 
+    summary = {
+        "fanout_slack": 0, "fanout_gcal": 0, "fanout_ticktick": 0,
+        "fanout_adopted": 0, "fanout_retired_matches": [],
+        "fanout_errors": 0, "fanout_failures": [],
+    }
     if not rows:
-        return {"fanout_slack": 0, "fanout_gcal": 0, "fanout_ticktick": 0}
+        return summary
 
-    slack_posted = 0
-    gcal_posted = 0
-    ticktick_posted = 0
+    failures: list[str] = summary["fanout_failures"]
 
-    gcal_service = None
+    def fail(label: str, exc: BaseException) -> None:
+        summary["fanout_errors"] += 1
+        failures.append(_ascii(f"{label}: {type(exc).__name__}: {exc}")[:200])
+
+    gcal_service = None            # None = not tried; False = auth failed this run
+    gcal_unposted = 0
     ticktick_list_id: Optional[str] = None
-    ticktick_disabled = False  # set true on auth/list failure to stop retrying
+    ticktick_disabled = False      # auth/list failure or expired token: stop retrying
+    ticktick_unposted = 0
+    ticktick_open_tasks: Optional[list] = None   # fetched once per run, on first need
+    claimed_task_ids = {
+        r[0] for r in conn.execute(
+            "SELECT ticktick_task_id FROM events WHERE ticktick_task_id IS NOT NULL"
+        )
+    }
     print(f"[fan-out] {len(rows)} confirmed event(s) to evaluate")
 
     for row in rows:
-        # Slack
-        if not row["slack_posted_at"] and not args.no_slack:
-            try:
-                slack_out.post_confirmed(row)
-                conn.execute(
-                    "UPDATE events SET slack_posted_at = ? WHERE id = ?",
-                    (_utcnow(), row["id"]),
-                )
-                conn.commit()
-                slack_posted += 1
-                print(f"  Slack: {row['ticker']} {row['event_type']} -> posted")
-            except Exception as exc:
-                print(f"  Slack: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+        label = f"{row['ticker']} {row['event_type']} {row['start_date']}"
+        adopted = False
+        retired_match = False
 
-        # Calendar
+        # Calendar (first: it is the one surface with a durable natural-key index)
         if not row["calendar_event_id"] and not args.no_gcal:
             if gcal_service is None:
                 try:
@@ -402,39 +433,110 @@ def _fan_out_confirmed(conn, args: argparse.Namespace) -> dict:
                     print(f"  Calendar: auth FAILED ({type(exc).__name__}: {exc}); "
                           "skipping calendar fan-out")
                     gcal_service = False  # sentinel: don't retry auth this run
+                    fail("Calendar auth", exc)
             if gcal_service:
                 try:
-                    gcal_out.upsert_calendar_event(gcal_service, conn, row)
-                    gcal_posted += 1
-                    print(f"  Calendar: {row['ticker']} {row['event_type']} -> posted")
+                    res = gcal_out.upsert_calendar_event(gcal_service, conn, row)
+                    if res.action == "cancelled_match":
+                        retired_match = True
+                        summary["fanout_retired_matches"].append(label)
+                        # Quarantine the ROW, not just this loop (Codex r2): left
+                        # `confirmed`, the remind phase that runs next would ping
+                        # T-30/T-7/day-of and the digests/export would publish an
+                        # event already identified as retired. `cancelled` is
+                        # terminal, so recompute/rediscovery cannot revive it; the
+                        # note says how this happened and the heartbeat names it.
+                        retire_event(
+                            conn, row["id"], new_status="cancelled",
+                            reason=("auto (board #456): a CANCELLED Calendar entry carries "
+                                    "this event's key; rediscovered after a DB rebuild. If "
+                                    "the entry was deleted by accident: UPDATE events SET "
+                                    "status='confirmed' WHERE id=" + str(row["id"])),
+                        )
+                        print(f"  Calendar: {label} -> CANCELLED entry carries this key; "
+                              "auto-retired, nothing pushed")
+                    else:
+                        summary["fanout_gcal"] += 1
+                        adopted = adopted or res.action == "adopted"
+                        print(f"  Calendar: {label} -> {res.action}")
                 except Exception as exc:
-                    print(f"  Calendar: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+                    print(f"  Calendar: {label} -> FAILED ({type(exc).__name__}: {exc})")
+                    fail(f"Calendar {label}", exc)
+            else:
+                gcal_unposted += 1
 
         # TickTick
-        if not row["ticktick_task_id"] and not args.no_ticktick and not ticktick_disabled:
+        if (not row["ticktick_task_id"] and not args.no_ticktick
+                and not ticktick_disabled and not retired_match):
             if ticktick_list_id is None:
                 try:
                     ticktick_list_id = ticktick_out.find_or_create_list()
+                    ticktick_open_tasks = ticktick_out.list_open_tasks(ticktick_list_id)
                 except Exception as exc:
                     print(f"  TickTick: auth/list FAILED "
                           f"({type(exc).__name__}: {exc}); skipping fan-out")
                     ticktick_disabled = True
+                    fail("TickTick auth/list", exc)
             if ticktick_list_id and not ticktick_disabled:
                 try:
-                    ticktick_out.upsert_event_task(conn, row, ticktick_list_id)
-                    ticktick_posted += 1
-                    print(f"  TickTick: {row['ticker']} {row['event_type']} -> posted")
-                except ticktick_out.TickTickTokenExpired:
-                    print("  TickTick: token expired — skipping rest")
+                    res = ticktick_out.upsert_event_task(
+                        conn, row, ticktick_list_id,
+                        open_tasks=ticktick_open_tasks, claimed_ids=claimed_task_ids)
+                    if res.task_id:
+                        claimed_task_ids.add(res.task_id)
+                    summary["fanout_ticktick"] += 1
+                    adopted = adopted or res.action == "adopted"
+                    print(f"  TickTick: {label} -> {res.action}")
+                except ticktick_out.TickTickTokenExpired as exc:
+                    print("  TickTick: token expired - skipping rest")
                     ticktick_disabled = True
+                    fail("TickTick token expired", exc)
                 except Exception as exc:
-                    print(f"  TickTick: {row['ticker']} -> FAILED ({type(exc).__name__}: {exc})")
+                    print(f"  TickTick: {label} -> FAILED ({type(exc).__name__}: {exc})")
+                    fail(f"TickTick {label}", exc)
+        if ticktick_disabled and not row["ticktick_task_id"] and not args.no_ticktick \
+                and not retired_match:
+            ticktick_unposted += 1
 
-    return {
-        "fanout_slack": slack_posted,
-        "fanout_gcal": gcal_posted,
-        "fanout_ticktick": ticktick_posted,
-    }
+        # Slack (last: no lookup exists, so it leans on the evidence above)
+        if not row["slack_posted_at"] and not args.no_slack:
+            if adopted or retired_match:
+                conn.execute(
+                    "UPDATE events SET slack_posted_at = ? WHERE id = ?",
+                    (_utcnow(), row["id"]),
+                )
+                conn.commit()
+                why = "retired" if retired_match else "already on Calendar/TickTick"
+                print(f"  Slack: {label} -> not re-posted ({why}; DB was rebuilt)")
+                if adopted:
+                    summary["fanout_adopted"] += 1
+                continue
+            try:
+                slack_out.post_confirmed(row)
+                conn.execute(
+                    "UPDATE events SET slack_posted_at = ? WHERE id = ?",
+                    (_utcnow(), row["id"]),
+                )
+                conn.commit()
+                summary["fanout_slack"] += 1
+                print(f"  Slack: {label} -> posted")
+            except Exception as exc:
+                print(f"  Slack: {label} -> FAILED ({type(exc).__name__}: {exc})")
+                fail(f"Slack {label}", exc)
+        elif adopted:
+            summary["fanout_adopted"] += 1
+
+    # A disabled channel was counted ONCE above; say how many rows it left unposted.
+    if gcal_unposted:
+        failures.append(f"Calendar: {gcal_unposted} row(s) not posted (auth failed)")
+    if ticktick_unposted:
+        failures.append(f"TickTick: {ticktick_unposted} row(s) not posted (channel disabled)")
+    if summary["fanout_retired_matches"]:
+        print("[fan-out] auto-retired (a cancelled calendar entry carries their key): "
+              + ", ".join(summary["fanout_retired_matches"]))
+    if summary["fanout_errors"]:
+        print(f"[fan-out] {summary['fanout_errors']} failure(s): " + "; ".join(failures))
+    return summary
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -577,14 +679,17 @@ def cmd_friday_digest(args: argparse.Namespace) -> int:
     start = datetime.now(timezone.utc)
     db_path = Path(args.db)
     if not db_path.exists():
-        # Missing DB on Friday isn't a failure — the Monday run simply hasn't
-        # seeded it yet. Post a partial heartbeat so the run is still accounted
-        # for, and exit clean.
-        print(f"No DB at {db_path} — Monday run hasn't seeded it yet; nothing to post.")
+        # Friday is read-only, so a missing DB cannot damage state -- but since
+        # board #456 it is a LOSS signal, not "Monday hasn't seeded it yet": the
+        # artifact has existed since 2026-07-06 and Monday's guard now refuses
+        # to recreate it. Partial heartbeat, exit clean, name the likely cause.
+        print(f"No DB at {db_path} — analyst-days-db artifact not restored "
+              "(expired or deleted?); nothing to post.")
         if not args.dry_run:
             _post_friday_health(
                 start, "partial", None,
-                warning="events.db not restored (Monday run hasn't seeded it)",
+                warning="events.db not restored — analyst-days-db artifact expired or "
+                        "lost? Monday's state guard will refuse to start fresh (board #456)",
             )
         return 0
     conn = init_db(args.db)
@@ -755,8 +860,21 @@ def cmd_weekly(args: argparse.Namespace) -> int:
     rcs: dict[str, int] = {}
     args.health_phase_errors = failures
     args.health_phase_rcs = rcs
+    args.health_db_bootstrap = False
 
     try:
+        # Board #456: BEFORE any phase can create the file. The conferences
+        # phase calls init_db too, so a guard inside discover alone would still
+        # let a run upload a conferences-only DB as the new state. Inside the
+        # `try` so a refusal still heartbeats via `finally` (phases not reached)
+        # and leaves the crash breadcrumb through main's handler.
+        if not args.dry_run and state_guard.require_state(Path(args.db)):
+            args.health_db_bootstrap = True
+            _conn = init_db(args.db)
+            try:
+                state_guard.record_bootstrap(_conn)
+            finally:
+                _conn.close()
         print("===== WEEKLY: discover =====")
         rcs["discover"] = _run_phase("discover", cmd_discover, args, failures)
         print("\n===== WEEKLY: remind =====")
@@ -840,9 +958,27 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
     new = int(d.get("events_inserted", 0))
     merged = int(d.get("events_merged", 0))
     fanned = int(d.get("fanout_slack", 0))
+    fan_err = int(d.get("fanout_errors", 0))
+    fan_failures = list(d.get("fanout_failures", []) or [])
+    retire_candidates = list(d.get("fanout_retired_matches", []) or [])
 
     warnings: list[str] = []
     status = "ok"
+    if getattr(args, "health_db_bootstrap", False):
+        # A deliberate fresh start must never read as a normal week.
+        status = "partial"
+        warnings.append("events DB BOOTSTRAPPED fresh this run (bootstrap_db=true): "
+                        "history, reminder stamps and Calendar/TickTick ids restart today")
+    if fan_err:
+        # Degraded, not failed -- see _fan_out_confirmed on why this is not rc 1.
+        status = "partial"
+        shown = fan_failures[:4]
+        more = f" (+{len(fan_failures) - 4} more)" if len(fan_failures) > 4 else ""
+        warnings.append(f"fan-out: {fan_err} failure(s) -- " + "; ".join(shown) + more)
+    if retire_candidates:
+        status = "partial"
+        warnings.append("auto-retired after a DB rebuild (a cancelled Calendar entry carries "
+                        "their key; undo SQL in events.notes): " + ", ".join(retire_candidates[:6]))
     if g.get("email_failed"):
         status = "partial"
         warnings.append("Monday email digest failed (Slack digest posted)")
@@ -900,7 +1036,7 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
         counters=[
             f"{tickers} tickers · {hits} source hits",
             f"{new} new · {merged} merged · {fanned} fanned to Slack",
-            f"{reminders_sent} reminders · {derr + rerr} errors",
+            f"{reminders_sent} reminders · {derr + rerr + fan_err} errors",
         ],
         warnings=warnings,
         error_text=error_text,
@@ -951,7 +1087,10 @@ def cmd_fanout(args: argparse.Namespace) -> int:
     try:
         result = _fan_out_confirmed(conn, args)
         print(f"summary: {json.dumps(result, indent=2)}")
-        return 0
+        # Manual re-run: an operator is watching, so a failure IS the result.
+        # cmd_discover deliberately returns 0 on the same condition (see
+        # _fan_out_confirmed) -- this asymmetry is intended, not an oversight.
+        return 1 if result.get("fanout_errors") else 0
     finally:
         conn.close()
 

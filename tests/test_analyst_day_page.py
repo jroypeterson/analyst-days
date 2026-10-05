@@ -439,3 +439,29 @@ def test_active_scheme_source_urls_never_become_links(url):
     ok = page._sources_html({"sources": [{"source_type": "IR_PAGE", "source_url": "https://ir.x.com/e",
                                           "source_excerpt": "x"}]})
     assert 'href="https://ir.x.com/e"' in ok
+
+
+def test_a_deliberate_bootstrap_is_announced_amber_not_red(tmp_path, monkeypatch, cm):
+    """#456: a Monday run dispatched with bootstrap_db=true stamps
+    schema_meta.bootstrapped_at. Without it the first rows after a bootstrap trip
+    the red "history is missing" banner forever, indistinguishable from the loss
+    it exists to catch."""
+    from src import state_guard
+    path = tmp_path / "boot.db"
+    conn = init_db(path)
+    state_guard.record_bootstrap(conn, "2026-11-02T12:15:00+00:00")
+    _add(conn, monkeypatch, "CI", "investor_day", "2026-12-10", seen="2026-11-02T12:40:00+00:00")
+    conn.close()
+    rows = page.load_events(path)
+    uni = page.load_universe(cm)
+    with_stamp = page.build(rows, uni, _prov(), TODAY, bootstrapped_at=page.load_bootstrapped_at(path))
+    assert "bootstrapped" in _banners(with_stamp) and "reset" not in _banners(with_stamp)
+    assert "restarted on 2026-11-02" in with_stamp
+    without = page.build(rows, uni, _prov(), TODAY)                 # same rows, no stamp -> red
+    assert "reset" in _banners(without)
+    # Rows OLDER than the stamp are not explained by it: still red.
+    conn = init_db(path)
+    _add(conn, monkeypatch, "MSFT", "investor_day", "2026-12-11", seen="2026-09-01T12:00:00+00:00")
+    conn.close()
+    older = page.build(page.load_events(path), uni, _prov(), TODAY, bootstrapped_at=page.load_bootstrapped_at(path))
+    assert "reset" in _banners(older)

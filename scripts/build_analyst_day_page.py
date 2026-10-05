@@ -177,6 +177,23 @@ def load_events(db_path: Path) -> list[dict]:
     return rows
 
 
+def load_bootstrapped_at(db_path: Path) -> Optional[str]:
+    """`schema_meta.bootstrapped_at`, written by the Monday run only when it was
+    dispatched with bootstrap_db=true onto a missing artifact (board #456). Lets
+    the page tell a deliberate restart from the silent loss the red banner is for."""
+    import sqlite3
+    conn = sqlite3.connect(db_path)
+    try:
+        row = conn.execute(
+            "SELECT value FROM schema_meta WHERE key = 'bootstrapped_at'"
+        ).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        conn.close()
+    return row[0] if row else None
+
+
 def _iso_date(ts: Optional[str]) -> Optional[date]:
     """`2026-07-06T15:54:22+00:00` (what events_repo writes) -> date. Never a prefix slice."""
     if not ts:
@@ -421,7 +438,8 @@ TABLE_HEAD = ('<table class="ev"><thead><tr><th>Date</th><th>Company</th><th>Eve
 
 
 def build(rows: list[dict], uni: dict, prov: Optional[dict], today: date,
-          years: Optional[tuple[int, int]] = None) -> str:
+          years: Optional[tuple[int, int]] = None,
+          bootstrapped_at: Optional[str] = None) -> str:
     years = years or (today.year - 1, today.year)
     b = bucket_events(rows, years)
     shown = b["listed"] + b["undated"]
@@ -433,13 +451,26 @@ def build(rows: list[dict], uni: dict, prov: Optional[dict], today: date,
 
     banners = []
     live_banners: list[str] = []
+    boot_date = _iso_date(bootstrapped_at) if bootstrapped_at else None
     if not rows or history_start is None or history_start > HISTORY_FLOOR + timedelta(days=FLOOR_TOLERANCE_DAYS):
         earliest = history_start.isoformat() if history_start else "none (empty database)"
-        banners.append(
-            '<div class="banner red" data-banner="reset"><b>History is missing.</b> Earliest record is '
-            f'{_esc(earliest)}, expected on or before {HISTORY_FLOOR.isoformat()}: the database was '
-            'reset (board #456) or its earliest rows were deleted. Events recorded before '
-            f'{_esc(earliest)} are missing from this page.</div>')
+        # A DELIBERATE restart (Monday run dispatched with bootstrap_db=true, which
+        # stamps schema_meta.bootstrapped_at) is announced amber and dated; only an
+        # unexplained gap is the red "history is missing" the guard exists for.
+        deliberate = (boot_date is not None and history_start is not None
+                      and history_start >= boot_date - timedelta(days=1))
+        if deliberate:
+            banners.append(
+                '<div class="banner amber" data-banner="bootstrapped"><b>Database was restarted on '
+                f'{_esc(boot_date.isoformat())}</b> (bootstrap_db=true, board #456). Events recorded '
+                f'between {HISTORY_FLOOR.isoformat()} and {_esc(earliest)} are not on this page; the '
+                'history before the restart lives only in expired CI artifacts.</div>')
+        else:
+            banners.append(
+                '<div class="banner red" data-banner="reset"><b>History is missing.</b> Earliest record is '
+                f'{_esc(earliest)}, expected on or before {HISTORY_FLOOR.isoformat()}: the database was '
+                'reset (board #456) or its earliest rows were deleted. Events recorded before '
+                f'{_esc(earliest)} are missing from this page.</div>')
     if prov is None:
         banners.append(
             '<div class="banner red" data-banner="unverified"><b>Unverified source database.</b> '
@@ -777,7 +808,7 @@ def main(argv=None) -> int:
     uni = load_universe(Path(cm_root))
     rows = load_events(db_path)
     years = (today.year - 1, today.year)
-    html = build(rows, uni, prov, today, years)
+    html = build(rows, uni, prov, today, years, bootstrapped_at=load_bootstrapped_at(db_path))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(html)

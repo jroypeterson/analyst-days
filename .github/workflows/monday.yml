@@ -16,6 +16,11 @@ on:
         required: false
         default: "false"
         type: string
+      bootstrap_db:
+        description: "Start a FRESH events database if the analyst-days-db artifact is missing (board #456). Only for a genuine loss; a scheduled run can never set this."
+        required: false
+        default: "false"
+        type: string
 
 # Serialize with the Friday radar so a long Monday run can't race the DB.
 concurrency:
@@ -55,9 +60,12 @@ jobs:
         run: pip install -r requirements.txt
 
       # Cross-run artifact restore (default download-artifact only sees the
-      # same run). warn-if-missing: a first run / lost artifact rebuilds the
-      # DB from discovery — fan-out is idempotent (calendar extendedProperties
-      # + slack_posted_at), so the worst case is re-posting confirmed events.
+      # same run). `warn` here is deliberate: the restore step itself must not
+      # be the failure point, because the NEXT step decides. The DB has existed
+      # since 2026-07-06 and is the only copy of reminder stamps and
+      # Calendar/TickTick ids, so a missing artifact is a loss event, not a
+      # first run (board #456). Realistic cause: 90-day retention (the repo
+      # maximum) with 13 weeks of no successful master run, or a deletion.
       - name: Restore events database
         uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11  # v6
         with:
@@ -68,6 +76,21 @@ jobs:
           branch: master
           if_no_artifact_found: warn
           path: data
+
+      # Board #456: refuse to run on missing state. Exit 1 unless data/events.db
+      # has >= 1 events row (a conferences-only DB is the exact shape a silent
+      # reset produces) or THIS run was dispatched with bootstrap_db=true. The
+      # input is empty on `schedule`, so the guard is armed by default; a
+      # dispatch input cannot outlive its run, which is why this is an input and
+      # not a repo variable (earnings_agent's EA_DB_BOOTSTRAPPED inert window was
+      # forgotten for ~85 days). Writes .health/crash.txt so the fallback
+      # heartbeat quotes the real diagnosis. src/cli.py re-checks the same
+      # predicate before any phase, so removing this step does not reopen the hole.
+      - name: Require events database
+        id: require_db
+        env:
+          ANALYST_DAYS_BOOTSTRAP_DB: ${{ github.event.inputs.bootstrap_db }}
+        run: python -m src.state_guard --db data/events.db
 
       - name: Write Google credentials
         run: echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > credentials.json
@@ -87,6 +110,7 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           SEC_EDGAR_USER_AGENT: ${{ secrets.SEC_EDGAR_USER_AGENT }}
           COVERAGE_MANAGER_PATH: ${{ github.workspace }}/coverage-manager
+          ANALYST_DAYS_BOOTSTRAP_DB: ${{ github.event.inputs.bootstrap_db }}
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             python -m src.cli --weekly --dry-run
@@ -111,9 +135,17 @@ jobs:
           SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
           GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           RUN_WEEKLY_OUTCOME: ${{ steps.run_weekly.outcome }}
+          REQUIRE_DB_OUTCOME: ${{ steps.require_db.outcome }}
         run: |
           if [ -f .health/posted ]; then
             echo "Heartbeat already posted - skipping fallback."; exit 0
+          fi
+          # Name the step that actually failed: when the state guard refuses,
+          # Run weekly is `skipped`, which is not the failure.
+          if [ "${REQUIRE_DB_OUTCOME:-}" = "failure" ]; then
+            FAILING_STEP="Require events database (outcome: failure) - state artifact missing"
+          else
+            FAILING_STEP="Run weekly (outcome: ${RUN_WEEKLY_OUTCOME:-unknown})"
           fi
           if [ -z "$SLACK_WEBHOOK_STATUS_REPORTS" ]; then
             echo "No SLACK_WEBHOOK_STATUS_REPORTS - cannot post fallback heartbeat."; exit 1
@@ -125,13 +157,13 @@ jobs:
           else
             DETAIL="No .health/crash.txt was written, so the run died BEFORE src/cli.py installed its top-level handler: an import-time crash, a dependency install failure, or a cancelled/timed-out job. Check the first failing step in the GH Actions log."
           fi
-          jq -nc --arg cycle "$CYCLE" --arg now "$NOW" --arg outcome "${RUN_WEEKLY_OUTCOME:-unknown}" \
+          jq -nc --arg cycle "$CYCLE" --arg now "$NOW" --arg step "$FAILING_STEP" \
                  --arg detail "$DETAIL" --arg run "$GH_RUN_URL" '
             ( ":x: *analyst-days - error*  ·  health/v1\n"
             + "cycle: " + $cycle + "  ·  attempt: 1\n"
             + $now + " (workflow aborted)\n"
             + "next expected: see Monday/Friday schedule\n"
-            + "failing step: Run weekly (outcome: " + $outcome + ")\n\n"
+            + "failing step: " + $step + "\n\n"
             + "*Error:*\n```\n" + $detail + "\n```\n\n"
             + "<" + $run + "|GH Actions run>"
             ) as $t
@@ -173,8 +205,13 @@ jobs:
             "HEAD:${GITHUB_REF_NAME:-master}"
 
       # Persist the DB for the Friday radar + next Monday's dedupe/state.
+      # Gated on the state guard: a run that refused to start fresh must never
+      # upload whatever file the later steps left behind as the new state. Also
+      # skipped on dry_run: a dry run re-uploads an unchanged DB under a new
+      # date (confusing the #439 page's staleness clock) and, combined with a
+      # bootstrap, would upload the 0-row DB that seed()'s init_db creates.
       - name: Save events database
-        if: always() && github.ref == 'refs/heads/master'
+        if: always() && github.ref == 'refs/heads/master' && steps.require_db.outcome == 'success' && github.event.inputs.dry_run != 'true'
         uses: actions/upload-artifact@v6
         with:
           name: analyst-days-db

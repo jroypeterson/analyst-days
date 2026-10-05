@@ -38,6 +38,16 @@ def _raise_bom(args):
     raise KeyError(BOM_KEY)
 
 
+@pytest.fixture(autouse=True)
+def _state_guard_is_not_under_test(monkeypatch):
+    """`_args()` uses db="unused.db". Locally the #456 state guard lets that
+    through (not CI); under a CI runner it would refuse before any phase and turn
+    every isolation test into a guard test. The guard has its own suite
+    (tests/test_state_guard.py); here it is stubbed to "state present"."""
+    monkeypatch.setattr(cli_mod.state_guard, "require_state",
+                        lambda db_path, env=None: False)
+
+
 @pytest.fixture
 def posted(monkeypatch):
     """Capture heartbeats instead of posting them."""

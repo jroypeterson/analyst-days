@@ -313,10 +313,61 @@ not discovered.
 Minute is off-`:00` deliberately (top-of-hour GH Actions crons get delayed/
 skipped). The `events.db` is gitignored and persisted between runs as the
 `analyst-days-db` GitHub Actions artifact (cross-run restore via the pinned
-`dawidd6/action-download-artifact`); a lost artifact rebuilds from discovery —
-fan-out is idempotent so the worst case is re-posting confirmed events. Both
+`dawidd6/action-download-artifact`, 90-day retention = the repo maximum). Both
 workflows have an `if: failure()` Slack ping + an inline SMTP email backup
 (for the Slack-itself-is-down case).
+
+### The state guard — a missing artifact is a LOSS, not a first run (board #456, 2026-10-04)
+
+This paragraph used to say *"a lost artifact rebuilds from discovery — fan-out is
+idempotent so the worst case is re-posting confirmed events."* Both halves were false
+(Codex quarterly review 2026-09-23, reproduced with fakes 2026-10-04): `init_db` on a
+missing path creates an empty DB without a word, the 14-day scan became the new state
+and `Save events database` (`if: always()`) uploaded it; and `gcal.find_existing_by_event_key`
+— the function that was supposed to make fan-out idempotent — had **zero callers**, so a
+rebuilt DB posted every confirmed event to Calendar, TickTick and Slack a second time.
+
+- **`Require events database`** (`python -m src.state_guard --db data/events.db`) runs between
+  the restore and the weekly run: exit 1 unless `events` has **>= 1 row**. Not "file exists":
+  a conferences-only DB is a ~100 KB SQLite file and is exactly the shape a silent reset
+  produces. Not "earliest row <= HISTORY_FLOOR": after any legitimate bootstrap that would
+  block every run forever. `cmd_weekly` and `cmd_discover` re-check the same predicate under CI
+  before any phase can create the file (the conferences phase calls `init_db` too), and the
+  `Save events database` step is gated on the guard step succeeding **and** `dry_run != 'true'`.
+- **Bootstrap is a `workflow_dispatch` input, `bootstrap_db=true`, never a repo variable.**
+  Polarity is deliberately the opposite of earnings_agent's `EA_CONSENSUS_BOOTSTRAPPED`
+  (inert until set): the artifact has existed since 2026-07-06, so the guard is armed by
+  default and production passes with nothing for JP to set. A dispatch input cannot outlive
+  its run and a scheduled run cannot set it, so the inert window `EA_DB_BOOTSTRAPPED` left
+  open for ~85 days cannot recur here. A bootstrap *permits* a fresh DB (uses the restored one
+  if present), stamps `schema_meta.bootstrapped_at`, and heartbeats `partial` with a named
+  warning; the #439 page reads the stamp and renders an amber "restarted on <date>" instead
+  of the red "history is missing".
+- **Realistic loss path:** the restore takes only `workflow_conclusion: success` runs, so
+  **13 consecutive weeks without a successful master Monday run** expires every restorable
+  artifact (12 live artifacts on 2026-10-04, newest 2026-09-28, last 8 scheduled runs green).
+  If it fires: Actions → Monday weekly → Run workflow → `bootstrap_db=true`, once. Then expect
+  one burst of duplicate T-30/T-7 reminders (stamps are DB-only) — nothing else duplicates.
+- **Fan-out is now idempotent across a rebuild.** Per row the order is Calendar → TickTick →
+  Slack. Calendar is looked up by the natural key `ticker|type|start|end` in a private
+  extendedProperty (`showDeleted=true`) and adopted; TickTick carries the same key as a trailing
+  `analyst-days key: …` content line and is matched against the list's open tasks (fetched once
+  per run; tasks created before 2026-10-04 match on exact title + due day ±1, excluding task ids
+  another row already holds); Slack has no lookup, so an adoption on either surface sets
+  `slack_posted_at` without re-pinging. A **cancelled** Calendar match means the event was
+  retired after fan-out (`--retire` or by hand) and the DB that knew it was lost: the row is
+  **auto-retired as `cancelled`** (so this same run's reminders, digests and export skip it —
+  Codex r2: naming it alone left it remindable), nothing is pushed, the heartbeat names it, and
+  `events.notes` carries the one-line SQL to undo it if the deletion was an accident. Google
+  purges trashed events after ~30 days, so that window is bounded. Nothing ever blind-inserts: a lookup error propagates and
+  is retried next run, and a stored id is re-created only on 404/410.
+- **Fan-out failures reach the heartbeat (`partial`, named) but NOT the exit code.** Deliberate
+  (Fable review r1): a red Monday run's DB is never restored, so failing the job over a Calendar
+  outage would roll state back a week, and a 180-day TickTick token expiry would chain into the
+  13-week loss path. `--fanout` (manual) does return 1. **Follow-up, not done:** that rollback
+  is pre-existing for *any* rc-1 Monday; now that every upload passes the guard, the restore
+  could take the newest artifact by `created_at` regardless of conclusion (earnings_agent's
+  `ci_restore_db_artifact.sh` does), mirrored in `scripts/build_analyst_day_page.py`.
 
 No daily reminder cron. Reminders are checked once per week against current date — events crossing the T-30 or T-7 thresholds in the past 7 days are pinged on the Monday fire. Day-of pings cover anything happening this week.
 
