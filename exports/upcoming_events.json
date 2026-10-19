@@ -1,24 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-10-12T21:20:55Z",
+  "generated_at": "2026-10-19T18:48:20Z",
   "window": {
-    "start": "2026-10-12",
-    "end": "2026-12-11"
+    "start": "2026-10-19",
+    "end": "2026-12-18"
   },
   "counts": {
-    "events": 4
+    "events": 6
   },
   "events": [
-    {
-      "ticker": "TSM",
-      "company_name": "Taiwan Semiconductor Manufacturing Company Limited",
-      "event_type": "conference",
-      "start_date": "2026-10-15",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "ISRG",
       "company_name": "Intuitive Surgical Inc",
@@ -36,6 +27,33 @@
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
+    },
+    {
+      "ticker": "WST",
+      "company_name": "West Pharmaceutical Services Inc",
+      "event_type": "conference",
+      "start_date": "2026-10-29",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ALMR",
+      "company_name": "Alamar Biosciences, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "VEEV",
+      "company_name": "Veeva Systems Inc.",
+      "event_type": "investor_day",
+      "start_date": "2026-11-05",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
     },
     {
       "ticker": "ARE",
