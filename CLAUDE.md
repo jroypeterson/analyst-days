@@ -4,7 +4,7 @@ Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and
 
 ## Three systems of record
 
-- **Coverage Manager** = universe + tier assignment (which tickers to track). Consumed via local Dropbox path (`COVERAGE_MANAGER_PATH`) for dev or sparse-checkout of `jroypeterson/Coverage-Manager/exports/` in CI.
+- **Coverage Manager** = universe + tier assignment (which tickers to track). Consumed via local Dropbox path (`COVERAGE_MANAGER_PATH`) for dev or sparse-checkout of `exports/` from the **private** `jroypeterson/coverage-manager-private` repo in CI (deploy key secret `CM_DEPLOY_KEY`, board #517, 2026-10-05).
 - **Google Calendar** = published event state. Dedicated "Other Investing" calendar in `floridabusinessman@gmail.com` (split off the legacy shared earnings calendar 2026-05-28; titles prefixed with event type). Auth via the shared earnings-agent service account.
 - **SQLite (`data/events.db`)** = workflow state + historical memory + source provenance.
 
@@ -392,7 +392,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
 | `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` | Reused (earnings_agent / 13F) | Out-of-band failure email backup (inline SMTP in both workflows' `if: failure()` — fires when Slack itself is the failure point). Sends to `jroypeterson+alerts@gmail.com`. Opt-in: unset → no-op. |
 
-CI also sparse-checks out `jroypeterson/Coverage-Manager/exports/` for the watchlist snapshot. The Coverage Manager exports schema gate is `_ACCEPTED_CM_SCHEMA = frozenset({3})` in `src/universe.py` (bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c). **Adding a CSV column does not bump CM's `EXPORTS_SCHEMA_VERSION`** — the `LEI` and `IPO Date`/`Est Lockup` backfills all propagated into the CSVs and `portfolio.json` entries with no bump; only a change to `universe_metadata.json`'s entry shape bumps it (that is what v3 was). It was briefly widened to `{3, 4}` on 2026-07-28 for an anticipated v4 that was disproven the same night, and narrowed straight back; the frozenset form was kept because the error message names the set. `tests/test_universe_schema.py` pins the gate.
+CI also sparse-checks out `exports/` from the private `jroypeterson/coverage-manager-private` repo (via `CM_DEPLOY_KEY`) for the watchlist snapshot. The Coverage Manager exports schema gate is `_ACCEPTED_CM_SCHEMA = frozenset({3, 4})` in `src/universe.py` (v4 = raw-ticker `universe_metadata.json` keys, accepted since `5cb51dd` 2026-07-30; the narrowing history below predates that) (bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c). **Adding a CSV column does not bump CM's `EXPORTS_SCHEMA_VERSION`** — the `LEI` and `IPO Date`/`Est Lockup` backfills all propagated into the CSVs and `portfolio.json` entries with no bump; only a change to `universe_metadata.json`'s entry shape bumps it (that is what v3 was). It was briefly widened to `{3, 4}` on 2026-07-28 for an anticipated v4 that was disproven the same night, and narrowed straight back; the frozenset form was kept because the error message names the set. `tests/test_universe_schema.py` pins the gate.
 
 ## Local `.env`
 
