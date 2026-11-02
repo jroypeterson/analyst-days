@@ -1,47 +1,38 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-10-26T18:44:58Z",
+  "generated_at": "2026-11-02T21:48:14Z",
   "window": {
-    "start": "2026-10-26",
-    "end": "2026-12-25"
+    "start": "2026-11-02",
+    "end": "2027-01-01"
   },
   "counts": {
-    "events": 9
+    "events": 10
   },
   "events": [
-    {
-      "ticker": "CROX",
-      "company_name": "Crocs Inc",
-      "event_type": "conference",
-      "start_date": "2026-10-29",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "LLY",
-      "company_name": "Eli Lilly And Co",
-      "event_type": "conference",
-      "start_date": "2026-10-29",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "WST",
-      "company_name": "West Pharmaceutical Services Inc",
-      "event_type": "conference",
-      "start_date": "2026-10-29",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
     {
       "ticker": "ALMR",
       "company_name": "Alamar Biosciences, Inc.",
       "event_type": "conference",
       "start_date": "2026-11-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "DBX",
+      "company_name": "Dropbox, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-05",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "JPM",
+      "company_name": "JPMorgan Chase & Co",
+      "event_type": "conference",
+      "start_date": "2026-11-05",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
@@ -53,7 +44,7 @@
       "start_date": "2026-11-05",
       "end_date": null,
       "multi_day": false,
-      "status": "reminded_7"
+      "status": "day_of"
     },
     {
       "ticker": "KKR",
@@ -65,13 +56,31 @@
       "status": "confirmed"
     },
     {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-11-11",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FER",
+      "company_name": "Ferrovial SE",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "ARE",
       "company_name": "Alexandria Real Estate Equities Inc",
       "event_type": "investor_day",
       "start_date": "2026-12-02",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "reminded_30"
     },
     {
       "ticker": "LLY",
