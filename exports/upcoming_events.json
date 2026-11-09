@@ -1,50 +1,23 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-11-02T21:48:14Z",
+  "generated_at": "2026-11-09T22:22:28Z",
   "window": {
-    "start": "2026-11-02",
-    "end": "2027-01-01"
+    "start": "2026-11-09",
+    "end": "2027-01-08"
   },
   "counts": {
-    "events": 10
+    "events": 12
   },
   "events": [
     {
       "ticker": "ALMR",
       "company_name": "Alamar Biosciences, Inc.",
       "event_type": "conference",
-      "start_date": "2026-11-03",
+      "start_date": "2026-11-10",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
-    },
-    {
-      "ticker": "DBX",
-      "company_name": "Dropbox, Inc.",
-      "event_type": "conference",
-      "start_date": "2026-11-05",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "JPM",
-      "company_name": "JPMorgan Chase & Co",
-      "event_type": "conference",
-      "start_date": "2026-11-05",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "VEEV",
-      "company_name": "Veeva Systems Inc.",
-      "event_type": "investor_day",
-      "start_date": "2026-11-05",
-      "end_date": null,
-      "multi_day": false,
-      "status": "day_of"
     },
     {
       "ticker": "KKR",
@@ -65,10 +38,37 @@
       "status": "confirmed"
     },
     {
+      "ticker": "HOOD",
+      "company_name": "Robinhood Markets Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-11",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "FER",
       "company_name": "Ferrovial SE",
       "event_type": "conference",
       "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "WST",
+      "company_name": "West Pharmaceutical Services Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FRPT",
+      "company_name": "Freshpet, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-19",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
@@ -83,13 +83,31 @@
       "status": "reminded_30"
     },
     {
+      "ticker": "MMED",
+      "company_name": "MiniMed Group Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "LLY",
       "company_name": "Eli Lilly And Co",
       "event_type": "rd_day",
       "start_date": "2026-12-07",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "LLY",
+      "company_name": "Eli Lilly And Co",
+      "event_type": "investor_day",
+      "start_date": "2026-12-07",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
     },
     {
       "ticker": "ROIV",
@@ -98,7 +116,7 @@
       "start_date": "2026-12-09",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "reminded_30"
     }
   ]
 }
