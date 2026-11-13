@@ -182,6 +182,64 @@ def test_norm_cik(raw, want):
     assert fts.norm_cik(raw) == want
 
 
+# -- _get: a transient EDGAR error is retried before the pass is abandoned ------
+
+class _HttpResp:
+    def __init__(self, status):
+        self.status_code = status
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            import requests
+            raise requests.HTTPError(f"{self.status_code} error")
+
+
+def _patch_http(monkeypatch, outcomes):
+    """`outcomes`: status codes or exceptions, served in order."""
+    calls, sleeps = [], []
+    seq = iter(outcomes)
+
+    def fake_get(url, params=None, headers=None, timeout=None):
+        calls.append(url)
+        o = next(seq)
+        if isinstance(o, Exception):
+            raise o
+        return _HttpResp(o)
+
+    monkeypatch.setattr(fts.requests, "get", fake_get)
+    monkeypatch.setattr(fts, "_sleep", sleeps.append)
+    return calls, sleeps
+
+
+def test_a_transient_500_is_retried(monkeypatch):
+    """2026-11-13: the first 90-day dry run lost its whole EDGAR leg to one 500."""
+    calls, sleeps = _patch_http(monkeypatch, [500, 503, 200])
+    assert fts._get("https://x").status_code == 200
+    assert len(calls) == 3 and [d for d in sleeps if d >= 2.0] == [2.0, 5.0]
+
+
+def test_a_dropped_connection_is_retried(monkeypatch):
+    import requests
+    calls, _ = _patch_http(monkeypatch, [requests.ConnectionError("reset"), 200])
+    assert fts._get("https://x").status_code == 200 and len(calls) == 2
+
+
+def test_a_persistent_500_still_raises(monkeypatch):
+    import requests
+    calls, _ = _patch_http(monkeypatch, [500] * 10)
+    with pytest.raises(requests.HTTPError):
+        fts._get("https://x")
+    assert len(calls) == len(fts.RETRY_DELAYS_S) + 1
+
+
+def test_a_404_is_an_answer_and_is_not_retried(monkeypatch):
+    import requests
+    calls, _ = _patch_http(monkeypatch, [404, 200])
+    with pytest.raises(requests.HTTPError):
+        fts._get("https://x")
+    assert len(calls) == 1
+
+
 class _T:
     def __init__(self, ticker, cik, company_name="Co"):
         self.ticker, self.cik, self.company_name = ticker, cik, company_name

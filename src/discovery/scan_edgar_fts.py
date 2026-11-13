@@ -86,15 +86,36 @@ def _user_agent() -> str:
             or "analyst-days (jroypeterson@gmail.com)")
 
 
+# EDGAR full-text search returns sporadic 500s under load: the first 90-day dry run
+# (2026-11-13) died at offset 300 of ~3,000 on one. A page failure aborts the whole
+# pass by design, so a transient error has to be retried before it is believed.
+RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
+RETRY_DELAYS_S = (2.0, 5.0, 15.0)
+
+
 def _get(url: str, params: Optional[dict] = None) -> requests.Response:
+    """GET with SEC pacing; retries a throttle / server error / dropped connection."""
     global _last_request
-    gap = MIN_INTERVAL_S - (time.monotonic() - _last_request)
-    if gap > 0:
-        _sleep(gap)
-    _last_request = time.monotonic()
-    r = requests.get(url, params=params, headers={"User-Agent": _user_agent()}, timeout=30)
-    r.raise_for_status()
-    return r
+    for attempt in range(len(RETRY_DELAYS_S) + 1):
+        gap = MIN_INTERVAL_S - (time.monotonic() - _last_request)
+        if gap > 0:
+            _sleep(gap)
+        _last_request = time.monotonic()
+        last_try = attempt == len(RETRY_DELAYS_S)
+        try:
+            r = requests.get(url, params=params, headers={"User-Agent": _user_agent()},
+                             timeout=30)
+        except (requests.ConnectionError, requests.Timeout):
+            if last_try:
+                raise
+            _sleep(RETRY_DELAYS_S[attempt])
+            continue
+        if r.status_code in RETRY_STATUSES and not last_try:
+            _sleep(RETRY_DELAYS_S[attempt])
+            continue
+        r.raise_for_status()      # a 404 is an answer, not a blip: no retry
+        return r
+    raise AssertionError("unreachable")
 
 
 def _query() -> str:
