@@ -66,7 +66,7 @@ def batch_prompt(companies: Iterable[tuple[str, str]], today: date) -> str:
         "meetings, roadshows, or appearances at third-party / bank conferences. If there are "
         "several, report the one nearest to today. Prefer the company's own investor-relations "
         "page, its press release, or its SEC filing as the source, and give the address of a page "
-        "that itself states the date in English. Do not run shell commands or "
+        "that itself states the date - in the company's own language is fine. Do not run shell commands or "
         "read files; only search the web.\n\n"
         f"{listing}\n\n"
         "Reply with ONLY a JSON object keyed by the ticker exactly as written above. Each value is "

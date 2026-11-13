@@ -23,6 +23,7 @@ mention.
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date
 from typing import Iterable, Optional
 
@@ -41,6 +42,56 @@ _MONTHS: dict[int, list[str]] = {
     11: ["november", "nov"],
     12: ["december", "dec"],
 }
+
+
+# ── dates as non-English sources write them (2026-11-13) ─────────────────────
+#
+# 58 scan-set names file nothing with the SEC, and their investor pages are often not in
+# English: Takeda's events page states its Capital Markets Day as 2026年12月11日. JP:
+# "For foreign language ones why don't you translate and read the source?" The source IS
+# read -- in its own language, by these patterns -- rather than through a translation,
+# because a translation is text a model wrote, and this gate exists to check a date
+# against text nobody generated.
+#
+# Year-bearing forms only. A year-less "11 décembre" is not accepted: the English path
+# needs a nearby year for that, and widening it here is how a wrong year would ground.
+_FOREIGN_MONTHS: dict[int, list[str]] = {
+    1: ["januar", "janvier", "enero", "gennaio", "janeiro", "januari"],
+    2: ["februar", "février", "fevrier", "febrero", "febbraio", "fevereiro", "februari"],
+    3: ["märz", "maerz", "mars", "marzo", "março", "marco", "maart", "marts"],
+    4: ["avril", "abril", "aprile"],
+    5: ["mai", "mayo", "maggio", "maio", "mei", "maj"],
+    6: ["juni", "juin", "junio", "giugno", "junho"],
+    7: ["juli", "juillet", "julio", "luglio", "julho"],
+    8: ["août", "aout", "agosto", "augustus", "augusti"],
+    9: ["septembre", "septiembre", "setiembre", "settembre", "setembro"],
+    10: ["oktober", "octobre", "octubre", "ottobre", "outubro"],
+    11: ["novembre", "noviembre", "novembro"],
+    12: ["dezember", "décembre", "decembre", "diciembre", "dicembre", "dezembro", "desember"],
+}
+
+
+def _foreign_grounded(y: int, m: int, d: int, text: str) -> bool:
+    """True if the date is written out, with its year, in a non-English form."""
+    t = unicodedata.normalize("NFKC", text).lower()       # full-width digits -> ASCII
+    # Japanese / Chinese 2026年12月11日, Korean 2026년 12월 11일. No \b: CJK characters
+    # are word characters, so a boundary never falls between kana and a digit.
+    for ys, ms, ds in (("年", "月", "日"), ("년", "월", "일")):
+        if re.search(rf"(?<!\d){y}\s*{ys}\s*0?{m}\s*{ms}\s*0?{d}\s*{ds}", t):
+            return True
+    # Dotted numerics. With dots the order is never the US one: 11.12.2026 is day-first
+    # across Europe, 2026.12.11 year-first in East Asia.
+    if re.search(rf"(?<![\d.]){d:02d}\.{m:02d}\.{y}(?![\d])", t) or \
+            re.search(rf"(?<![\d.]){d}\.{m}\.{y}(?![\d])", t) or \
+            re.search(rf"(?<![\d.]){y}\.\s?{m:02d}\.\s?{d:02d}(?![\d])", t):
+        return True
+    # Day-first with a month name: "11. Dezember 2026", "11 décembre 2026", "1er mars 2027",
+    # "11 de diciembre de 2026", "den 11 december 2026".
+    day = rf"0?{d}(?:er|\.|º|°)?"
+    for mon in _FOREIGN_MONTHS.get(m, []):
+        if re.search(rf"(?<![\d]){day}\s+(?:de\s+|di\s+)?{re.escape(mon)}\.?,?\s+(?:de\s+|del\s+)?{y}(?!\d)", t):
+            return True
+    return False
 
 
 def _normalize(text: str) -> str:
@@ -144,6 +195,8 @@ def date_grounded_in_text(iso_date: str, text: Optional[str]) -> bool:
     norm = _normalize(text)
     if not norm:
         return False
+    if _foreign_grounded(dt.year, dt.month, dt.day, text):
+        return True
 
     with_year, month_day = _date_forms(dt.year, dt.month, dt.day)
     for form in with_year:

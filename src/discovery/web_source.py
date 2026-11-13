@@ -26,9 +26,13 @@ from src.discovery.web_answers import answer_to_hit
 
 CACHE_PATH = Path(__file__).resolve().parents[2] / "search_cache" / "web_hits.json"
 CACHE_SCHEMA = 1
-# The Mac pass runs early Monday; GitHub starts the Monday job hours late (15:38-22:15 UTC
-# over the eight runs to 2026-11-09). Four days also covers a mid-week manual re-run.
-CACHE_MAX_AGE = timedelta(days=4)
+# The Mac pass runs Thursday 04:30 New York (JP 2026-11-13: his ChatGPT usage resets on
+# Wednesdays, so Thursday is early in the fresh allowance). GitHub starts the Monday job at
+# 15:38-22:15 UTC (the eight runs to 2026-11-09), so the cache is 4.3-4.5 days old when it
+# is read; six days also covers a late start or a Tuesday re-run. The cost of the gap: an
+# event announced between Thursday and Monday that is NOT in an SEC filing is picked up the
+# following week. The EDGAR pass still runs fresh every Monday.
+CACHE_MAX_AGE = timedelta(days=6)
 
 CODEX, PERPLEXITY, TAVILY = "codex", "perplexity", "tavily"
 

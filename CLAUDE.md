@@ -309,7 +309,7 @@ Yes. Three sources, tried per name in this order (`src/discovery/web_source.py`)
 
 | # | Source | Where it runs | Cost |
 |---|---|---|---|
-| 1 | **Codex cache** `search_cache/web_hits.json` | Mac Studio, `scripts/codex_web_search.py`, Mon 04:30 New York (launchd lane `analyst_days_codex_search`) | ChatGPT subscription quota |
+| 1 | **Codex cache** `search_cache/web_hits.json` | Mac Studio, `scripts/codex_web_search.py`, **Thu 04:30 New York** (launchd lane `analyst_days_codex_search`) | ChatGPT subscription quota |
 | 2 | **Perplexity `sonar`** | this GitHub job, only for names the cache does not cover | about USD 0.005 a name |
 | 3 | Tavily (the old path) | this GitHub job, only if `PERPLEXITY_API_KEY` is unset | free tier, 1,000 a month |
 
@@ -328,7 +328,7 @@ plus 2 clean controls, Claude Haiku 5.5 and gpt-5-mini 10 of 10 at USD 39-60 a m
   stays tentative until EDGAR or a readable page corroborates.
 - ⚠ **A backup that works hides a dead primary.** Every name served by 2 or 3 is counted
   (`web_perplexity` / `web_tavily` in the summary) and the weekly heartbeat goes `partial` with
-  the reason: cache missing, older than 4 days, or the names it lacks. A stale cache is never
+  the reason: cache missing, older than 6 days, or more than a handful of names it lacks. A stale cache is never
   served -- last week's "no event" is not this week's.
 - ⚠ **The subscription quota is finite and shared with the Codex review loop** (a ~6-day
   lockout on 2026-10-21). A usage-limit error stops the pass at once: no retry, never buy
@@ -336,9 +336,19 @@ plus 2 clean controls, Claude Haiku 5.5 and gpt-5-mini 10 of 10 at USD 39-60 a m
   One batch of 12 used ~320-490k input tokens (85% cached); a full pass is ~31 batches.
 - A ticker the reply leaves out, a batch that fails twice, and a source URL that is not a
   public http(s) address are all "not searched", never "no event".
-- Known limits, seen on the first real batch: IQVIA's cited page is script-rendered and
-  Takeda's is in Japanese, so neither stated the date in text the gate could read. Both stay
-  tentative on the web leg; IQVIA confirmed through its 8-K.
+- **Thursday, not Monday** (JP 2026-11-13: his ChatGPT usage resets on Wednesdays, so Thursday is early in
+  the fresh allowance). The Monday GitHub job therefore reads answers 4.3-4.5 days old, and `CACHE_MAX_AGE`
+  is 6 days. The cost: an event announced Thursday-Monday that is not in an SEC filing is picked up a week
+  later. The EDGAR pass is still fresh every Monday.
+- **Non-English sources are read in their own language, never translated** (`date_grounding._foreign_grounded`).
+  JP: *"For foreign language ones why don't you translate and read the source?"* A translation is text a
+  model wrote, and the gate checks a date against text nobody generated. So the gate itself reads
+  `2026年12月11日`, `2026년 12월 11일`, `11. Dezember 2026`, `11.12.2026`, `1er mars 2027`, `11 de diciembre de
+  2026` and the Nordic / Dutch / Italian / Portuguese month names. Year-bearing forms only; dotted numerics
+  are day-first (or year-first), never the US order. The search prompt accepts a page in any language.
+- Known limits, seen on the first real batch: IQVIA's cited page is script-rendered, so its
+  date was not in text the gate could read; it confirmed through its 8-K. (Takeda's Japanese events page
+  was the other miss that day and is what the foreign-date patterns above were added for.)
 - Tests seal every provider and the page fetch (`tests/conftest.py::_no_live_web_search`).
   Manual: `python -m scripts.codex_web_search --tickers RVTY BDX --no-upload`.
 

@@ -133,13 +133,22 @@ def _cache(tmp_path, made=NOW - timedelta(hours=9), results=None, schema=1):
     return p
 
 
+def test_a_thursday_cache_is_still_fresh_for_a_late_monday_run(tmp_path):
+    """Thu 04:30 New York (09:30 UTC) -> Monday 22:15 UTC, the latest start measured."""
+    thursday = datetime(2026, 11, 19, 9, 30, tzinfo=timezone.utc)
+    monday = datetime(2026, 11, 23, 22, 15, tzinfo=timezone.utc)
+    assert ws.load_cache(_cache(tmp_path, made=thursday), now=monday)[1] == ""
+    following = monday + timedelta(days=7)          # the pass then missed a week
+    assert "days old" in ws.load_cache(_cache(tmp_path, made=thursday), now=following)[1]
+
+
 def test_fresh_cache_serves_its_names_and_empty_means_searched(tmp_path):
     cache, problem = ws.load_cache(_cache(tmp_path), now=NOW)
     assert problem == "" and cache["ISRG"] == [] and cache["BDX"][0]["url"] == "https://bd/x"
 
 
 @pytest.mark.parametrize("kwargs, needle", [
-    ({"made": NOW - timedelta(days=5)}, "days old"),
+    ({"made": NOW - timedelta(days=7)}, "days old"),
     ({"made": NOW + timedelta(days=2)}, "days old"),
     ({"schema": 2}, "schema"),
     ({"results": {}}, "no searched names"),
