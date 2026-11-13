@@ -1,0 +1,1494 @@
+{
+ "schema_version": 1,
+ "provider": "codex",
+ "generated_at": "2026-11-13T22:28:27Z",
+ "host": "Jasons-Mac-Studio.local",
+ "scan_set_count": 368,
+ "searched_count": 368,
+ "failed": {},
+ "quota_stop": "",
+ "usage": {
+  "input_tokens": 12543245,
+  "cached_input_tokens": 10649600,
+  "output_tokens": 31926,
+  "calls": 31
+ },
+ "results": {
+  "068270.KS": {
+   "hit": null
+  },
+  "1SXP.DE": {
+   "hit": null
+  },
+  "207940": {
+   "hit": null
+  },
+  "2269.HK": {
+   "hit": null
+  },
+  "2359.HK": {
+   "hit": {
+    "ticker": "2359.HK",
+    "title": "WuXi AppTec(603259)2026 Investor Day\ufffd\ufffdCRDMO model capturing next-gen growth__\ufffd\ufffd\ufffd\u02f2\u01be\ufffd_\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+    "url": "https://stock.finance.sina.com.cn/stock/go.php/vReport_Show/kind/search/rptid/847529045452/index.phtml",
+    "snippet": "WuXi AppTec(603259)2026 Investor Day\ufffd\ufffdCRDMO model capturing next-gen growth__\ufffd\ufffd\ufffd\u02f2\u01be\ufffd_\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\u01be\ufffd\ufffd\ufffd\u04b3 | \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u04b3 | \ufffd\ufffd\ufffd\u02f5\ufffd\ufffd\ufffd \ufffd\u043e\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\u00b9\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\u02fe\ufffd\u043e\ufffd \ufffd\ufffd\u04b5\ufffd\u043e\ufffd \u0376\ufffd\u02b2\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\u043e\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u0431\ufffd \ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\u04b5\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd \u056e\u022f \ufffd\ufffd\ufffd\u06b9\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\u0275\ufffd\ufffd\ufffd \ufffd\u0431\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\u043e\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\u02fe\ufffd\ufffd\u01b1 \ufffd\ufffd\u04b5\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\u02a6 \ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd WuXi AppTec(603259)2026 Investor Day\ufffd\ufffdCRDMO model capturing next-gen growth \ufffd\ufffd\ud84f\udeb9\ufffd\u02fe \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u05a4\u022f\ufffd\ufffd\ufffd\u07b9\ufffd\u02fe \ufffd\u043e\ufffd\u0531\ufffd\ufffd Jill WU/Benchen HUANG \ufffd\ufffd\ufffd\u06a3\ufffd2026-11-09 WuXi AppTec (WXAP) held its 2026 Investor Day on 6 Nov. Mgmt. indicated its CRDMO business model will continue to generate a robust pipeline of high-quality projects, supporting the sustainable growth of its Chemistry segment and the Company overall. Mgmt. also highlighted opportunities in the rising AIDD trend, reinforcing Biology segment as a core gateway to its downstream businesses. CRDMO",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-06",
+   "claimed_type": "investor_day"
+  },
+  "2715.HK": {
+   "hit": null
+  },
+  "3692.HK": {
+   "hit": null
+  },
+  "4503.T": {
+   "hit": null
+  },
+  "4519": {
+   "hit": null
+  },
+  "4543.T": {
+   "hit": null
+  },
+  "4568.T": {
+   "hit": null
+  },
+  "4578.T": {
+   "hit": null
+  },
+  "600276.SS": {
+   "hit": null
+  },
+  "6869.T": {
+   "hit": null
+  },
+  "7701.T": {
+   "hit": null
+  },
+  "7733.T": {
+   "hit": null
+  },
+  "7741.T": {
+   "hit": null
+  },
+  "8086.T": {
+   "hit": null
+  },
+  "A": {
+   "hit": null
+  },
+  "AAPL": {
+   "hit": null
+  },
+  "ABBV": {
+   "hit": null
+  },
+  "ABT": {
+   "hit": null
+  },
+  "ACH": {
+   "hit": null
+  },
+  "ACHC": {
+   "hit": null
+  },
+  "ACVA": {
+   "hit": null
+  },
+  "ADI": {
+   "hit": null
+  },
+  "ADPT": {
+   "hit": null
+  },
+  "ADSK": {
+   "hit": null
+  },
+  "ADUS": {
+   "hit": null
+  },
+  "AFRM": {
+   "hit": null
+  },
+  "AFX DE": {
+   "hit": null
+  },
+  "AGL": {
+   "hit": null
+  },
+  "AHCO": {
+   "hit": null
+  },
+  "AHR": {
+   "hit": null
+  },
+  "ALC": {
+   "hit": null
+  },
+  "ALGN": {
+   "hit": null
+  },
+  "ALHC": {
+   "hit": null
+  },
+  "ALMR": {
+   "hit": null
+  },
+  "ALNY": {
+   "hit": null
+  },
+  "AMBUB DC": {
+   "hit": null
+  },
+  "AMGN": {
+   "hit": null
+  },
+  "AMN": {
+   "hit": null
+  },
+  "AMP IM": {
+   "hit": {
+    "ticker": "AMP IM",
+    "title": "Amplifon (BIT:AMP) Q3 2026 Earnings Call Transcript & Audio",
+    "url": "https://stockanalysis.com/quote/bit/AMP/transcripts/424444-q3-2026/",
+    "snippet": "onale of this transaction and its potential to create a significant long-term value for our customers, employees, and shareholders. We therefore look forward with great confidence and enthusiasm to completing the transaction and embarking on the next chapter of our growth journey, which we will be pleased to share with you in greater detail at our Capital Markets Day next spring. Thank you all for your attention. We are now happy to take your questions. With this, Francesca, over to you. Francesca Rambaudi Senior Director of Investor Relations, Amplifon Thanks, Enrico. I kindly ask operator to open today's Q&A session. I kindly ask everyone to limit their participation to a maximum of two questions to ensure t ... asis. Again, for me, one thing that I would like to highlight is the fact that in some of the countries in particular we mentioned in the past, Spain, Italy, et cetera, which are very important for us, we performed very strongly. With regards to 2027 margins, of course, today we cannot guide you on that. As I mentioned, we are planning to have our Capital Markets Day next year during spring. What I can tell you is that in terms of inflation, we don't see major headwinds so far, and we do not expect major headwinds. Hassan Al-Wakeel Analyst, Barclays Perfect. Thank you very much. Operator The next question is from Veronika Dubajova from Citi. Please go ahead. Veronika ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "capital_markets_day"
+  },
+  "AMWL": {
+   "hit": null
+  },
+  "AMZN": {
+   "hit": null
+  },
+  "AORT": {
+   "hit": null
+  },
+  "ARDT": {
+   "hit": null
+  },
+  "ARE": {
+   "hit": {
+    "ticker": "ARE",
+    "title": "Alexandria Real Estate Equities Inc investor day",
+    "url": "https://s2.q4cdn.com/884574073/files/doc_downloads/2026/3Q26-EX-99-1-SUPP-Press-Release.pdf",
+    "snippet": "a weighted-average contractual lease expiration date in March 2027 and an expected weighted-average downtime ranging from 9 to 24 months . Refer to \u201cContractual lease expirations\u201d in the Supplemental Information for additional details. We expect to introduce 2027 guidance and related key assumptions, and 2027 key sources and uses of capital at our Investor Day on December 2, 2026, consistent with our historical practice. 2026 Guidance (continued) September 30, 2026 Alexandria Real Estate Equities, Inc. All Rights Reserved. \u00a9 2026 6 2027 Key Lease Expirations RSF Annual Rental Revenue Weighted-Average Expiration Date Weighted-Average Downtime 1,377,960 $100.5 million March 2027 9 to 24 months Summary of",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-02",
+   "claimed_type": "investor_day"
+  },
+  "ARGX": {
+   "hit": null
+  },
+  "ARWR": {
+   "hit": null
+  },
+  "ARXS": {
+   "hit": null
+  },
+  "ATEC": {
+   "hit": null
+  },
+  "ATR": {
+   "hit": null
+  },
+  "ATRC": {
+   "hit": null
+  },
+  "AUNA": {
+   "hit": null
+  },
+  "AVAH": {
+   "hit": null
+  },
+  "AVTR": {
+   "hit": {
+    "ticker": "AVTR",
+    "title": "Avantor, Inc. - Investors - News & Events - Events",
+    "url": "https://ir.avantorsciences.com/investors/news-and-events/events/",
+    "snippet": "",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": "2026-12-08",
+   "claimed_type": "investor_day"
+  },
+  "AZN": {
+   "hit": null
+  },
+  "AZTA": {
+   "hit": null
+  },
+  "BAX": {
+   "hit": {
+    "ticker": "BAX",
+    "title": "Baxter International (BAX) FY 2026 Earnings Call Transcript & Audio",
+    "url": "https://stockanalysis.com/stocks/bax/transcripts/734485-wells-fargo-21st-annual-healthcare-conference/",
+    "snippet": "s Fargo That's helpful. Congratulations on the hiring of a new CFO a few weeks ago, John Rogers, coming from Smith+Nephew . I think he starts in October. I think his relevant experience is obvious, coming from another med tech company. But love to hear from you why he was the right person. Then, when do you think you'll be in a position to host an Investor Day? Andrew Hider President and CEO, Baxter International Yeah. So look, I can't be more excited to have John be a part of this next phase for Baxter. I'll tell you, having spent time with him, he is the right person for where we're taking this organization. Just a couple of minor items on this. When we launched this search, it was a desirable positio ... s and really aligns us where financial horsepower is going to be a critical element as we step into the capital allocation phase of our journey. So excited to have him on board. October 1st is coming quick, and we can't be more excited to have John be part of the future. Larry Biegelsen Medical Device Analyst, Wells Fargo How far away is the first Investor Day in many years? Andrew Hider President and CEO, Baxter International While I won't comment on the timing, and we will have one at some point, it's more around execution. One of the reasons why we pulled it for earlier this year was because we wanted to build that credibility around high say-do ratio, around aligning the",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "BAYN": {
+   "hit": null
+  },
+  "BBIO": {
+   "hit": null
+  },
+  "BBNX": {
+   "hit": null
+  },
+  "BDX": {
+   "hit": {
+    "ticker": "BDX",
+    "title": "BD to Host Investor Day on December 10, 2026 :: Becton, Dickinson and Company (BDX)",
+    "url": "https://investors.bd.com/news-events/press-releases/detail/985/bd-to-host-investor-day-on-december-10-2026",
+    "snippet": "BD to Host Investor Day on December 10, 2026 :: Becton, Dickinson and Company (BDX) Skip to main content Skip to section navigation Skip to footer Products Solutions Administrator Ambulatory Surgery Center Solutions BD Hypodermic Needle and Syringe Solutions Diagnostic Accuracy and Efficiency Hazardous Drug Safety Integrated Diagnostic Solutions Medication Management Sol ... erview All SEC Filings Annual Reports Quarterly Reports Section 16 Filings Corporate Sustainability Governance Overview Board of Directors Governance Documents Contact the Board Reporting Accounting, Internal Accounting Controls or Auditing Matters News & Events Overview Press Releases IR Calendar BD Innovates Email Alerts Other Notices BD to Host Investor Day on December 10, 2026 November 10, 2026 4:15 pm EST Download as PDF FRANKLIN LAKES, N.J. , Nov. 10, 2026 /PRNewswire/ -- BD (Becton, Dickinson and Company) (NYSE: BDX), a leading global medical technology company, today announced that it will host an Investor Day for institutional investors and financial analysts on Thursday, December 10, 2026, in New York, NY. Registration will open at 7:30 a.m. ET, and the program will begin at 8:30 a.m. ET. Tom Polen, chairman, chief executive officer and president, Vitor Roque, executive vice president and chief financial officer, and other members of BD's leadership t",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-10",
+   "claimed_type": "investor_day"
+  },
+  "BE": {
+   "hit": null
+  },
+  "BFLY": {
+   "hit": null
+  },
+  "BIIB": {
+   "hit": null
+  },
+  "BIM": {
+   "hit": null
+  },
+  "BIO": {
+   "hit": null
+  },
+  "BKD": {
+   "hit": null
+  },
+  "BLCO": {
+   "hit": null
+  },
+  "BLLN": {
+   "hit": null
+  },
+  "BMY": {
+   "hit": null
+  },
+  "BNTX": {
+   "hit": null
+  },
+  "BRKR": {
+   "hit": null
+  },
+  "BRO": {
+   "hit": null
+  },
+  "BSX": {
+   "hit": null
+  },
+  "BTSG": {
+   "hit": null
+  },
+  "CAH": {
+   "hit": null
+  },
+  "CAT": {
+   "hit": null
+  },
+  "CENTA": {
+   "hit": null
+  },
+  "CERT": {
+   "hit": null
+  },
+  "CHCT": {
+   "hit": null
+  },
+  "CHE": {
+   "hit": null
+  },
+  "CHWY": {
+   "hit": null
+  },
+  "CI": {
+   "hit": null
+  },
+  "CIGI": {
+   "hit": null
+  },
+  "CLOV": {
+   "hit": null
+  },
+  "CNC": {
+   "hit": null
+  },
+  "CNI": {
+   "hit": null
+  },
+  "CNMD": {
+   "hit": null
+  },
+  "COH.AX": {
+   "hit": {
+    "ticker": "COH.AX",
+    "title": "Cochlear Limited capital markets day",
+    "url": "https://www.marketindex.com.au/data-api/api/v1/announcements/XASX%3ACOH%3A2A1699172/pdf/inline/cochlear-to-host-capital-markets-day",
+    "snippet": "1 University Avenue Macquarie University NSW 2109 AUSTRALIA www.cochlear.com Cochlear Limited ABN 96 002 618 073 ASX Announcement 25 September 2026 Cochlear to host Capital Markets Day Cochlear Limited will host a Capital Markets Day on Friday, 13 November 2026 at its global headquarters at Macquarie University . Management will host presentations that analysts, shareholders and media representatives can access either in person or via a webcast. Details are as follows: Date: 13 November 2026 Time: 9.00-12.30pm AEDT Webcast: https://events.viostream.com/s-r9557w7 RSVP for atten",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-13",
+   "claimed_type": "capital_markets_day"
+  },
+  "COIN": {
+   "hit": null
+  },
+  "COLOB DC": {
+   "hit": null
+  },
+  "CON": {
+   "hit": null
+  },
+  "COO": {
+   "hit": null
+  },
+  "COR": {
+   "hit": null
+  },
+  "CP": {
+   "hit": null
+  },
+  "CPRT": {
+   "hit": null
+  },
+  "CRL": {
+   "hit": null
+  },
+  "CROX": {
+   "hit": null
+  },
+  "CRSP": {
+   "hit": null
+  },
+  "CRWD": {
+   "hit": null
+  },
+  "CSL": {
+   "hit": null
+  },
+  "CSTL": {
+   "hit": null
+  },
+  "CSU": {
+   "hit": null
+  },
+  "CTEC LN": {
+   "hit": null
+  },
+  "CTRE": {
+   "hit": null
+  },
+  "CVNA": {
+   "hit": null
+  },
+  "CVS": {
+   "hit": null
+  },
+  "CVSG.L": {
+   "hit": null
+  },
+  "CYH": {
+   "hit": null
+  },
+  "CYTK": {
+   "hit": null
+  },
+  "DAE": {
+   "hit": null
+  },
+  "DBX": {
+   "hit": null
+  },
+  "DCGO": {
+   "hit": null
+  },
+  "DGX": {
+   "hit": {
+    "ticker": "DGX",
+    "title": "Quest Diagnostics Reports Third Quarter 2026 Financial Results; Raises Revenue and EPS Guidance for Full Year 2026 - Oct 22, 2026",
+    "url": "https://newsroom.questdiagnostics.com/2026-10-22-Quest-Diagnostics-Reports-Third-Quarter-2026-Financial-Results-Raises-Revenue-and-EPS-Guidance-for-Full-Year-2026",
+    "snippet": "blood test and launched a new AD-Detect test panel with pTau217, amyloid beta and APOE to help guide diagnosis and treatment decisions for Alzheimer's disease. Advanced Project Nova from the design phase to the solutions-build phase and continue to expect to deploy Epic solutions in our first lab in the fall of 2027. The company will hold its 2027 Investor Day on March 25, 2027, at the New York Stock Exchange. Additional information will be provided closer to the event. Three Months Ended September 30, Nine Months Ended September 30, 2026 2025 Change 2026 2025 Change (dollars in millions, except per share data) Reported: Net revenues $ 3,097 $ 2,816 10.0 % $ 9,035 $ 8,229 9.8 % Diagnostic Information Se",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2027-03-25",
+   "claimed_type": "investor_day"
+  },
+  "DH": {
+   "hit": null
+  },
+  "DHC": {
+   "hit": null
+  },
+  "DHR": {
+   "hit": null
+  },
+  "DIA.MI": {
+   "hit": null
+  },
+  "DIVISLAB.NS": {
+   "hit": null
+  },
+  "DOC": {
+   "hit": null
+  },
+  "DOCS": {
+   "hit": null
+  },
+  "DVA": {
+   "hit": null
+  },
+  "DXCM": {
+   "hit": null
+  },
+  "EHC": {
+   "hit": null
+  },
+  "ELAN": {
+   "hit": null
+  },
+  "ELV": {
+   "hit": null
+  },
+  "ENOV": {
+   "hit": null
+  },
+  "ENSG": {
+   "hit": null
+  },
+  "ERF FP": {
+   "hit": {
+    "ticker": "ERF FP",
+    "title": "Eurofins Financial Calendar | IR events",
+    "url": "https://www.eurofins.com/en/investors/calendar/",
+    "snippet": "profile Bond & hybrid capital instruments Outstanding and redeemed bonds and hybrid capital, and commercial paper. Close Menu AGM \u25be AGM 2026 Previous shareholder meetings Close Menu Executive deals \u25be Share buy-back \u25be Global Home / Investors / Calendar Global Home / Investors / Calendar Upcoming events 9M 2026 Trading Update, 21 October 2026 Europe Investor Day, Amersfoort, Netherlands, 23 October 2026 North America Investor Day, Toronto, Canada, 11 November 2026 To register interest in our upcoming Investor Days, please contact Investor Relations . Previous events H1 2026 Results call, 23 July 2026 Q1 2026 Trading Update call, 22 April 2026 FY 2025 Results call, 29 January 2026 To see presentations from previous announcements and Investor Days, visit the Reports and Pres",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-11",
+   "claimed_type": "investor_day"
+  },
+  "ESTA": {
+   "hit": null
+  },
+  "EVH": {
+   "hit": null
+  },
+  "EW": {
+   "hit": {
+    "ticker": "EW",
+    "title": "Edwards Lifesciences Corp investor day",
+    "url": "https://s27.q4cdn.com/788244549/files/doc_financials/2026/q1/EW-USQ_Transcript_2026-04-23.pdf",
+    "snippet": "",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": "2026-12-04",
+   "claimed_type": "investor_day"
+  },
+  "FDX": {
+   "hit": null
+  },
+  "FER": {
+   "hit": null
+  },
+  "FI": {
+   "hit": null
+  },
+  "FICO": {
+   "hit": null
+  },
+  "FIVE": {
+   "hit": null
+  },
+  "FLGT": {
+   "hit": null
+  },
+  "FMS": {
+   "hit": null
+  },
+  "FRE": {
+   "hit": null
+  },
+  "FRPT": {
+   "hit": null
+  },
+  "FTRE": {
+   "hit": {
+    "ticker": "FTRE",
+    "title": "Fortrea Holdings Inc investor day - source page could not be read",
+    "url": "https://equibles.com/stocks/ftre/calls/2026-q1",
+    "snippet": "",
+    "score": 0.0,
+    "verified": false,
+    "date_on_page": false,
+    "fetch_error": "HTTP 403"
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "GALD.SW": {
+   "hit": {
+    "ticker": "GALD.SW",
+    "title": "Galderma Group AG (SWX:GALD) Q2 2026 Earnings Call Transcript & Audio",
+    "url": "https://stockanalysis.com/quote/swx/GALD/transcripts/546377-q2-2026/",
+    "snippet": "think the overarching thing is, again, regarding the Complete Response Letter. I think you would expect, I would expect, the team is expecting that as you work through the list of issues becomes smaller. Other than that, I have no other comments on this. We will work with the FDA. We will, and have started all the work that is necessary. To have a Capital Markets Day when you're in the midst of sorting out an important launch product in the U.S. makes to me very little sense. We know you looked for guidance. We've already stated in the email today that, or in the letter today, that you will get that, along with our outlook for 2027. I think we'll meet that requirement, and hopefully by that time we can provide",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "capital_markets_day"
+  },
+  "GDRX": {
+   "hit": null
+  },
+  "GEHC": {
+   "hit": null
+  },
+  "GETIB SS": {
+   "hit": null
+  },
+  "GH": {
+   "hit": null
+  },
+  "GILD": {
+   "hit": null
+  },
+  "GKOS": {
+   "hit": null
+  },
+  "GMED": {
+   "hit": null
+  },
+  "GMRS": {
+   "hit": null
+  },
+  "GN DC": {
+   "hit": {
+    "ticker": "GN DC",
+    "title": "GN Store Nord A/S capital markets day",
+    "url": "https://www.gn.com/-/media/Files/Financial-Download-Center/2026/Q4/GN-Interim-Report-Q3-2026.pdf",
+    "snippet": "3 2026 11/28 Teleconference GN will host a teleconference at 11.00 am CET on November 5, 2026. Please visit www.gn.com to access the teleconference. Presentation material will be available on the website prior to the start of the tele- conference. Financial calendar 2027 Annual Report 2026: February 11, 2027 Annual General Meeting*: March 10, 2027 Capital Markets Day: February 24, 2027 Interim Report Q1 2027: April 29, 2027 Interim Report Q2 2027: August 26, 2027 Interim Report Q3 2027: November 4, 2027 *Proposals to the agenda for the GN Store Nord Annual General Meet- ing must be submitted no later than six weeks before the meeting (i.e. January 26, 2027) For further information please contact: Rune Sandager ... finish to the year. As for the changes to our group, we re- main on track to successfully close the Hearing transaction towards the end of the year and will then start a significant shareholder distribution program where we already in 2026-2027 plan to distribute at least DKK 4 billion with more to come into the future. In February, we will host a capital markets day where we will lay out our strategy and priorities for how to successfully build GN into the future with benefits for customers, partners, shareholders and employees. Thanks to you all for the continued collaboration and support.\u201d Peter Karlstromer, CEO of GN Store Nord Interim Report Q3 2026 6/1 Adjusted ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2027-02-24",
+   "claimed_type": "capital_markets_day"
+  },
+  "GRAL": {
+   "hit": null
+  },
+  "GSK": {
+   "hit": null
+  },
+  "GXI": {
+   "hit": null
+  },
+  "HAE": {
+   "hit": null
+  },
+  "HAPV3.SA": {
+   "hit": null
+  },
+  "HCA": {
+   "hit": null
+  },
+  "HCAT": {
+   "hit": null
+  },
+  "HCSG": {
+   "hit": null
+  },
+  "HIMS": {
+   "hit": null
+  },
+  "HLN": {
+   "hit": null
+  },
+  "HNGE": {
+   "hit": null
+  },
+  "HOOD": {
+   "hit": null
+  },
+  "HR": {
+   "hit": null
+  },
+  "HSIC": {
+   "hit": null
+  },
+  "HTFL": {
+   "hit": null
+  },
+  "HUM": {
+   "hit": {
+    "ticker": "HUM",
+    "title": "Document",
+    "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000064/a3q2026humanaincpostedrema.htm",
+    "snippet": "28 at a level that approximates Top Quartile results , which is the Star Rating level we believe is sustainable on an annual basis, and is necessary to maintain a 3% margin and have a competitive product \u2022 Believe we are well positioned to deliver on our commitment of unlocking the earnings potential of the business by 2028 as laid out at our 2025 Investor Day supported by our expanded membership base , return to Top Quartile Stars results, successful Group MA recontracting, progress through the J-curve in Medicaid and Primary Care, growth in Pharmacy and Home Solutions, and continued discipline across pricing, clinical excellence, operating efficiencies and capital allocation \u2022 As previously announced, we will hold a virtual investor update on December 10 th , 2026 to provide a mark to market against the framework laid out at our 2025 Investor Day , including the initiatives expected to support earnings growth through 2028 Expanded Key Messages \u2022 Delivered solid 3Q26 results : o 3Q26 Adjusted loss per share of $0.70 is ahead of our guidance expectation of an Adjusted loss per share of approximately $1.00, or just over negative 10% of FY Adjusted EPS , with outperformance driven by strong In ... , across both new and existing membership. Individual MA \u2022 3Q26 YTD membership increase of approximately 1,208,000, or 23%, is tracking in line with our FY 2026 expectation of approxima",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-10",
+   "claimed_type": "investor_day"
+  },
+  "HYPR": {
+   "hit": null
+  },
+  "IART": {
+   "hit": {
+    "ticker": "IART",
+    "title": "Integra LifeSciences Holdings (IART) Transcript: Jefferies Global Healthcare Conference 2026",
+    "url": "https://stockanalysis.com/stocks/iart/transcripts/685147-jefferies-global-healthcare-conference-2026/",
+    "snippet": "s that no other competitor can do. Matt Taylor Managing Director, Jefferies Great. Is there still some kind of plan in the second half of the year to do the Long Range Plan, or have you not set the date? Lea Knight EVP and CFO, Integra LifeSciences Yeah. As a result of the leadership change, one of the things that did change is our intent to do an investor day. We had originally announced it as a second half activity under our prior CEO. With Stuart now assuming the position, he has elected to move that out, so no sooner than 2027. Matt Taylor Managing Director, Jefferies Okay. You talked about pricing a couple of times. Lea Knight EVP and CFO, Integra LifeSciences Yeah Matt Taylor Managing Director, Je",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "ICLR": {
+   "hit": null
+  },
+  "ICUI": {
+   "hit": null
+  },
+  "IDXX": {
+   "hit": null
+  },
+  "ILMN": {
+   "hit": null
+  },
+  "IMVT": {
+   "hit": null
+  },
+  "INCY": {
+   "hit": null
+  },
+  "INMD": {
+   "hit": null
+  },
+  "INSM": {
+   "hit": null
+  },
+  "INSP": {
+   "hit": null
+  },
+  "IONS": {
+   "hit": null
+  },
+  "IQV": {
+   "hit": {
+    "ticker": "IQV",
+    "title": "IQVIA Reports Third-Quarter 2026 Results | IQVIA",
+    "url": "https://www.iqvia.com/newsroom/2026/10/iqvia-reports-third-quarter-2026-results",
+    "snippet": "enue $2,639 million, up 8.7% year-over-year, up 9.1% at constant currency R&D Solutions Net New Bookings $3.2 billion, up 15% year-over-year Operating Cash Flow $825 million, and Free Cash Flow $667 million, representing 120% of Adjusted Net Income Raising full-year 2026 guidance for Revenue, Adjusted EBITDA and Adjusted Diluted Earnings per Share Investor Day to be held on December 1, 2026 RESEARCH TRIANGLE PARK, N.C. \u2013 ( BUSINESS WIRE ) \u2013 October 27, 2026 \u2013 IQVIA Holdings Inc. (\u201cIQVIA\u201d) (NYSE:IQV), a leading global provider of clinical research services, commercial insights and healthcare intelligence to the life sciences and healthcare industries, today reported financial results for the quarter ende ... dance now anticipates 250 basis points of contribution from acquisitions, including acquisitions the company expects to complete by the end of the year, and approximately 20 basis points of tailwind from foreign exchange. All financial guidance assumes foreign currency exchange rates as of October 26, 2026 remain in effect for the forecast period. Investor Day IQVIA will host an Investor Day on Tuesday, December 1, 2026. Management will provide an update on the business, with presentations from members of IQVIA\u2019s senior executive team starting at 9:00 a.m. ET and concluding at approximately 12:30 p.m. ET. Registration is required to attend the event. More information on the ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-01",
+   "claimed_type": "investor_day"
+  },
+  "IRTC": {
+   "hit": null
+  },
+  "ISRG": {
+   "hit": null
+  },
+  "ITGR": {
+   "hit": null
+  },
+  "JAN": {
+   "hit": null
+  },
+  "JNJ": {
+   "hit": {
+    "ticker": "JNJ",
+    "title": "Johnson & Johnson to Host Enterprise Business Review",
+    "url": "https://www.jnj.com/media-center/press-releases/johnson-johnson-to-host-enterprise-business-review/2026",
+    "snippet": "t understand. Please try again Home / Johnson & Johnson to Host Enterprise Business Review Johnson & Johnson to Host Enterprise Business Review October 27, 2026 October 27, 2026 Share Facebook X (Twitter) Pinterest LinkedIn Copy link New Brunswick, N.J., October 27, 2026 \u2013 Johnson & Johnson (NYSE: JNJ) will hold an Enterprise Business Review for the investment community on Tuesday, December 8 th , 2026. During the event, Company leaders will provide a detailed review of the Innovative Medicine and MedTech businesses, highlight how their pipelines are shaping the future of healthcare, and discuss the Company\u2019s long-term strategy for delivering the next wave of growth and shareholder value. Th",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-08",
+   "claimed_type": "investor_day"
+  },
+  "JPM": {
+   "hit": {
+    "ticker": "JPM",
+    "title": "JPMorganChase Announces 2027 Investor Day",
+    "url": "https://www.jpmorganchase.com/ir/news/2026/jpmc-announces-2027-investor-day",
+    "snippet": ".S. Army Veteran Ashley Wigfall transitioned to a civilian role and charted her path to technologist through mentorship and skills training at the JPMorgan Chase tech hub in Plano, Texas. Learn more Investor Relations Investor Relations Senior Executive Letters Annual Report Quarterly Earnings Press releases Events and presentations Company Update Investor Day Learn more Chairman and CEO Letter to Shareholders Learn more Newsroom Newsroom Stories Press releases Media contacts Latest news Chairman and CEO Letter to Shareholders Learn more Investor Relations Press Releases 2026 JPMorganChase Announces 2027 Investor Day Investor Relations Press Releases JPMorganChase Announces 2027 Investor Day New York June 15, 2026 JPMorgan Chase & Co. (NYSE: JPM) (\u201cJPMorganChase\u201d or the \u201cFirm\u201d) will hold an Investor Day in New York City on Monday, February 22, 2027, with presentations given by members of executive management. A live audio webcast and presentation slides will be posted on the day of the event to www.jpmorganchase.com under Investor Relations, Events & Presentations. Dial-in information and a more detailed agenda will be provided at a later date. J ... JPMorganChase Announces 2027 Investor Day Skip to main content Join our team Search JPMorganChase About us About us How we do business Leadership Awards and recognition Technology Governance Suppliers Diversity, opportunity & inclu",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2027-02-22",
+   "claimed_type": "investor_day"
+  },
+  "KARD": {
+   "hit": null
+  },
+  "KIDS": {
+   "hit": null
+  },
+  "KKR": {
+   "hit": null
+  },
+  "KLRA": {
+   "hit": null
+  },
+  "KRC": {
+   "hit": null
+  },
+  "KYMR": {
+   "hit": null
+  },
+  "LFST": {
+   "hit": null
+  },
+  "LH": {
+   "hit": null
+  },
+  "LIN": {
+   "hit": null
+  },
+  "LIVN": {
+   "hit": null
+  },
+  "LLY": {
+   "hit": {
+    "ticker": "LLY",
+    "title": "Lilly Innovation Day 2026 | Eli Lilly and Company",
+    "url": "https://investor.lilly.com/events/event-details/lilly-innovation-day-2026",
+    "snippet": "mposition Board of Directors and Executive Committee Resources Expand mega menu Expand submenu Left icon for back button Back Resources Clinical Development Pipeline Current Medicines Key Facts 2025 Year in Review Sustainability Report Search button Email Alerts News Lilly.com Close Search Lilly.com For Content... Submit search Event Details Lilly Innovation Day 2026 December 7, 2026 from 9:00 AM to 1:00 PM EST Add to Outlook Add to Google Calendar Diversity Contact Suppliers Login Terms of Use Privacy Statement Consumer Health Privacy Notice Accessibility Statement Sitemap To speak to customer support: Call (800) 545-5979 Your Privacy Choices Cookie Settings Copyright \u00a9 2026 Eli Lilly and Company. All ri ... Lilly Innovation Day 2026 | Eli Lilly and Company Skip to main content Email Alerts News Lilly.com OUTLINES --> Menu Menu Close Close Stock Info Expand mega menu Expand submenu Left icon for back button Back Stock Info Stock Quote & Chart Historic Price Lookup Dividends & Stock Splits Investment Calculator Tokenization of LLY Stock Webcasts & Presentations Financials",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-07",
+   "claimed_type": "rd_day"
+  },
+  "LMRI": {
+   "hit": null
+  },
+  "LNTH": {
+   "hit": null
+  },
+  "LONN CH": {
+   "hit": null
+  },
+  "LTC": {
+   "hit": null
+  },
+  "LULU": {
+   "hit": null
+  },
+  "MA": {
+   "hit": null
+  },
+  "MAIR": {
+   "hit": null
+  },
+  "MCK": {
+   "hit": null
+  },
+  "MCO": {
+   "hit": null
+  },
+  "MD": {
+   "hit": null
+  },
+  "MDA": {
+   "hit": null
+  },
+  "MDGL": {
+   "hit": null
+  },
+  "MDLN": {
+   "hit": null
+  },
+  "MDT": {
+   "hit": {
+    "ticker": "MDT",
+    "title": "Medtronic (MDT) Q1 2027 Earnings Call Transcript",
+    "url": "https://finance.yahoo.com/healthcare/articles/medtronic-mdt-q1-2027-earnings-114429769.html",
+    "snippet": "eadth of our performance this quarter. Growth is being driven by several businesses, multiple innovation platforms and teams who are executing at a high level across Medtronic. We look forward to sharing a deeper look at our portfolio and our pipeline and our capital allocation strategy as well as our long-term growth opportunities at our upcoming Investor Day scheduled for December 10 and 11. With that, I'd like to thank our Medtronic colleagues around the world. The progress we are making reflects the discipline, focus and execution of our teams. I want to thank you for your hard work and continued commitment to reaching more patients. Together, we bring our mission to life for the people who are coun",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": "2026-12-10",
+   "claimed_type": "investor_day"
+  },
+  "MED": {
+   "hit": null
+  },
+  "MEDP": {
+   "hit": null
+  },
+  "MICC": {
+   "hit": null
+  },
+  "MMED": {
+   "hit": null
+  },
+  "MMSI": {
+   "hit": {
+    "ticker": "MMSI",
+    "title": "Merit Medical (MMSI) Q3 2026 Earnings Call Transcript | The Motley Fool",
+    "url": "https://www.fool.com/earnings/call-transcripts/2026/10/30/merit-medical-mmsi-q3-2026-earnings-call-transcript/",
+    "snippet": "ue and operating margins. The company announced the $45 million acquisition of Solo Pace to expand its cardiac therapies portfolio with transcatheter aortic valve replacement pacing technology. Operations focused on integrating recent acquisitions, including View Point Medical and its oncology marking systems, while launching the SCOUT MD platform globally. Management scheduled an investor event for Feb. 11, 2027, to present the strategic plan for the 2027 to 2029 period. CEO Aronson noted that the message for the OneMark biopsy system \"is resonating with both surgeons and radiologists,\" particularly within academic institutions. Management launched an integrated business planning process un",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2027-02-11",
+   "claimed_type": "investor_day"
+  },
+  "MNKD": {
+   "hit": null
+  },
+  "MOBI": {
+   "hit": null
+  },
+  "MOH": {
+   "hit": null
+  },
+  "MOVE": {
+   "hit": null
+  },
+  "MPT": {
+   "hit": null
+  },
+  "MRK": {
+   "hit": null
+  },
+  "MRNA": {
+   "hit": {
+    "ticker": "MRNA",
+    "title": "Document",
+    "url": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000194/exhibit9912026q3pressrelea.htm",
+    "snippet": "des \u2022 Fortune Change the World: Moderna was named to Fortune's 2026 Change the World list, recognizing the Company's impact through mRNA medicines. \u2022 Science Top Employers: Moderna was named a top employer in Science and Science Careers' 2026 Top Employers Survey for the twelfth consecutive year. Key 2026 Investor and Analyst Event Dates \u2022 Moderna Analyst Day: November 12, 2026 Investor Call and Webcast Information Moderna will host a live conference call and webcast at 8:00 a.m. ET on November 6, 2026. To access the live conference call via telephone, please register at the link below. Once registered, dial-in 4 numbers and a unique pin number will be provided. A live webcast of the call will also be",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-12",
+   "claimed_type": "analyst_day"
+  },
+  "MRVI": {
+   "hit": null
+  },
+  "MSFT": {
+   "hit": null
+  },
+  "MTD": {
+   "hit": {
+    "ticker": "MTD",
+    "title": "Mettler-Toledo International Inc., Events & Presentations",
+    "url": "https://investor.mt.com/events-and-presentations/default.aspx",
+    "snippet": "",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": "2026-11-09",
+   "claimed_type": "investor_day"
+  },
+  "MWH": {
+   "hit": null
+  },
+  "MYGN": {
+   "hit": null
+  },
+  "NEO": {
+   "hit": {
+    "ticker": "NEO",
+    "title": "NeoGenomics (NEO) Q3 2026 Earnings Call Transcript",
+    "url": "https://finance.yahoo.com/markets/stocks/articles/neogenomics-neo-q3-2026-earnings-041351452.html",
+    "snippet": "tion in terms of the value that we can deliver from the strategy as we transition into this next chapter. And I think lastly, your point is, how are we going to keep the community sort of informed around our ambitions and the future? I think that what we certainly are planning on doing outside of investor [ conference ] like JPMorgan is to have an Investor Day in the first half of 2027. A lot of exciting things to share from a portfolio perspective, from a commercial expansion point of view, operational excellence, and we feel it's been 4 years since the last opportunity. It's time for us to do the same again. David Westenberg: And since that was a long answer, I'll keep it kind of short. Abhishek, I ju",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "NFLX": {
+   "hit": null
+  },
+  "NHI": {
+   "hit": null
+  },
+  "NHP": {
+   "hit": null
+  },
+  "NNOX": {
+   "hit": null
+  },
+  "NOVT": {
+   "hit": null
+  },
+  "NSIS-B.CO": {
+   "hit": null
+  },
+  "NTRA": {
+   "hit": null
+  },
+  "NVCR": {
+   "hit": null
+  },
+  "NVDA": {
+   "hit": null
+  },
+  "NVO": {
+   "hit": null
+  },
+  "NVS": {
+   "hit": {
+    "ticker": "NVS",
+    "title": "Novartis AG capital markets day",
+    "url": "https://www.novartis.com/sites/novartis_com/files/novartis-q3-2026-impact-and-sustainability-update.pdf",
+    "snippet": "latest disclosures. We will share the date and more details in due course. In the meantime, we will continue to keep you informed through our quarterly updates. Upcoming events Reminder: AI session at Meet Novartis Management 2026 We are hosting a dedicated AI panel as part of Meet Novartis Management, our annual capital markets event, on November 19, 2026. Senior leaders will discuss how Novartis is using AI across R&D. Time: 2:30pm UK / 3:30pm CET. The event will be held in-person (London) and online. Link to webcast: AI Panel. Register to attend in person: Register for Meet Novartis Management. Dedicated Social Impact & Sustainability investor event in 2027 Content Click below to navigate",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-19",
+   "claimed_type": "capital_markets_day"
+  },
+  "NVST": {
+   "hit": null
+  },
+  "OFIX": {
+   "hit": null
+  },
+  "OHI": {
+   "hit": null
+  },
+  "OMCL": {
+   "hit": null
+  },
+  "OMDA": {
+   "hit": null
+  },
+  "ONC": {
+   "hit": null
+  },
+  "ONT.L": {
+   "hit": null
+  },
+  "OPCH": {
+   "hit": null
+  },
+  "OSCR": {
+   "hit": null
+  },
+  "OSSFF": {
+   "hit": null
+  },
+  "PACB": {
+   "hit": null
+  },
+  "PACS": {
+   "hit": null
+  },
+  "PAHC": {
+   "hit": null
+  },
+  "PBLS": {
+   "hit": null
+  },
+  "PCVX": {
+   "hit": null
+  },
+  "PEN": {
+   "hit": null
+  },
+  "PETS": {
+   "hit": null
+  },
+  "PFE": {
+   "hit": null
+  },
+  "PGNY": {
+   "hit": null
+  },
+  "PHG": {
+   "hit": null
+  },
+  "PHR": {
+   "hit": null
+  },
+  "PLSE": {
+   "hit": null
+  },
+  "PNTG": {
+   "hit": null
+  },
+  "PODD": {
+   "hit": null
+  },
+  "PRCT": {
+   "hit": null
+  },
+  "PRVA": {
+   "hit": null
+  },
+  "Q": {
+   "hit": null
+  },
+  "QDEL": {
+   "hit": null
+  },
+  "QGEN": {
+   "hit": null
+  },
+  "RDNT": {
+   "hit": null
+  },
+  "RDOR3": {
+   "hit": null
+  },
+  "REGN": {
+   "hit": {
+    "ticker": "REGN",
+    "title": "CIDEB MASH Roundtable | Regeneron Pharmaceuticals Inc.",
+    "url": "https://investor.regeneron.com/events/event-details/cideb-mash-roundtable",
+    "snippet": "Return to Top Level Upcoming & Recent Regeneron Roundtables Archive Return to Top Level Stock Information Historic Price Lookup Investment Calculator Ownership Profile Return to Top Level Financial Information SEC Filings Annual Reports & Proxy Statements Quarterly Results Return to Top Level Governance Documents Corporate Responsibility Committee Composition Contact the Board Insider Transactions Return to Top Level FAQs Pipeline Our Medicines Regeneron.com Contact Us events / CIDEB MASH Roundtable Event Details CIDEB MASH Roundtable Nov 10, 2026 8:30 AM EST Listen to the CIDEB MASH Roundtable webcast Supporting Materials CIDEB MASH Roundtable Presentation 3.7 MB Transcript 232.4 KB Live T",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-10",
+   "claimed_type": "rd_day"
+  },
+  "RGEN": {
+   "hit": null
+  },
+  "RMD": {
+   "hit": null
+  },
+  "ROG.SW": {
+   "hit": null
+  },
+  "ROIV": {
+   "hit": {
+    "ticker": "ROIV",
+    "title": "Events & Presentations | Roivant Sciences Ltd.",
+    "url": "https://investor.roivant.com/news-events/events",
+    "snippet": "Investors + Stock Information Events & Presentations Press Releases SEC Filings Annual Reports Corporate Governance Analyst Coverage Email Alerts Join Us Menu Close Events & Presentations Upcoming Events Jefferies Global Healthcare Conference in London November 17, 2026 at 1:00 PM GMT Listen to Webcast Add to Outlook Add to Google Calendar Roivant Investor Day 2026 December 9, 2026 from 8:00 AM to 1:00 PM EST Registration and Event Website Add to Outlook Add to Google Calendar Past Events Roivant 2Q 2026 Earnings Call November 9, 2026 at 8:00 AM EST Listen to Webcast View Presentation 1.4 MB Brepocitinib in NIU: CLARITY Phase 3 Study Results October 21, 2026 at 8:00 AM EDT Listen to Webcast View Present ... TD Cowen 46th Annual Health Care Conference March 3, 2026 at 9:50 AM EST Listen to Webcast Roivant 3Q 2025 Earnings Call February 6, 2026 at 8:00 AM EST Listen to Webcast Roivant 3Q2025 Earnings Call Presentation 1.9 MB Presentation \u2013 J.P. Morgan Healthcare Conference January 12, 2026 at 3:00 PM PST Listen to Webcast View Presentation 1 MB Roivant Investor Day 2025 December 11, 2025 from 8:00 AM to 1:30 PM EST Listen to Webcast Roivant Investor Day 2025 Presentation 11.4 MB Fireside Chat \u2013 Jefferies Global Healthcare Conference November 18, 2025 at 5:00 PM GMT Listen to Webcast Fireside Chat \u2013 Guggenheim Healthcare Innovation Conference November 11, 2025 at 8:00 AM EST Liste",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-09",
+   "claimed_type": "investor_day"
+  },
+  "RPD": {
+   "hit": null
+  },
+  "RPRX": {
+   "hit": null
+  },
+  "RVMD": {
+   "hit": null
+  },
+  "RVTY": {
+   "hit": {
+    "ticker": "RVTY",
+    "title": "Revvity, Inc. - Revvity to Host Investor Day",
+    "url": "https://ir.revvity.com/news/investor-news/news-details/2026/Revvity-to-Host-Investor-Day/default.aspx",
+    "snippet": "Revvity, Inc. - Revvity to Host Investor Day Skip to main content Investor Home News Investor News Newsroom Acquisitions Events Financials Quarterly Results Annual Reports SEC Filings ESG Stock Info Stock Quote Stock Chart Historical Stock Quote Investment Calculator Dividend History Analyst Coverage Skip to main content News Events Financials ESG Search query News Details Investor Home News Investor News Newsroom Acquisitions Events Financials Quarterly Results Annual Reports SEC Filings ESG Stock Info Stock Quote Stock Chart Historical Stock Quote Investment Calculator Dividend History Analyst Coverage View All News Revvity to Host Investor Day October 6, 2026 Download (opens in new window) WALTHAM, Mass.--(BUSINESS WIRE)-- Revvity, Inc. (NYSE: RVTY), today announced it will host its 2026 Investor Day on Friday, November 13 at 9:00 a.m. ET. Presentations from members of Revvity\u2019s senior management team will provide updates on the Company\u2019s key business initiatives, operational achievements and financial outlook. To register for the Investor Day webcast, visit here . A replay of the webcast and all presentations will be available on the Events page of the Revvity Investor Relations website following the event. About Revvity At Revvity, \u201cimpossible\u201d is inspiration, and \u201ccan\u2019t be done\u201d is a call to action. Revvity provides health science solutions, technologies, expertise, and s",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-13",
+   "claimed_type": "investor_day"
+  },
+  "RXST": {
+   "hit": null
+  },
+  "RYTM": {
+   "hit": null
+  },
+  "SBRA": {
+   "hit": null
+  },
+  "SCI": {
+   "hit": null
+  },
+  "SDGR": {
+   "hit": null
+  },
+  "SDZ": {
+   "hit": null
+  },
+  "SECARE SS": {
+   "hit": null
+  },
+  "SECTB SS": {
+   "hit": null
+  },
+  "SFZN.SW": {
+   "hit": null
+  },
+  "SGHT": {
+   "hit": null
+  },
+  "SGRY": {
+   "hit": {
+    "ticker": "SGRY",
+    "title": "Surgery Partners SGRY Q1 2026 Earnings Transcript",
+    "url": "https://finance.yahoo.com/sectors/healthcare/articles/surgery-partners-sgry-q1-2026-163638887.html",
+    "snippet": "t's in the very advanced stages there. We're targeting midyear. We'll see. Obviously, nothing is done until it's signed. And then there are a couple of other markets that we're going to be exploring and we'll give you the right -- we'll give you the updates as those are appropriate. Joanna Gajuk: And I guess with that, if I can, any update on your Investor Day that you were planning? I guess, is it still in the works? So are you waiting to complete more of these before you have this meeting? J. Evans: Yes. No, we're definitely still committed to doing an Investor Day. As we've said before, we are tying that to having something meaningful done within our portfolio optimization. We do plan to do that later this year. And so we're staying very closely tied to that timing. And as we have something to update you on there, we'll obviously do it quickly. Operator: We take the next question from the line of Andrew Mok",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "SHC": {
+   "hit": null
+  },
+  "SHL GY": {
+   "hit": null
+  },
+  "SIBN": {
+   "hit": null
+  },
+  "SMMT": {
+   "hit": null
+  },
+  "SNN": {
+   "hit": null
+  },
+  "SNY": {
+   "hit": null
+  },
+  "SOLV": {
+   "hit": {
+    "ticker": "SOLV",
+    "title": "Solventum Corporation investor day",
+    "url": "https://investors.solventum.com/_assets/_520d7b515166eb0abd7928bd04886f3e/solventum/db/3734/35382/webcast_transcript/SOLV_3Q26_Earnings_Transcript_11052026_DRAFTvF.pdf",
+    "snippet": "I can say that this team has stayed completely focused through the separation announcement, and I can't tell you how much I appreciate that. Stepping back on innovation, beyond the products I've already discussed, we still have a strong pipeline of new products across each of our businesses, and many of those will be discussed during our upcoming Investor Day in March of next year. The key message, I think, is pretty simple. We see significant opportunity for growth by leveraging our newly optimized sales channel to drive three key areas. First, the underpenetration of clinically differentiated brands like the V.A.C.\u00ae System that are already in the market, two is newly launched innovation and our pendi ... last quarter and this quarter again with negative pressure wound therapy, the penetration opportunity for us far outweighs any market shifts. Solventum Q3 FY26 earnings call transcript \u2013 November 5, 2026 11 Bryan Hanson \u2014 Solventum Corporation; Chief Executive Officer Yeah. One thing that I want to make sure that we spend a lot more time on in the Investor Day, and I want to make sure it's not lost. I had it in my prepared remarks, but we've already, through Solventum Way, restructured the global sales channel to be specialized inside of the growth driver areas. I just don't want people to miss that we've got three really strong levers to drive growth now with that optimized ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "SOM.AX": {
+   "hit": null
+  },
+  "SOON": {
+   "hit": null
+  },
+  "SPCX": {
+   "hit": null
+  },
+  "SPGI": {
+   "hit": null
+  },
+  "SPOT": {
+   "hit": null
+  },
+  "SRRK": {
+   "hit": null
+  },
+  "SRT.DE": {
+   "hit": null
+  },
+  "SRTA": {
+   "hit": null
+  },
+  "STAA": {
+   "hit": null
+  },
+  "STE": {
+   "hit": null
+  },
+  "STMN.SW": {
+   "hit": null
+  },
+  "STRW": {
+   "hit": null
+  },
+  "STVN": {
+   "hit": null
+  },
+  "SUNPHARMA": {
+   "hit": null
+  },
+  "SYK": {
+   "hit": null
+  },
+  "TAK": {
+   "hit": {
+    "ticker": "TAK",
+    "title": "Investor Events and Presentations | Takeda Pharmaceuticals",
+    "url": "https://www.takeda.com/investors/events/",
+    "snippet": "d=\"earnings-announcement-meetings--ir-events--broker-conferences\">## Earnings Announcement Meetings / IR Events / Broker Conferences Upcoming Events FY2026 Past Events Jefferies Global Healthcare Conference in London (5:00-5:25pm GMT on November 17, 2026) Webcast Go to https://event.summitcast.com/view/avibSrFufLKeoLRAEgMxy6/EkF3pFySHVfXuByF3iRgVe Capital Markets Day (6:30pm ~ EST on December 10, 2026) *Duration: Approximately 6.5 hours Presentation material will be posted at 5:30pm EST on December 10. (7:30am JST on December 11) Webcast Go to https://zoom.us/webinar/register/WN_7oJTFYB1TMKA9UeGZztJ_Q#/registration Add to Calendar Quarterly Results - Quarter 3 FY2026 (January 28, 2027) Quarterly Results - Quarter 4 FY2026 (May 13, 2027) ### Jefferies Global Healthcare Conference in London (5:00-5:25pm GMT on November 17, 2026) * [Webcast](https://event.summitcast.com/view/avibSrFufLKeoLRAEgMxy6/EkF3pFySHVfXuByF3iRgVe) *** ### Capital Markets Day (6:30pm ~ EST on December 10, 2026) *Duration: Approximately 6.5 hours Presentation material will be posted at 5:30pm EST on December 10. (7:30am JST on December 11) * [Webcast](https://zoom.us/webinar/register/WN_7oJTFYB1TMKA9UeGZztJ_Q#/registration) * [Add to Calendar](https://assets-dam.takeda.com/raw/upload/v1793934830/Global/Investor/events/2 ... terly-results-2024/) FY2024 (April 2024-March 2025) FY2024 (April 2024-March 2025) TD ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-12-10",
+   "claimed_type": "capital_markets_day"
+  },
+  "TCMD": {
+   "hit": null
+  },
+  "TDOC": {
+   "hit": null
+  },
+  "TECH": {
+   "hit": null
+  },
+  "TEM": {
+   "hit": null
+  },
+  "TEVA": {
+   "hit": {
+    "ticker": "TEVA",
+    "title": "Teva Pharmaceutical Industries Ltd. - Teva Shares Innovative Pipeline Updates and Unveils Path to Future Growth at R&D Day, Targeting $6\u20137 Billion in Innovative Medicines Revenue by 2030",
+    "url": "https://ir.tevapharm.com/news-and-events/press-releases/press-release-details/2026/Teva-Shares-Innovative-Pipeline-Updates-and-Unveils-Path-to-Future-Growth-at-RD-Day-Targeting-67-Billion-in-Innovative-Medicines-Revenue-by-2030/default.aspx",
+    "snippet": "ESG Progress Report Additional Resources Analyst Coverage Investor FAQs Email Alerts Contact IR RSS Feeds Epidemiology Clinical Trial Appendix Conversion of Teva ADSs into Ordinary Shares Home Investors > News > Press Releases > Press Release Details Press Release Details Teva Shares Innovative Pipeline Updates and Unveils Path to Future Growth at R&D Day, Targeting $6\u20137 Billion in Innovative Medicines Revenue by 2030 November 11, 2026 7:30 AM The Company has more than doubled revenue from innovative medicines since launching Pivot to Growth in 2023, demonstrating sustained execution and the growing strength of its high-velocity biopharma model A live webcast of the event and presentation materials ... concluding at 12:30 p.m. EST. A dedicated media Q&A with Teva leadership will follow the webcast. The session is intended for members of the media, who can register to participate here . TEL AVIV, Israel and PARSIPPANY, N.J., Nov. 11, 2026 (GLOBE NEWSWIRE) -- Teva Pharmaceutical Industries Ltd. (NYSE and TASE: TEVA) today will host its first-ever R&D Day, outlining the next phase of the company\u2019s growth and its ambition to generate $6\u20137 billion in innovative medicines revenue by 2030. President and CEO Richard Francis, together with members of Teva\u2019s executive leadership and R&D teams, will highlight Teva\u2019s advancing pipeline, differentiated R&D model and the potential to launch ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-11",
+   "claimed_type": "rd_day"
+  },
+  "TFX": {
+   "hit": null
+  },
+  "THC": {
+   "hit": null
+  },
+  "TMDX": {
+   "hit": null
+  },
+  "TMO": {
+   "hit": null
+  },
+  "TNDM": {
+   "hit": null
+  },
+  "TPL": {
+   "hit": null
+  },
+  "TRUP": {
+   "hit": {
+    "ticker": "TRUP",
+    "title": "Trupanion (TRUP) Q3 2026 Earnings Call Transcript",
+    "url": "https://finance.yahoo.com/markets/stocks/articles/trupanion-trup-q3-2026-earnings-154831771.html",
+    "snippet": "rning capital to shareholders through share repurchases. We are carrying real momentum into the fourth quarter, and we will continue to invest with discipline in the opportunities that compound adjusted operating income drive free cash flow, and create lasting and durable shareholder value. Ahead of questions, I would like to confirm that our next Investor Day will take place on March 1st in New York. The team and I look forward to sharing more on our progress and plans for the future. We will post further details on our investor relations website shortly, and we hope to see many of you there. With that, let's open it up for questions. Operator: We will now begin the question and answer session. To ask ... ere we are where we start is with the vet, where we always start. So making sure that we have something that is meaningful for them and something they can articulate to their members and their clients in the process. So we will we will provide a lot more information. We will give updates. We just announced that the New York venue will be doing our Investor Day this time on the East Coast. We hope that we can have you there and answer any questions on Landspath and other initiatives that we have got rolling out. Thank you. Operator: Thank you. And the next question comes from Wilma Burdis with Raymond James. Please go ahead. Wilma Burdis: Just wanted to ask a little bit about ",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": "2027-03-01",
+   "claimed_type": "investor_day"
+  },
+  "TSLA": {
+   "hit": null
+  },
+  "TSM": {
+   "hit": null
+  },
+  "TWST": {
+   "hit": null
+  },
+  "TXG": {
+   "hit": null
+  },
+  "U": {
+   "hit": null
+  },
+  "UBER": {
+   "hit": null
+  },
+  "UCB": {
+   "hit": null
+  },
+  "UFPT": {
+   "hit": null
+  },
+  "UHS": {
+   "hit": null
+  },
+  "ULS": {
+   "hit": null
+  },
+  "UNH": {
+   "hit": {
+    "ticker": "UNH",
+    "title": "UnitedHealth Group Inc investor day",
+    "url": "https://www.unitedhealthgroup.com/content/dam/UHG/PDF/investors/2025/unh-q3-2025-remarks.pdf",
+    "snippet": "",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "UPS": {
+   "hit": null
+  },
+  "USPH": {
+   "hit": null
+  },
+  "UTHR": {
+   "hit": null
+  },
+  "V": {
+   "hit": null
+  },
+  "VCEL": {
+   "hit": null
+  },
+  "VCYT": {
+   "hit": null
+  },
+  "VEEV": {
+   "hit": {
+    "ticker": "VEEV",
+    "title": "Veeva Systems Inc. - Veeva to Host Virtual Investor Day on November 5, 2026",
+    "url": "https://ir.veeva.com/news/news-details/2026/Veeva-to-Host-Virtual-Investor-Day-on-November-5-2026/default.aspx",
+    "snippet": "Veeva Systems Inc. - Veeva to Host Virtual Investor Day on November 5, 2026 Skip to main content News Details Overview News Events Financials Quarterly Results Annual Reports SEC Filings Governance Governance Documents Executive Management Board of Directors Committee Composition Resources Investor FAQs Recent Disclosures Public Benefit Corporation Stock Quote Analyst Coverage Investor Email Alerts View All News Veeva to Host Virtual Investor Day on November 5, 2026 October 14, 2026 PLEASANTON, Calif. , Oct. 14, 2026 /PRNewswire/ -- Veeva Systems (NYSE: VEEV) will host its investor day virtually on Thursday, November 5, 2026. The event will begin at 1:30 p.m. PT and will conclude at approximately 3:30 p.m. PT. Veeva will broadcast the presentations live on the company's investor relations website, ir.veeva.com , where a link to the archived webcast will also be available after the event. Event: Veeva Systems' 2026 Investor Day Date: Thursday, November 5, 2026 Time: 1:30 p.m. PT (4:30 p.m. ET) Online event registration can be found on the company's investor relations website or directly at this link . Webcast: ir.veeva.com About Veeva Systems Veeva delivers the industry cloud for life sciences with applications, agents, data, and consulting. Committed to innovation, prod",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": true
+   },
+   "claimed_date": "2026-11-05",
+   "claimed_type": "investor_day"
+  },
+  "VETO.PA": {
+   "hit": null
+  },
+  "VIRP.PA": {
+   "hit": null
+  },
+  "VLTO": {
+   "hit": null
+  },
+  "VMD": {
+   "hit": null
+  },
+  "VREX": {
+   "hit": null
+  },
+  "VRTX": {
+   "hit": null
+  },
+  "VTR": {
+   "hit": null
+  },
+  "VTRS": {
+   "hit": null
+  },
+  "WAT": {
+   "hit": null
+  },
+  "WAY": {
+   "hit": null
+  },
+  "WELL": {
+   "hit": null
+  },
+  "WMT": {
+   "hit": null
+  },
+  "WOOF": {
+   "hit": null
+  },
+  "WST": {
+   "hit": null
+  },
+  "XE": {
+   "hit": null
+  },
+  "XRAY": {
+   "hit": {
+    "ticker": "XRAY",
+    "title": "DENTSPLY SIRONA Inc. investor day - source page could not be read",
+    "url": "https://www.marketbeat.com/earnings/reports/2026-5-5-dentsply-sirona-inc-stock/",
+    "snippet": "",
+    "score": 0.0,
+    "verified": false,
+    "date_on_page": false,
+    "fetch_error": "HTTP 403"
+   },
+   "claimed_date": null,
+   "claimed_type": "investor_day"
+  },
+  "XRN": {
+   "hit": null
+  },
+  "YPSN": {
+   "hit": {
+    "ticker": "YPSN",
+    "title": "Ypsomed Holding AG (SWX:YPSN) H1 2027 Earnings Call Transcript & Audio",
+    "url": "https://stockanalysis.com/quote/swx/YPSN/transcripts/673566-h1-26-27/",
+    "snippet": "",
+    "score": 1.0,
+    "verified": true,
+    "date_on_page": false
+   },
+   "claimed_date": null,
+   "claimed_type": "capital_markets_day"
+  },
+  "ZBH": {
+   "hit": null
+  },
+  "ZTS": {
+   "hit": null
+  }
+ }
+}
