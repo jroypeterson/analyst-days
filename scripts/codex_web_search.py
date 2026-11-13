@@ -24,8 +24,11 @@ Subscription quota is finite and shared with the code-review loop (a ~6-day lock
 and the names not reached are simply absent from the cache: the GitHub job searches those
 through Perplexity and its heartbeat says so.
 
-Exit: 0 = every name searched and uploaded; 1 = uploaded, some names not searched;
+Exit: 0 = uploaded, with at most a few names not searched (GitHub searches those live);
+1 = uploaded, but the quota stopped the pass or more than 5% of names were not searched;
 2 = nothing usable, or the upload failed (the previous cache is left in place).
+`run_guarded` posts an error heartbeat on any non-zero exit, so a single ticker one reply
+skipped must not be one: an alarm lit every week is an alarm nobody reads.
 """
 from __future__ import annotations
 
@@ -209,6 +212,17 @@ def upload(path: Path, *, runner=subprocess.run) -> None:
         raise RuntimeError("GitHub upload failed: " + (put.stderr or put.stdout)[-400:])
 
 
+MISSED_OK_SHARE = 0.05
+
+
+def exit_code(cache: dict) -> int:
+    """0 or 1 for an uploaded cache -- see the module docstring."""
+    missed = len(cache["failed"])
+    if cache["quota_stop"] or missed > MISSED_OK_SHARE * max(1, cache["scan_set_count"]):
+        return 1
+    return 0
+
+
 def default_out() -> Path:
     base = Path.home() / ("Library/Caches" if sys.platform == "darwin" else ".cache")
     return base / "fleet" / "analyst-days" / "web_hits.json"
@@ -264,7 +278,7 @@ def main(argv=None) -> int:
         print(f"[codex] {e}", flush=True)
         return 2
     print(f"[codex] uploaded to {GH_REPO}:{GH_PATH}", flush=True)
-    return 1 if cache["failed"] else 0
+    return exit_code(cache)
 
 
 if __name__ == "__main__":

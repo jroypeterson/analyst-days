@@ -32,6 +32,13 @@ CACHE_MAX_AGE = timedelta(days=4)
 
 CODEX, PERPLEXITY, TAVILY = "codex", "perplexity", "tavily"
 
+# A few names searched live every week is the design working (a name that joined the scan
+# set after the Mac's pass, a ticker one reply skipped), and an alarm that is always lit is
+# one nobody reads. Past this many -- or whenever the cache itself was unusable -- the
+# primary is not doing its job and the heartbeat says so.
+LIVE_OK_COUNT = 5
+LIVE_OK_SHARE = 0.05
+
 
 def load_cache(path: Optional[Path] = None, *, now: Optional[datetime] = None
                ) -> tuple[dict[str, list[dict]], str]:
@@ -105,7 +112,10 @@ class WebSource:
     def fallback_warning(self) -> str:
         """One line for the heartbeat when the Codex cache did not serve every name."""
         live = self.counts[PERPLEXITY] + self.counts[TAVILY]
+        total = live + self.counts[CODEX]
         if not live:
+            return ""
+        if not self.cache_problem and live <= max(LIVE_OK_COUNT, LIVE_OK_SHARE * total):
             return ""
         who = PERPLEXITY if self.counts[PERPLEXITY] else TAVILY
         why = self.cache_problem or "they were not in the Mac's Codex search cache"

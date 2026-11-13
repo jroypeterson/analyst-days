@@ -175,7 +175,19 @@ def test_a_name_outside_the_cache_goes_to_perplexity_and_is_reported(tmp_path, m
     hits = src.hits_for("IQV", "IQVIA", fetch=_fetch({"https://iqv/x": ("IQVIA IR", "Investor Day on December 1, 2026 " * 3)}))
     assert asked == ["IQV"] and hits[0]["verified"] and hits[0]["date_on_page"]
     assert src.counts["perplexity"] == 1
-    assert src.fallback_warning() == ("web search: 1 name(s) searched live via perplexity - "
+    assert src.fallback_warning() == ""          # one new name on a healthy cache is routine
+
+
+def test_many_names_outside_a_healthy_cache_is_a_warning(tmp_path, monkeypatch):
+    monkeypatch.setenv("PERPLEXITY_API_KEY", "k")
+    monkeypatch.setattr(scan_perplexity, "search_ticker", lambda t, n: None)
+    src = ws.WebSource.load(_cache(tmp_path), now=NOW)
+    src.hits_for("BDX", "BD")
+    for i in range(ws.LIVE_OK_COUNT):
+        src.hits_for(f"NEW{i}", "x")
+    assert src.fallback_warning() == ""
+    src.hits_for("ONEMORE", "x")
+    assert src.fallback_warning() == ("web search: 6 name(s) searched live via perplexity - "
                                       "they were not in the Mac's Codex search cache")
 
 
@@ -366,7 +378,7 @@ def test_discover_reports_which_source_served_and_warns_on_fallback(tmp_path, mo
     assert cli_mod.cmd_discover(args) == 0
     s = args.health_discover
     assert (s["web_codex"], s["web_perplexity"], s["web_tavily"], s["errors"]) == (2, 1, 0, 0)
-    assert s["web_fallback_warning"].startswith("web search: 1 name(s) searched live via perplexity")
+    assert s["web_fallback_warning"] == ""       # one name live on a fresh cache: not an alarm
     # only BDX had a hit, so only BDX cost a classifier call, and it got the cached page text
     assert [t for t, _ in classified] == ["BDX"] and "December 10, 2026" in classified[0][1][0]["snippet"]
 
@@ -388,3 +400,10 @@ def test_the_heartbeat_goes_partial_and_names_the_fallback(monkeypatch):
     assert hb.status == "partial" and line in hb.warnings
     hb = run({"tickers_scanned": 368, "web_codex": 368, "web_fallback_warning": ""})
     assert hb.status == "ok" and not any("web search" in w for w in hb.warnings)
+
+
+@pytest.mark.parametrize("failed, quota, want", [
+    (0, "", 0), (18, "", 0), (19, "", 1), (1, "ChatGPT subscription usage limit", 1)])
+def test_exit_code_alarms_on_quota_or_a_real_shortfall_not_on_a_stray_ticker(failed, quota, want):
+    cache = {"failed": {f"T{i}": "x" for i in range(failed)}, "quota_stop": quota, "scan_set_count": 368}
+    assert cws.exit_code(cache) == want
