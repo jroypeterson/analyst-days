@@ -301,6 +301,47 @@ states the date paragraphs later, and the date-grounding gate reads only the exc
 ⚠ **EDGAR could not have given Revvity lead time**: the 2026-10-06 release was never filed.
 Only web search sees an unfiled press release, which is why it runs for every name.
 
+### Web search is a model that searches, on JP's ChatGPT subscription (2026-11-13)
+
+JP: *"is there a way to get this websearch to happen through my subscription for chatgpt? ...
+I can literally just type in the same query to the website and it will return the answers."*
+Yes. Three sources, tried per name in this order (`src/discovery/web_source.py`):
+
+| # | Source | Where it runs | Cost |
+|---|---|---|---|
+| 1 | **Codex cache** `search_cache/web_hits.json` | Mac Studio, `scripts/codex_web_search.py`, Mon 04:30 New York (launchd lane `analyst_days_codex_search`) | ChatGPT subscription quota |
+| 2 | **Perplexity `sonar`** | this GitHub job, only for names the cache does not cover | about USD 0.005 a name |
+| 3 | Tavily (the old path) | this GitHub job, only if `PERPLEXITY_API_KEY` is unset | free tier, 1,000 a month |
+
+Measured on 12 known cases, 2026-11-13: Codex 12 of 12 (one call, 37 s), Perplexity 10 of 10
+plus 2 clean controls, Claude Haiku 5.5 and gpt-5-mini 10 of 10 at USD 39-60 a month, Tavily
+7 of 10. Tavily's free allowance cannot carry 368 names a week.
+
+- **The Mac asks Codex 12 companies a call** (`codex --search exec`, read-only sandbox, low
+  effort, prompt on stdin) and uploads the result through the GitHub contents API. It writes
+  OUTSIDE Dropbox: this checkout is a Dropbox-synced tree whose git directory is on JRazerP.
+- ⛑ **Nothing the model wrote reaches the snippet** (`src/discovery/web_answers.py`). The model's
+  answer is a claim (type, date, URL). Code fetches the cited page and cuts the snippet from the
+  page's own text; the date-grounding gate then reads that. A page that cannot be read yields a
+  hit with **no date anywhere, title included** -- the gate reads `title + snippet`, and an ISO
+  date in a title built from the answer would ground the model against itself. Such an event
+  stays tentative until EDGAR or a readable page corroborates.
+- ⚠ **A backup that works hides a dead primary.** Every name served by 2 or 3 is counted
+  (`web_perplexity` / `web_tavily` in the summary) and the weekly heartbeat goes `partial` with
+  the reason: cache missing, older than 4 days, or the names it lacks. A stale cache is never
+  served -- last week's "no event" is not this week's.
+- ⚠ **The subscription quota is finite and shared with the Codex review loop** (a ~6-day
+  lockout on 2026-10-21). A usage-limit error stops the pass at once: no retry, never buy
+  credits. Names not reached are absent from the cache and Perplexity covers them.
+  One batch of 12 used ~320-490k input tokens (85% cached); a full pass is ~31 batches.
+- A ticker the reply leaves out, a batch that fails twice, and a source URL that is not a
+  public http(s) address are all "not searched", never "no event".
+- Known limits, seen on the first real batch: IQVIA's cited page is script-rendered and
+  Takeda's is in Japanese, so neither stated the date in text the gate could read. Both stay
+  tentative on the web leg; IQVIA confirmed through its 8-K.
+- Tests seal every provider and the page fetch (`tests/conftest.py::_no_live_web_search`).
+  Manual: `python -m scripts.codex_web_search --tickers RVTY BDX --no-upload`.
+
 ### First run after the scan set grows
 
 `monday.yml` has a `lookback_days` dispatch input. A name added to the scan set today was not
@@ -432,7 +473,8 @@ No daily reminder cron. Reminders are checked once per week against current date
 | Secret | Source | Purpose |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | New | Claude API for classify.py |
-| `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Web search per ticker |
+| `TAVILY_API_KEY` | Reused (daily-reads, 13F Analyzer) | Last-resort web search, only if `PERPLEXITY_API_KEY` is unset |
+| `PERPLEXITY_API_KEY` | Reused (deep_dd, portfolio_daily) | Backup web search for names the Mac's Codex cache does not cover |
 | `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
 | `SLACK_WEBHOOK_STATUS_REPORTS` | Reused (shared earnings-agent #status-reports webhook) | health/v1 heartbeat → `#status-reports` (set on the repo 2026-06-30) |
 | `SLACK_WEBHOOK_CONFERENCES` | **New — NOT YET CREATED** | `#conferences` conference calendar. Until it exists the weekly run still seeds the calendar, skips the post, and heartbeats `partial` with a named warning. Create an incoming webhook for `#conferences` on the earnings-agent Slack app, then `gh secret set`. |
@@ -456,7 +498,11 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 - `src/universe.py` — `load_scan_universe`: the `analyst_days` scope of CM's `lists.json`, joined to `universe.csv`; schema version assert.
 - `src/discovery/scan_edgar_fts.py` — **the EDGAR scanner in use**: one full-text search for the whole scan set, matched on CIK, every 8-K item type and exhibit.
 - `src/discovery/scan_edgar.py` — the retired per-ticker scanner; still owns `TRIGGER_RE`, `EdgarHit`, `EdgarScanError`. What follows describes it: Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
-- `src/discovery/scan_tavily.py` — Tavily search per ticker.
+- `src/discovery/web_source.py` — picks each name's web hits: the Mac's Codex cache, else Perplexity, else Tavily; counts which.
+- `src/discovery/web_answers.py` — the search question, reply parsing, and the page fetch that turns a model's answer into a hit cut from the page's own text.
+- `src/discovery/scan_perplexity.py` — Perplexity `sonar`, the backup.
+- `scripts/codex_web_search.py` — the Mac Studio's weekly Codex pass that writes and uploads `search_cache/web_hits.json`.
+- `src/discovery/scan_tavily.py` — Tavily search per ticker (last resort).
 - `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
 - `src/discovery/date_grounding.py` — deterministic date-grounding gate: does the extracted ISO date appear (in any recognizable textual form) in the raw source text? Gates confirmation; see "Date-grounding gate" above.
 - `src/seed_conferences.py` — the curated conference calendar (`CONFERENCES` is the source

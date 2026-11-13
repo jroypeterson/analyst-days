@@ -274,7 +274,7 @@ def test_discover_runs_one_edgar_pass_and_hands_each_ticker_its_hits(monkeypatch
                         lambda: [_T("RVTY", "31791", "Revvity"), _T("CSL", None, "CSL Ltd")])
     monkeypatch.setattr(cli_mod, "get_client", lambda: object())
     monkeypatch.setattr(cli_mod.scan_edgar_fts, "scan_universe", fake_scan)
-    monkeypatch.setattr(cli_mod, "tavily_search", lambda *a, **k: [])
+    monkeypatch.setattr(cli_mod.WebSource, "hits_for", lambda self, *a, **k: [])
     monkeypatch.setattr(cli_mod, "classify_ticker",
                         lambda client, t, name, e, w: classified.append((t, e))
                         or cli_mod.ExtractionResult(events=[]))
@@ -297,8 +297,8 @@ def test_an_edgar_outage_is_one_counted_error_and_web_search_still_runs(monkeypa
                         lambda: [_T("RVTY", "31791", "Revvity"), _T("BDX", "10795", "BD")])
     monkeypatch.setattr(cli_mod, "get_client", lambda: object())
     monkeypatch.setattr(cli_mod.scan_edgar_fts, "scan_universe", boom)
-    monkeypatch.setattr(cli_mod, "tavily_search",
-                        lambda ticker, *a, **k: searched.append(ticker) or [])
+    monkeypatch.setattr(cli_mod.WebSource, "hits_for",
+                        lambda self, ticker, *a, **k: searched.append(ticker) or [])
     args = _discover_args()
     assert cli_mod.cmd_discover(args) == 0
     assert searched == ["RVTY", "BDX"]

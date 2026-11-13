@@ -80,3 +80,29 @@ def pytest_configure(config):
         "markers",
         "repo_cwd: this test may launch a child process with the repo as its "
         "CWD (opt out of conftest._no_child_process_in_the_repo)")
+
+
+@pytest.fixture(autouse=True)
+def _no_live_web_search(monkeypatch, tmp_path):
+    """No test reaches a search provider, fetches a cited page, or reads the REAL
+    `search_cache/web_hits.json` (2026-11-13).
+
+    `cmd_discover` picks its web source from the environment and the repo: without this,
+    a discovery test on a machine with TAVILY_API_KEY set searched live, and one run on a
+    Monday would have read that week's production cache. A test that needs a provider
+    patches the same module attribute with its own fake.
+    """
+    from src.discovery import scan_perplexity, scan_tavily, web_answers, web_source
+
+    def _sealed(name):
+        def _raise(*a, **k):
+            raise AssertionError(f"a test reached the live {name}")
+        return _raise
+
+    monkeypatch.delenv("PERPLEXITY_API_KEY", raising=False)
+    monkeypatch.setattr(web_source, "CACHE_PATH", tmp_path / "no_search_cache" / "web_hits.json")
+    # `requests.post` itself: the Tavily scanner has no seam of its own, and its tests
+    # patch this same attribute with their fakes.
+    monkeypatch.setattr(scan_tavily.requests, "post", _sealed("requests.post (Tavily search)"))
+    monkeypatch.setattr(scan_perplexity, "_post", _sealed("Perplexity API"))
+    monkeypatch.setattr(web_answers, "_http_get", _sealed("page fetch"))

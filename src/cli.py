@@ -33,7 +33,7 @@ from src.discovery.classify import (
 )
 from src.discovery import scan_edgar_fts
 from src.discovery.scan_edgar import EdgarScanError
-from src.discovery.scan_tavily import search_ticker as tavily_search
+from src.discovery.web_source import WebSource
 from src.discovery.date_grounding import event_date_grounded, grounded_in_any
 from src.outputs import gcal as gcal_out
 from src.outputs import gmail as gmail_out
@@ -220,7 +220,20 @@ def cmd_discover(args: argparse.Namespace) -> int:
         "events_merged": 0,
         "errors": 0,
         "edgar_no_cik": 0,
+        "web_codex": 0,
+        "web_perplexity": 0,
+        "web_tavily": 0,
+        "web_unverified": 0,
+        "web_fallback_warning": "",
     }
+
+    # Web hits: the Mac's Codex cache where it is fresh and covers the name, else a live
+    # search (see web_source). Which one served each name is counted, never assumed.
+    web = WebSource.load()
+    if web.cache_problem:
+        print(f"[discover] web search: {web.cache_problem} -> searching live")
+    else:
+        print(f"[discover] web search: Codex cache covers {len(web.cache)} name(s)")
 
     # One EDGAR full-text pass for the whole scan set, matched on CIK (see
     # scan_edgar_fts). A name with no CIK is not an error: it files nothing with the
@@ -249,11 +262,11 @@ def cmd_discover(args: argparse.Namespace) -> int:
         edgar_hits = edgar_by_ticker.get(t.ticker, [])
 
         try:
-            tavily_hits = tavily_search(
+            tavily_hits = web.hits_for(
                 t.ticker, t.company_name, max_results=args.tavily_results
             )
         except Exception as e:
-            print(f"  Tavily error: {type(e).__name__}: {e}")
+            print(f"  Web search error: {type(e).__name__}: {e}")
             tavily_hits = []
             summary["errors"] += 1
 
@@ -261,14 +274,14 @@ def cmd_discover(args: argparse.Namespace) -> int:
         summary["edgar_hits_total"] += len(edgar_hits)
         summary["tavily_hits_total"] += len(tavily_hits)
 
-        print(f"  EDGAR: {len(edgar_hits)} hit(s)  Tavily: {len(tavily_hits)} hit(s)")
+        print(f"  EDGAR: {len(edgar_hits)} hit(s)  Web: {len(tavily_hits)} hit(s)")
 
         if not edgar_hits and not tavily_hits:
             print()
             continue
 
         edgar_dicts = [h.to_dict() for h in edgar_hits]
-        tavily_dicts = [h.to_dict() for h in tavily_hits]
+        tavily_dicts = list(tavily_hits)      # already dicts, whichever source served them
         try:
             result: ExtractionResult = classify_ticker(
                 client,
@@ -339,6 +352,9 @@ def cmd_discover(args: argparse.Namespace) -> int:
         summary.update(fan_summary)
         conn.close()
 
+    summary.update(web_codex=web.counts["codex"], web_perplexity=web.counts["perplexity"],
+                   web_tavily=web.counts["tavily"], web_unverified=web.unverified,
+                   web_fallback_warning=web.fallback_warning())
     print("---")
     print(f"summary: {json.dumps(summary, indent=2)}")
     # Stash for the weekly health heartbeat (see cmd_weekly / _post_weekly_health).
@@ -1001,7 +1017,12 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
         warnings.append("Monday email digest failed (Slack digest posted)")
     if derr:
         status = "partial"
-        warnings.append(f"{derr} discovery source error(s) (EDGAR/Tavily)")
+        warnings.append(f"{derr} discovery source error(s) (EDGAR / web search)")
+    if d.get("web_fallback_warning"):
+        # A backup that works hides a dead primary: the run is healthy, the Mac's Codex
+        # pass is not, and nothing else would say so.
+        status = "partial"
+        warnings.append(str(d["web_fallback_warning"]))
     if rerr:
         status = "partial"
         warnings.append(f"{rerr} reminder post error(s)")

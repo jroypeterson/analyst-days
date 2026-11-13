@@ -5,3 +5,5 @@ google-auth>=2.34.0
 tenacity>=9.0.0
 python-dotenv>=1.0.1
 edgartools>=5.20.0
+curl_cffi>=0.15.0
+pypdf>=6.0.0
