@@ -68,6 +68,18 @@ class BatchFailed(RuntimeError):
     """One Codex call produced no usable answer."""
 
 
+class SearchUnavailable(RuntimeError):
+    """Codex answered WITHOUT running a single web search: stop the pass.
+
+    ⛑ 2026-11-13, the first full pass on the Mac. Its Codex install had no
+    `codex-code-mode-host` beside the binary, so the web-search tool could not start. Codex
+    still replied -- one batch with twelve tidy nulls, others with an error object -- and
+    this script recorded 68 names as "searched, no event" and uploaded that. An answer is
+    evidence of a search only if a search ran, and that is counted from the event stream,
+    never taken from the reply.
+    """
+
+
 def _codex_bin() -> str:
     # Windows: `codex` on PATH is a shell script CreateProcess cannot run; the .cmd shim can.
     first, second = ("codex.cmd", "codex") if sys.platform == "win32" else ("codex", "codex.cmd")
@@ -77,9 +89,9 @@ def _codex_bin() -> str:
     return exe
 
 
-def read_events(stdout: str) -> tuple[str, dict, list[str]]:
-    """(final message, token usage, error texts) from `codex exec --json` output."""
-    final, usage, errors = "", {}, []
+def read_events(stdout: str) -> tuple[str, dict, list[str], int]:
+    """(final message, token usage, error texts, web searches run) from `codex exec --json`."""
+    final, usage, errors, searches = "", {}, [], 0
     for line in stdout.splitlines():
         try:
             ev = json.loads(line)
@@ -94,14 +106,18 @@ def read_events(stdout: str) -> tuple[str, dict, list[str]]:
             errors.append(str((ev.get("error") or {}).get("message") or ev)[:400])
         if ev.get("type") == "item.completed" and item.get("type") == "agent_message":
             final = item.get("text") or final
+        if ev.get("type") == "item.completed" and item.get("type") == "web_search":
+            searches += 1
         if ev.get("type") == "turn.completed":
             usage = ev.get("usage") or usage
-    return final, usage, errors
+    return final, usage, errors, searches
 
 
 def run_batch(companies: list[tuple[str, str]], today: date, *, runner=subprocess.run,
               workdir: str | None = None) -> tuple[dict, dict]:
-    """({ticker: Answer|None}, usage) for one Codex call. Raises QuotaExhausted / BatchFailed."""
+    """({ticker: Answer|None}, usage) for one Codex call.
+
+    Raises QuotaExhausted, SearchUnavailable (both stop the pass) or BatchFailed (retried once)."""
     prompt = web_answers.batch_prompt(companies, today)
     try:
         p = runner(
@@ -111,13 +127,17 @@ def run_batch(companies: list[tuple[str, str]], today: date, *, runner=subproces
             timeout=BATCH_TIMEOUT_S, cwd=workdir)
     except subprocess.TimeoutExpired as e:
         raise BatchFailed(f"codex timed out after {BATCH_TIMEOUT_S}s") from e
-    final, usage, errors = read_events(p.stdout or "")
+    final, usage, errors, searches = read_events(p.stdout or "")
     blob = " ".join(errors + [p.stderr or ""]).lower()
     if any(m in blob for m in QUOTA_MARKERS):
         raise QuotaExhausted((errors or [p.stderr or ""])[0][:300])
     if not final:
         raise BatchFailed("no final message (exit %s): %s" % (
             p.returncode, (errors or [(p.stderr or "")[-300:]])[0]))
+    if searches == 0:
+        raise SearchUnavailable(
+            "Codex replied without running a web search (is the web-search tool installed? "
+            "stderr: %s)" % ((p.stderr or "").strip().splitlines() or ["-"])[-1][:200])
     try:
         answers = web_answers.parse_answers(final, [t for t, _ in companies])
     except web_answers.AnswerParseError as e:
@@ -148,6 +168,9 @@ def search_all(universe: list, today: date, *, run=run_batch, sleep=time.sleep) 
                     break
                 except QuotaExhausted as e:
                     quota = f"ChatGPT subscription usage limit ({e})"
+                    break
+                except SearchUnavailable as e:
+                    quota = str(e)
                     break
                 except BatchFailed as e:
                     reason = str(e)

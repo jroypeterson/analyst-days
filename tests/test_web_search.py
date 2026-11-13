@@ -262,8 +262,9 @@ class _T:
         self.ticker, self.company_name = ticker, name
 
 
-def _events(final=None, usage=None, error=None):
+def _events(final=None, usage=None, error=None, searches=2):
     lines = [json.dumps({"type": "thread.started"})]
+    lines += [json.dumps({"type": "item.completed", "item": {"type": "web_search", "query": "q"}})] * searches
     if error:
         lines.append(json.dumps({"type": "error", "message": error}))
     if final is not None:
@@ -416,3 +417,41 @@ def test_the_heartbeat_goes_partial_and_names_the_fallback(monkeypatch):
 def test_exit_code_alarms_on_quota_or_a_real_shortfall_not_on_a_stray_ticker(failed, quota, want):
     cache = {"failed": {f"T{i}": "x" for i in range(failed)}, "quota_stop": quota, "scan_set_count": 368}
     assert cws.exit_code(cache) == want
+
+
+def test_a_reply_with_no_web_search_behind_it_is_refused_and_stops_the_pass(monkeypatch):
+    """2026-11-13: the Mac's Codex could not start its search tool and still returned twelve
+    tidy nulls. 68 names were recorded as searched and uploaded."""
+    monkeypatch.setenv("CODEX_BIN", "codex")
+    nulls = json.dumps({"BDX": None, "ISRG": None})
+    with pytest.raises(cws.SearchUnavailable, match="without running a web search"):
+        cws.run_batch([("BDX", "BD"), ("ISRG", "Intuitive")], TODAY,
+                      runner=_runner(_events(nulls, searches=0), stderr="failed to spawn code-mode host"))
+    # the same reply WITH searches behind it is a real "no event"
+    answers, _ = cws.run_batch([("BDX", "BD"), ("ISRG", "Intuitive")], TODAY,
+                               runner=_runner(_events(nulls, searches=3)))
+    assert answers == {"BDX": None, "ISRG": None}
+
+    calls = []
+
+    def run(batch, today, workdir=None):
+        calls.append(batch[0][0])
+        raise cws.SearchUnavailable("Codex replied without running a web search")
+
+    monkeypatch.setattr(cws, "BATCH_SIZE", 2)
+    found = cws.search_all([_T(t) for t in "ABCDEF"], TODAY, run=run, sleep=lambda s: None)
+    assert calls == ["A"]                                   # one call, not thirty
+    assert found["answers"] == {} and len(found["failed"]) == 6
+    cache = cws.build_cache([_T(t) for t in "ABCDEF"], found, now=NOW)
+    assert cache["results"] == {} and "without running a web search" in cache["quota_stop"]
+
+
+def test_main_uploads_nothing_when_nothing_was_searched(monkeypatch, tmp_path):
+    from src import universe
+    monkeypatch.setattr(universe, "load_scan_universe", lambda: [_T(t) for t in "ABC"])
+    monkeypatch.setattr(cws, "search_all", lambda u, today: {
+        "answers": {}, "failed": {t: "not reached" for t in "ABC"},
+        "usage": {"calls": 0}, "quota": "Codex replied without running a web search"})
+    uploaded = []
+    monkeypatch.setattr(cws, "upload", lambda path: uploaded.append(path))
+    assert cws.main(["--out", str(tmp_path / "web_hits.json")]) == 2 and uploaded == []

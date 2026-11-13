@@ -334,6 +334,15 @@ plus 2 clean controls, Claude Haiku 5.5 and gpt-5-mini 10 of 10 at USD 39-60 a m
   lockout on 2026-10-21). A usage-limit error stops the pass at once: no retry, never buy
   credits. Names not reached are absent from the cache and Perplexity covers them.
   One batch of 12 used ~320-490k input tokens (85% cached); a full pass is ~31 batches.
+- ⛑ **An answer is evidence of a search only if a search ran.** The first full pass on the Mac (2026-11-13)
+  recorded 68 names as "searched, no event" and uploaded that: its Codex install had no
+  `codex-code-mode-host` beside the binary, so the web-search tool could not start, and Codex still
+  replied (one batch with twelve tidy nulls). The cache was deleted from the repo the same hour. The pass
+  now counts `web_search` items in Codex's event stream and raises `SearchUnavailable` on a reply with
+  none behind it, which stops the pass after ONE call and uploads nothing. The helper was installed on the
+  Mac from the matching official release (`rust-v0.164.0`, sha256 checked against the release digest) at
+  `~/.local/bin/codex-code-mode-host`. **If Codex is upgraded on the Mac, upgrade the helper with it.**
+  I had tested the pass on JRazerP, not on the Mac it was built to run on.
 - A ticker the reply leaves out, a batch that fails twice, and a source URL that is not a
   public http(s) address are all "not searched", never "no event".
 - **Thursday, not Monday** (JP 2026-11-13: his ChatGPT usage resets on Wednesdays, so Thursday is early in
