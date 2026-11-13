@@ -1,47 +1,38 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-11-09T22:22:28Z",
+  "generated_at": "2026-11-13T21:14:17Z",
   "window": {
-    "start": "2026-11-09",
-    "end": "2027-01-08"
+    "start": "2026-11-13",
+    "end": "2027-01-12"
   },
   "counts": {
-    "events": 12
+    "events": 70
   },
   "events": [
     {
-      "ticker": "ALMR",
-      "company_name": "Alamar Biosciences, Inc.",
-      "event_type": "conference",
-      "start_date": "2026-11-10",
+      "ticker": "COH.AX",
+      "company_name": "Cochlear Limited",
+      "event_type": "capital_markets_day",
+      "start_date": "2026-11-13",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "day_of"
     },
     {
-      "ticker": "KKR",
-      "company_name": "KKR & Co Inc",
-      "event_type": "conference",
-      "start_date": "2026-11-10",
+      "ticker": "RVTY",
+      "company_name": "Revvity, Inc.",
+      "event_type": "investor_day",
+      "start_date": "2026-11-13",
       "end_date": null,
       "multi_day": false,
-      "status": "confirmed"
+      "status": "day_of"
     },
     {
-      "ticker": "FER",
-      "company_name": "Ferrovial SE",
+      "ticker": "CNMD",
+      "company_name": "CONMED Corporation",
       "event_type": "conference",
-      "start_date": "2026-11-11",
-      "end_date": null,
-      "multi_day": false,
-      "status": "confirmed"
-    },
-    {
-      "ticker": "HOOD",
-      "company_name": "Robinhood Markets Inc",
-      "event_type": "conference",
-      "start_date": "2026-11-11",
+      "start_date": "2026-11-16",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
@@ -51,6 +42,267 @@
       "company_name": "Ferrovial SE",
       "event_type": "conference",
       "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "INCY",
+      "company_name": "Incyte Corp",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "IONS",
+      "company_name": "Ionis Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "KLRA",
+      "company_name": "Kailera Therapeutics, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "PBLS",
+      "company_name": "Parabilis Medicines, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "RVMD",
+      "company_name": "Revolution Medicines Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SOON",
+      "company_name": "Sonova Holding AG",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SRRK",
+      "company_name": "Scholar Rock Holding Corp",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "VRTX",
+      "company_name": "Vertex Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-16",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ADUS",
+      "company_name": "Addus Homecare Corporation",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "BIIB",
+      "company_name": "Biogen Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FTRE",
+      "company_name": "Fortrea Holdings Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GSK",
+      "company_name": "GSK plc",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "HSIC",
+      "company_name": "Henry Schein, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ILMN",
+      "company_name": "Illumina, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "INCY",
+      "company_name": "Incyte Corp",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "MDLN",
+      "company_name": "Medline Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "PCVX",
+      "company_name": "Vaxcyte Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ROG.SW",
+      "company_name": "Roche",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SRRK",
+      "company_name": "Scholar Rock Holding Corp",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ADPT",
+      "company_name": "Adaptive Biotechnologies Corporation",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "CNI",
+      "company_name": "Canadian National Railway Co",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "CSTL",
+      "company_name": "Castle Biosciences, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GALD.SW",
+      "company_name": "Galderma Group AG",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GKOS",
+      "company_name": "Glaukos Corporation",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ICUI",
+      "company_name": "ICU Medical, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "IONS",
+      "company_name": "Ionis Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "OSSFF",
+      "company_name": "Embla Medical hf.",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": "2026-11-19",
+      "multi_day": true,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "PACB",
+      "company_name": "Pacific Biosciences of California, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "PCVX",
+      "company_name": "Vaxcyte Inc",
+      "event_type": "conference",
+      "start_date": "2026-11-18",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
@@ -74,6 +326,150 @@
       "status": "confirmed"
     },
     {
+      "ticker": "NVS",
+      "company_name": "Novartis AG",
+      "event_type": "conference",
+      "start_date": "2026-11-19",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "TNDM",
+      "company_name": "Tandem Diabetes Care, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-19",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "VCYT",
+      "company_name": "Veracyte, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-19",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "OSSFF",
+      "company_name": "Embla Medical hf.",
+      "event_type": "conference",
+      "start_date": "2026-11-24",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ROG.SW",
+      "company_name": "Roche",
+      "event_type": "conference",
+      "start_date": "2026-11-24",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SECTB SS",
+      "company_name": "Sectra AB",
+      "event_type": "conference",
+      "start_date": "2026-11-25",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "OSSFF",
+      "company_name": "Embla Medical hf.",
+      "event_type": "conference",
+      "start_date": "2026-11-26",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "PBLS",
+      "company_name": "Parabilis Medicines, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-11-30",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FRPT",
+      "company_name": "Freshpet, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "FTRE",
+      "company_name": "Fortrea Holdings Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GKOS",
+      "company_name": "Glaukos Corporation",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "IONS",
+      "company_name": "Ionis Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "IQV",
+      "company_name": "IQVIA Holdings Inc.",
+      "event_type": "investor_day",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "PCVX",
+      "company_name": "Vaxcyte Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "REGN",
+      "company_name": "Regeneron Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-01",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "ADPT",
+      "company_name": "Adaptive Biotechnologies Corporation",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "ARE",
       "company_name": "Alexandria Real Estate Equities Inc",
       "event_type": "investor_day",
@@ -83,8 +479,71 @@
       "status": "reminded_30"
     },
     {
+      "ticker": "FTRE",
+      "company_name": "Fortrea Holdings Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GKOS",
+      "company_name": "Glaukos Corporation",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "IONS",
+      "company_name": "Ionis Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "KLRA",
+      "company_name": "Kailera Therapeutics, Inc.",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "REGN",
+      "company_name": "Regeneron Pharmaceuticals Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-02",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GSK",
+      "company_name": "GSK plc",
+      "event_type": "conference",
+      "start_date": "2026-12-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "MMED",
       "company_name": "MiniMed Group Inc",
+      "event_type": "conference",
+      "start_date": "2026-12-03",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "TNDM",
+      "company_name": "Tandem Diabetes Care, Inc.",
       "event_type": "conference",
       "start_date": "2026-12-03",
       "end_date": null,
@@ -117,6 +576,69 @@
       "end_date": null,
       "multi_day": false,
       "status": "reminded_30"
+    },
+    {
+      "ticker": "BDX",
+      "company_name": "Becton Dickinson and Co",
+      "event_type": "investor_day",
+      "start_date": "2026-12-10",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "HUM",
+      "company_name": "Humana Inc",
+      "event_type": "investor_day",
+      "start_date": "2026-12-10",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "NSIS-B.CO",
+      "company_name": "Novonesis A/S (fka Novozymes)",
+      "event_type": "conference",
+      "start_date": "2026-12-11",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "TAK",
+      "company_name": "Takeda Pharmaceutical Co Ltd",
+      "event_type": "capital_markets_day",
+      "start_date": "2026-12-11",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "SOON",
+      "company_name": "Sonova Holding AG",
+      "event_type": "conference",
+      "start_date": "2027-01-07",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "OSSFF",
+      "company_name": "Embla Medical hf.",
+      "event_type": "conference",
+      "start_date": "2027-01-11",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "GSK",
+      "company_name": "GSK plc",
+      "event_type": "conference",
+      "start_date": "2027-01-12",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
     }
   ]
 }
