@@ -252,7 +252,7 @@ def _read_json_tickers(cm_root: Path, name: str) -> dict[str, dict]:
 
 def load_universe(cm_root: Path) -> dict:
     """Membership tags + CIKs from Coverage Manager, and the set discovery scans."""
-    from src.universe import load_core_watchlist
+    from src.universe import load_scan_universe
 
     portfolio = _read_json_tickers(cm_root, "portfolio.json")
     researching = _read_json_tickers(cm_root, "researching.json")
@@ -262,7 +262,7 @@ def load_universe(cm_root: Path) -> dict:
         for row in csv.DictReader(fh):
             if (row.get("Core") or "").strip().upper() == "Y":
                 core[row["Ticker"].strip()] = row
-    scanned = {t.ticker for t in load_core_watchlist(cm_root)}
+    scanned = {t.ticker for t in load_scan_universe(cm_root)}
 
     tags: dict[str, set[str]] = {}
     names: dict[str, str] = {}
@@ -527,8 +527,8 @@ def build(rows: list[dict], uni: dict, prov: Optional[dict], today: date,
         'Discovery looks forward (8-K/6-K lookback of 14 days, web search for the current year) and the '
         'classifier is instructed to drop past events, so earlier years are effectively unsearched. '
         f'{_esc(last_year_sentence)}</li>'
-        f'<li>Discovery scans <b>{len(uni["scanned"])}</b> tickers (watchlist Core=Y plus Following for '
-        f'Interest). <b>{len(pr_unscanned)}</b> of your {len(pr)} Portfolio/Researching names and '
+        f'<li>Discovery scans <b>{len(uni["scanned"])}</b> tickers (Portfolio, Researching, Ready to Buy, every Core name and Following '
+        f'for Interest). <b>{len(pr_unscanned)}</b> of your {len(pr)} Portfolio/Researching names and '
         f'<b>{len(core_unscanned)}</b> of your {len(uni["core"])} Core-coverage names are not scanned, so no '
         'event can appear for them here.'
         + (f' Unscanned Portfolio/Researching: {_esc(", ".join(pr_unscanned))}.' if pr_unscanned else "")

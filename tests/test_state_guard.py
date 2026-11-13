@@ -238,7 +238,7 @@ def test_weekly_on_present_state_is_an_ordinary_ok_run(tmp_path, monkeypatch, po
 def test_discover_refuses_on_missing_state_before_opening_the_db(tmp_path, monkeypatch):
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     monkeypatch.delenv(sg.BOOTSTRAP_ENV, raising=False)
-    monkeypatch.setattr(cli_mod, "load_core_watchlist", lambda: [])
+    monkeypatch.setattr(cli_mod, "load_scan_universe", lambda: [])
     monkeypatch.setattr(cli_mod, "get_client", lambda: object())
     db = tmp_path / "events.db"
     with pytest.raises(sg.MissingStateError):

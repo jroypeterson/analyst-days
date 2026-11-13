@@ -86,33 +86,40 @@ def db(tmp_path, monkeypatch):
 
 @pytest.fixture
 def cm(tmp_path):
-    """Minimal Coverage Manager exports dir that `load_core_watchlist` accepts."""
+    """Minimal Coverage Manager exports dir that `load_scan_universe` accepts."""
     root = tmp_path / "cm"
     ex = root / "exports"
     ex.mkdir(parents=True)
-    (ex / "watchlist_status.json").write_text(json.dumps({"schema_version": 4}), encoding="utf-8")
+    (ex / "universe_status.json").write_text(json.dumps({"schema_version": 4}), encoding="utf-8")
     cols = ["Ticker", "Company Name", "Sector (JP)", "Subsector (JP)", "Sub-subsector (JP)",
             "YF Sector", "YF Industry", "CIK", "Website", "Country (HQ)", "ISIN", "Core"]
 
     def row(t, core="Y", cik="0000001"):
         return {c: "" for c in cols} | {"Ticker": t, "Company Name": f"{t} Inc", "CIK": cik, "Core": core}
 
-    # watchlist = Portfolio + Researching. CI, ADI, FDX, UPS, WAY, JPM scanned; ROIV via FFI;
-    # NOSCAN is Researching but Core=N (not scanned); 2715.HK has no CIK.
+    # Portfolio + Researching: CI, ADI, FDX, UPS, WAY, JPM; ROIV and LLY via FFI.
+    # HELDNC is Researching but Core=N; 2715.HK has no CIK; COREONLY is Core on no list.
+    # All are scanned: the scan set is CM's `analyst_days` scope. OFFSCOPE is a
+    # universe row that is in no list, so it is the only name NOT scanned.
     wl = [row("CI"), row("ADI"), row("FDX"), row("UPS"), row("WAY"), row("JPM"),
-          row("NOSCAN", core="N"), row("2715.HK", core="N", cik="")]
-    with (ex / "watchlist.csv").open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols)
-        w.writeheader()
-        w.writerows(wl)
+          row("HELDNC", core="N"), row("2715.HK", core="N", cik="")]
+    extra = [row("COREONLY"), row("ROIV", core="N"), row("LLY", core="N"),
+             row("OFFSCOPE", core="N")]
     with (ex / "universe.csv").open("w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=cols)
         w.writeheader()
-        w.writerows(wl + [row("COREONLY")])
+        w.writerows(wl + extra)
+    scope = [r["Ticker"] for r in wl] + ["COREONLY", "ROIV", "LLY"]
+    core = [r["Ticker"] for r in wl + extra if r["Core"] == "Y"]
+    (ex / "lists.json").write_text(json.dumps({
+        "schema_version": 1,
+        "lists": {"core": {"count": len(core), "members": core}},
+        "scopes": {"analyst_days": {"count": len(scope), "members": scope}},
+    }), encoding="utf-8")
     (ex / "portfolio.json").write_text(json.dumps(
         {t: {"name": f"{t} Inc", "CIK": "0000001"} for t in ("CI", "ADI", "WAY")}), encoding="utf-8")
     (ex / "researching.json").write_text(json.dumps(
-        {t: {"name": f"{t} Inc", "CIK": "0000001"} for t in ("FDX", "UPS", "JPM", "NOSCAN")}
+        {t: {"name": f"{t} Inc", "CIK": "0000001"} for t in ("FDX", "UPS", "JPM", "HELDNC")}
         | {"2715.HK": {"name": "HK Co"}}), encoding="utf-8")
     (ex / "following_for_interest.json").write_text(json.dumps(
         {"ROIV": {"name": "Roivant", "CIK": "0000002"}, "LLY": {"name": "Lilly", "CIK": "0000003"}}),
@@ -213,17 +220,18 @@ def test_null_source_url_renders_without_a_broken_anchor(db, cm):
     assert "no link recorded" in tr and 'href=""' not in tr and 'href="None"' not in tr
 
 
-def test_membership_tags_come_from_cm_and_scanned_set_from_load_core_watchlist(db, cm):
+def test_membership_tags_come_from_cm_and_scanned_set_from_the_scope(db, cm):
     html, _ = _build(db, cm)
     uni = page.load_universe(cm)
-    assert uni["scanned"] == {"CI", "ADI", "FDX", "UPS", "WAY", "JPM", "ROIV", "LLY"}
-    assert "NOSCAN" not in uni["scanned"]
+    assert uni["scanned"] == {"CI", "ADI", "FDX", "UPS", "WAY", "JPM", "HELDNC", "2715.HK",
+                              "COREONLY", "ROIV", "LLY"}
+    assert "OFFSCOPE" not in uni["scanned"]
     assert uni["tags"]["ROIV"] == {"Following"}
     assert "Following only" in html
-    assert "<b>2</b> of your 8 Portfolio/Researching names" in html
-    assert "Unscanned Portfolio/Researching: 2715.HK, NOSCAN." in html
-    # the per-company table: a not-scanned name gets an EDGAR link, a no-CIK name a reason
-    assert re.search(r'<b>NOSCAN</b>.*?not scanned.*?EDGAR full-text search', html)
+    # a held or researched name is scanned whether or not it is Core, and so is every Core name
+    assert "<b>0</b> of your 8 Portfolio/Researching names" in html
+    assert "Unscanned Portfolio/Researching" not in html
+    assert re.search(r"<b>0</b> of your \d+ Core-coverage names are not scanned", html)
     assert re.search(r'<b>2715\.HK</b>.*?no CIK in Coverage Manager', html)
 
 

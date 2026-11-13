@@ -251,10 +251,62 @@ verify auth in isolation.
 
 ## Tier semantics (phase plan)
 
-- **Phase 1** (current) — core watchlist only. ~22 tickers from `Coverage Manager/exports/watchlist.csv` where `Core=Y`.
-- **Phase 2** — expand to HC Services + MedTech sectors from `universe_metadata.json`.
-- **Phase 3** — full coverage universe (~1094).
+- **Current (2026-11-13)** — the `analyst_days` scope of Coverage Manager's `exports/lists.json`: Portfolio + Researching + Ready to Buy + **every Core=Y name** + Following for Interest. 368 names on 2026-11-13; it moves with the lists, no edit here. See "The scan set" below.
+- **Not built** — the full coverage universe (~1,360).
 - **Phase 4** — 10-year historical backfill: sweep all 8-Ks per ticker for past investor/analyst/R&D days, populate as `status=historical`.
+
+## The scan set — read CM's scope by name, never compose it here (2026-11-13)
+
+Revvity (RVTY, Core=Y) held an Investor Day on 2026-11-13 that this lane never saw. It was
+announced by press release on 2026-10-06 and repeated in the Q3 8-K on 2026-11-03. RVTY was
+not scanned: `load_core_watchlist` read the legacy `watchlist.csv` (Portfolio + Researching)
+filtered to Core=Y, plus Following for Interest — **75 names**, while `earnings_review`
+covered **351** (Portfolio + Researching + Ready to Buy + all Core). It also dropped 19 held
+or researched names for not being Core. Each lane had composed "what I cover" by hand.
+
+JP 2026-11-13: *"I want all of my core stocks to be flagged. I think we are getting rid of the
+watch list concept. I have discrete lists and the same stocks that we flag for earnings review
+I want to flag here."* And on alerts for Core names he does not hold: *"of course full slack,
+calendar and TickTick. Core means I want to stay up on it and if there is one thing to pay
+attention to for a stock each year it is the analyst day."* So there is **no lighter tier**:
+every confirmed marquee event fans out the same way whatever list the name is on.
+
+- `src/universe.py::load_scan_universe` reads `scopes.analyst_days` from `lists.json` and joins
+  `universe.csv` for name / CIK / website. **No fallback** to the watchlist or any smaller set:
+  a missing file, an unknown `schema_version`, a scope that does not contain the Core list, or
+  a member with no universe row raises `ScanUniverseError`. A scope that lost Core is ~90
+  position names — plausible, non-empty, and the exact miss.
+- The schema gate reads `universe_status.json` (it read `watchlist_status.json` first).
+- Nothing in this repo reads `watchlist.csv` any more.
+
+### EDGAR is one full-text pass, matched on CIK (`src/discovery/scan_edgar_fts.py`)
+
+The per-ticker scan (`scan_edgar.scan_ticker`, kept for its regex and types, no longer called)
+produced **0, 1, 1, 0, 1** hits over the five Monday runs to 2026-11-09 across 75 names, for
+two reasons the full-text pass removes:
+
+- It kept only 8-Ks tagged Item 7.01 / 8.01. An earnings release is 2.02 + 9.01, and that
+  release is where "we will host our Investor Day on ..." is written. First live run of the
+  new scanner, 2026-11-13: **24 hits across 23 names in 10 seconds**, including BDX's
+  2.02-only release.
+- It resolved the company **by ticker** and ignored the CIK. `CSL` is Carlisle at the SEC and
+  CSL Ltd here; `MED` is Medifast. Matching is now on CIK only. The 58 scan-set names with no
+  CIK are not looked up (`edgar_no_cik` in the summary) and rely on web search.
+
+A failed search page, a short page set or a result past EDGAR's 10,000 paging ceiling raises
+`EdgarScanError` — one counted error, `partial` heartbeat, web search still runs. The excerpt
+carries up to three trigger windows because a release names the event in its headline and
+states the date paragraphs later, and the date-grounding gate reads only the excerpt.
+
+⚠ **EDGAR could not have given Revvity lead time**: the 2026-10-06 release was never filed.
+Only web search sees an unfiled press release, which is why it runs for every name.
+
+### First run after the scan set grows
+
+`monday.yml` has a `lookback_days` dispatch input. A name added to the scan set today was not
+being scanned when its event was announced, so run once with a long window (e.g. 90) and
+`dry_run=true`, read the output, then run it live. Fan-out floors on `start_date >= today`,
+so past events do not post.
 
 ## Event lifecycle (state machine)
 
@@ -282,10 +334,10 @@ discovered → tentative   (imprecise date, Slack/email mention only)
 | TickTick | `[Event Type] TICKER` in **"Analyst Days" list** (auto-create on first run); description includes company name + source URL + multi-day flag | Due date = event start |
 | Email | Weekly Monday digest: forward 30-day + 7-day view tables | Gmail API via OAuth (reuses daily-reads token) |
 
-## Discovery flow (per ticker)
+## Discovery flow
 
 ```python
-edgar_hits  = scan_8k_recent(ticker, lookback=14d, triggers=PHRASES)
+edgar_hits  = edgar_by_ticker[ticker]   # ONE full-text pass for the whole scan set, by CIK
 tavily_hits = tavily_search(f'"{company}" "investor day" OR "analyst day" OR "R&D day" OR "capital markets day" {YEAR}')
 candidates  = claude_extract(edgar_hits + tavily_hits)
     # → [{event_type, start_date, end_date, multi_day, source_url, source_type, confidence, raw_evidence}]
@@ -392,7 +444,7 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `SEC_EDGAR_USER_AGENT` or `EDGAR_IDENTITY` | Reused | Required by EDGAR |
 | `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` | Reused (earnings_agent / 13F) | Out-of-band failure email backup (inline SMTP in both workflows' `if: failure()` — fires when Slack itself is the failure point). Sends to `jroypeterson+alerts@gmail.com`. Opt-in: unset → no-op. |
 
-CI also sparse-checks out `exports/` from the private `jroypeterson/coverage-manager-private` repo (via `CM_DEPLOY_KEY`) for the watchlist snapshot. The Coverage Manager exports schema gate is `_ACCEPTED_CM_SCHEMA = frozenset({3, 4})` in `src/universe.py` (v4 = raw-ticker `universe_metadata.json` keys, accepted since `5cb51dd` 2026-07-30; the narrowing history below predates that) (bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c). **Adding a CSV column does not bump CM's `EXPORTS_SCHEMA_VERSION`** — the `LEI` and `IPO Date`/`Est Lockup` backfills all propagated into the CSVs and `portfolio.json` entries with no bump; only a change to `universe_metadata.json`'s entry shape bumps it (that is what v3 was). It was briefly widened to `{3, 4}` on 2026-07-28 for an anticipated v4 that was disproven the same night, and narrowed straight back; the frozenset form was kept because the error message names the set. `tests/test_universe_schema.py` pins the gate.
+CI also sparse-checks out `exports/` from the private `jroypeterson/coverage-manager-private` repo (via `CM_DEPLOY_KEY`) for `lists.json` and `universe.csv`. The Coverage Manager exports schema gate is `_ACCEPTED_CM_SCHEMA = frozenset({3, 4})` in `src/universe.py` (v4 = raw-ticker `universe_metadata.json` keys, accepted since `5cb51dd` 2026-07-30; the narrowing history below predates that) (bumped 2→3 on 2026-06-29 to match CM, mirroring sa-monitor 565af1c). **Adding a CSV column does not bump CM's `EXPORTS_SCHEMA_VERSION`** — the `LEI` and `IPO Date`/`Est Lockup` backfills all propagated into the CSVs and `portfolio.json` entries with no bump; only a change to `universe_metadata.json`'s entry shape bumps it (that is what v3 was). It was briefly widened to `{3, 4}` on 2026-07-28 for an anticipated v4 that was disproven the same night, and narrowed straight back; the frozenset form was kept because the error message names the set. `tests/test_universe_schema.py` pins the gate.
 
 ## Local `.env`
 
@@ -401,8 +453,9 @@ Same keys; Google creds via file path (`GOOGLE_CREDENTIALS_PATH=credentials.json
 ## Module map
 
 - `src/cli.py` — CLI entry + top-level flows (`cmd_discover`, `cmd_remind`, `cmd_monday_digest`, `cmd_friday_digest`, `cmd_weekly`, the `*-test` modes).
-- `src/universe.py` — Load core watchlist from CM exports; schema version assert.
-- `src/discovery/scan_edgar.py` — EDGAR scanner via edgartools. Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
+- `src/universe.py` — `load_scan_universe`: the `analyst_days` scope of CM's `lists.json`, joined to `universe.csv`; schema version assert.
+- `src/discovery/scan_edgar_fts.py` — **the EDGAR scanner in use**: one full-text search for the whole scan set, matched on CIK, every 8-K item type and exhibit.
+- `src/discovery/scan_edgar.py` — the retired per-ticker scanner; still owns `TRIGGER_RE`, `EdgarHit`, `EdgarScanError`. What follows describes it: Pulls 8-K (US issuers, Items 7.01/8.01) AND 6-K (foreign private issuers, no item filter) within the lookback window. For each kept filing, walks every HTML attachment (cover doc + Ex-99 exhibits — the press releases where investor-day announcements typically live) and matches against the trigger regex. First hit per filing wins.
 - `src/discovery/scan_tavily.py` — Tavily search per ticker.
 - `src/discovery/classify.py` — Claude API: extract event_type/dates/multi_day/confidence from raw hits.
 - `src/discovery/date_grounding.py` — deterministic date-grounding gate: does the extracted ISO date appear (in any recognizable textual form) in the raw source text? Gates confirmation; see "Date-grounding gate" above.

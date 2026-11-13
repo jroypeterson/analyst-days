@@ -31,7 +31,8 @@ from src.discovery.classify import (
     classify_ticker,
     get_client,
 )
-from src.discovery.scan_edgar import scan_ticker as edgar_scan
+from src.discovery import scan_edgar_fts
+from src.discovery.scan_edgar import EdgarScanError
 from src.discovery.scan_tavily import search_ticker as tavily_search
 from src.discovery.date_grounding import event_date_grounded, grounded_in_any
 from src.outputs import gcal as gcal_out
@@ -52,7 +53,7 @@ from src.state.events_repo import (
     tentative_events,
 )
 from src.state.schema import init_db, schema_version, CURRENT_SCHEMA_VERSION
-from src.universe import Ticker, load_core_watchlist
+from src.universe import Ticker, load_scan_universe
 from src import reminders as reminders_mod
 from src import health as health_mod
 from src import state_guard
@@ -184,7 +185,7 @@ def _to_candidate(
 
 
 def cmd_discover(args: argparse.Namespace) -> int:
-    universe = load_core_watchlist()
+    universe = load_scan_universe()
     if args.tickers:
         wanted = {t.upper() for t in args.tickers}
         universe = [t for t in universe if t.ticker.upper() in wanted]
@@ -218,18 +219,34 @@ def cmd_discover(args: argparse.Namespace) -> int:
         "events_inserted": 0,
         "events_merged": 0,
         "errors": 0,
+        "edgar_no_cik": 0,
     }
+
+    # One EDGAR full-text pass for the whole scan set, matched on CIK (see
+    # scan_edgar_fts). A name with no CIK is not an error: it files nothing with the
+    # SEC that we can key on, and the web search below still covers it.
+    cik_to_tickers, no_cik = scan_edgar_fts.cik_map(universe)
+    summary["edgar_no_cik"] = len(no_cik)
+    edgar_by_ticker: dict[str, list] = {}
+    try:
+        fts = scan_edgar_fts.scan_universe(cik_to_tickers, lookback_days=args.lookback)
+        edgar_by_ticker = fts.hits_by_ticker
+        print(f"[discover] EDGAR full-text: {fts.documents_searched} document(s) in window, "
+              f"{fts.filings_matched} filing(s) by scan-set filers, {fts.hit_count} hit(s); "
+              f"{len(no_cik)} name(s) have no CIK (web search only)")
+        for msg in fts.errors:
+            print(f"  EDGAR document error: {msg}")
+        summary["errors"] += len(fts.errors)
+    except EdgarScanError as e:
+        # The whole EDGAR leg is down. Count it once and carry on with web search:
+        # the heartbeat goes `partial`, and next week's 14-day window overlaps this one.
+        print(f"[discover] EDGAR error: {e}")
+        summary["errors"] += 1
+    print()
 
     for t in universe:
         print(f"=== {t.ticker} ({t.company_name}) ===")
-        try:
-            edgar_hits = edgar_scan(
-                t.ticker, t.cik, lookback_days=args.lookback
-            )
-        except Exception as e:
-            print(f"  EDGAR error: {type(e).__name__}: {e}")
-            edgar_hits = []
-            summary["errors"] += 1
+        edgar_hits = edgar_by_ticker.get(t.ticker, [])
 
         try:
             tavily_hits = tavily_search(
@@ -650,7 +667,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--tavily-results", type=int, default=5,
                    help="Tavily max_results per ticker")
     p.add_argument("--tickers", nargs="*",
-                   help="Restrict to these tickers (subset of core watchlist)")
+                   help="Restrict to these tickers (subset of the scan set)")
     p.add_argument("--limit", type=int, default=0,
                    help="Process at most N tickers (0 = all)")
     return p
@@ -991,10 +1008,10 @@ def _post_weekly_health(args: argparse.Namespace, start: datetime) -> None:
     if tickers == 0:
         # Abnormal-counts rule (HEALTH_REPORTING.md §4.2): the Phase-1 universe
         # is ~22 names, so a 0-ticker scan is never a quiet week — it means the
-        # CM watchlist load failed or the discovery phase never stashed its
+        # CM scan-set load failed or the discovery phase never stashed its
         # summary. Without this, that failure heartbeats `ok · 0 tickers`.
         status = "partial"
-        warnings.append("0 tickers scanned — CM watchlist load failed "
+        warnings.append("0 tickers scanned — CM scan-set load failed "
                         "or discovery phase did not run")
 
     # A phase that reported failure by RETURN CODE is degraded, not aborted.

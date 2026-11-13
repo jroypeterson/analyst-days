@@ -18,7 +18,8 @@ from src.universe import (
     _ACCEPTED_CM_SCHEMA,
     _assert_schema,
     load_by_sectors,
-    load_core_watchlist,
+    load_scan_universe,
+    ScanUniverseError,
     load_portfolio,
 )
 
@@ -31,10 +32,20 @@ def _prefix_bom(path):
     path.write_bytes(UTF8_BOM + path.read_bytes())
 
 
+def _write_lists(exports, members, core=None, schema_version=1):
+    """A lists.json shaped like Coverage Manager's, for the `analyst_days` scope."""
+    core = members if core is None else core
+    (exports / "lists.json").write_text(json.dumps({
+        "schema_version": schema_version,
+        "lists": {"core": {"count": len(core), "members": list(core)}},
+        "scopes": {"analyst_days": {"count": len(members), "members": list(members)}},
+    }), encoding="utf-8")
+
+
 def _make_cm_root(tmp_path, schema_version, rows=None):
     exports = tmp_path / "exports"
     exports.mkdir(parents=True, exist_ok=True)
-    (exports / "watchlist_status.json").write_text(
+    (exports / "universe_status.json").write_text(
         json.dumps({"schema_version": schema_version, "validation_passed": True}),
         encoding="utf-8",
     )
@@ -43,11 +54,12 @@ def _make_cm_root(tmp_path, schema_version, rows=None):
          "Sector (JP)": "MedTech", "ISIN": "US45168D1046", "Core": "Y"},
     ]
     fields = ["Ticker", "Company Name", "Sector (JP)", "ISIN", "Core"]
-    with (exports / "watchlist.csv").open("w", newline="", encoding="utf-8") as f:
+    with (exports / "universe.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         for r in rows:
             w.writerow(r)
+    _write_lists(exports, [r["Ticker"] for r in rows])
     return tmp_path
 
 
@@ -111,7 +123,7 @@ def test_error_message_names_the_accepted_set(tmp_path):
 def test_load_returns_rows_not_just_no_crash(tmp_path):
     """Zero rows under a passing gate is the BOM signature -- assert non-empty."""
     root = _make_cm_root(tmp_path, 3)
-    out = load_core_watchlist(root)
+    out = load_scan_universe(root)
     assert len(out) == 1
     assert out[0].ticker == "IDXX"
 
@@ -131,15 +143,15 @@ def test_load_survives_a_utf8_bom_on_the_header(tmp_path):
     passes against HEAD (3df75d0, encoding="utf-8-sig").
     """
     root = _make_cm_root(tmp_path, 3)
-    _prefix_bom(root / "exports" / "watchlist.csv")
+    _prefix_bom(root / "exports" / "universe.csv")
 
-    out = load_core_watchlist(root)
+    out = load_scan_universe(root)
 
     assert len(out) == 1, "a BOM must not silently zero the join"
     assert out[0].ticker == "IDXX"
 
 
-def test_schema_gate_survives_a_bom_on_watchlist_status_json(tmp_path):
+def test_schema_gate_survives_a_bom_on_the_status_json(tmp_path):
     """A BOM here raises `JSONDecodeError: Expecting value: line 1 column 1`
     from inside the SCHEMA GATE, which reads as "CM broke its schema" rather
     than "encoding" -- a misleading diagnosis for the on-call operator.
@@ -147,7 +159,7 @@ def test_schema_gate_survives_a_bom_on_watchlist_status_json(tmp_path):
     Tolerant in, strict out: we still write utf-8 ourselves.
     """
     root = _make_cm_root(tmp_path, 3)
-    _prefix_bom(root / "exports" / "watchlist_status.json")
+    _prefix_bom(root / "exports" / "universe_status.json")
 
     _assert_schema(root)  # must not raise
 
@@ -155,7 +167,7 @@ def test_schema_gate_survives_a_bom_on_watchlist_status_json(tmp_path):
 def test_schema_gate_still_rejects_a_bad_version_under_a_bom(tmp_path):
     """Tolerating the BOM must not tolerate the wrong schema."""
     root = _make_cm_root(tmp_path, 99)
-    _prefix_bom(root / "exports" / "watchlist_status.json")
+    _prefix_bom(root / "exports" / "universe_status.json")
 
     with pytest.raises(RuntimeError, match="Coverage Manager exports schema"):
         _assert_schema(root)
@@ -199,14 +211,87 @@ def test_tolerates_extra_identity_columns_without_a_bump(tmp_path):
     by name, so unknown columns must be inert at v3, not fatal."""
     exports = tmp_path / "exports"
     exports.mkdir(parents=True)
-    (exports / "watchlist_status.json").write_text(
+    (exports / "universe_status.json").write_text(
         json.dumps({"schema_version": 3, "validation_passed": True}), encoding="utf-8"
     )
-    (exports / "watchlist.csv").write_text(
+    _write_lists(exports, ["AZN"])
+    (exports / "universe.csv").write_text(
         "Ticker,Company Name,ISIN,ISIN (Primary Listing),Country (Incorporation),Core\n"
         "AZN,AstraZeneca PLC,US0463531089,GB0009895292,GB,Y\n",
         encoding="utf-8",
     )
-    out = load_core_watchlist(tmp_path)
+    out = load_scan_universe(tmp_path)
     assert len(out) == 1
     assert out[0].isin == "US0463531089"
+
+
+# -- the scan set is CM's `analyst_days` scope, read by name (2026-11-13) ------
+
+def _scope_root(tmp_path, members, core, rows=None):
+    rows = rows or [{"Ticker": t, "Company Name": f"{t} Inc", "Sector (JP)": "MedTech",
+                     "ISIN": "", "Core": "Y" if t in core else ""} for t in members]
+    root = _make_cm_root(tmp_path, 4, rows)
+    _write_lists(root / "exports", members, core)
+    return root
+
+
+def test_scan_set_is_every_member_of_the_scope_core_or_not(tmp_path):
+    """The Revvity case and the 19 dropped holdings in one: a Core name on no position
+    list is scanned, and so is a held name that is NOT Core."""
+    root = _scope_root(tmp_path, ["RVTY", "UBER", "TSM"], core=["RVTY"])
+    assert [t.ticker for t in load_scan_universe(root)] == ["RVTY", "UBER", "TSM"]
+
+
+def test_scan_set_does_not_read_the_watchlist(tmp_path):
+    """A watchlist.csv beside the exports must not add or remove a name."""
+    root = _scope_root(tmp_path, ["RVTY"], core=["RVTY"])
+    (root / "exports" / "watchlist.csv").write_text(
+        "Ticker,Company Name,Core\nGHOST,Ghost Inc,Y\n", encoding="utf-8")
+    assert [t.ticker for t in load_scan_universe(root)] == ["RVTY"]
+
+
+def test_missing_lists_json_raises_instead_of_falling_back(tmp_path):
+    root = _scope_root(tmp_path, ["RVTY"], core=["RVTY"])
+    (root / "exports" / "lists.json").unlink()
+    with pytest.raises(ScanUniverseError, match="lists.json"):
+        load_scan_universe(root)
+
+
+def test_unknown_lists_schema_raises(tmp_path):
+    root = _scope_root(tmp_path, ["RVTY"], core=["RVTY"])
+    _write_lists(root / "exports", ["RVTY"], schema_version=2)
+    with pytest.raises(ScanUniverseError, match="schema"):
+        load_scan_universe(root)
+
+
+@pytest.mark.parametrize("members, core", [
+    (["UBER", "TSM"], ["RVTY"]),      # the scope lost its Core names
+    (["UBER", "TSM"], []),            # Core itself came back empty
+])
+def test_a_scope_that_lost_core_raises(tmp_path, members, core):
+    """~90 position names with no Core is plausible, non-empty, and exactly the miss."""
+    rows = [{"Ticker": t, "Company Name": f"{t} Inc", "Sector (JP)": "Tech",
+             "ISIN": "", "Core": ""} for t in ("UBER", "TSM", "RVTY")]
+    root = _scope_root(tmp_path, members, core, rows)
+    with pytest.raises(ScanUniverseError, match="Core"):
+        load_scan_universe(root)
+
+
+def test_a_scope_member_with_no_universe_row_raises_and_is_named(tmp_path):
+    rows = [{"Ticker": "RVTY", "Company Name": "Revvity", "Sector (JP)": "MedTech",
+             "ISIN": "", "Core": "Y"}]
+    root = _scope_root(tmp_path, ["RVTY", "NOROW"], ["RVTY"], rows)
+    with pytest.raises(ScanUniverseError, match="NOROW"):
+        load_scan_universe(root)
+
+
+def test_the_real_exports_load_and_include_every_core_name():
+    """Against the live Coverage Manager exports when they are a sibling checkout."""
+    from pathlib import Path
+    cm = Path(__file__).resolve().parents[2] / "Coverage Manager"
+    if not (cm / "exports" / "lists.json").exists():
+        pytest.skip("Coverage Manager is a Dropbox sibling; absent in this checkout")
+    meta = json.loads((cm / "exports" / "universe_metadata.json").read_text(encoding="utf-8-sig"))
+    core = {t for t, v in meta.items() if str(v.get("core") or "").strip().upper() == "Y"}
+    scanned = {t.ticker for t in load_scan_universe(cm)}
+    assert core and core <= scanned

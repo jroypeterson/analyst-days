@@ -16,6 +16,11 @@ on:
         required: false
         default: "false"
         type: string
+      lookback_days:
+        description: "EDGAR lookback window in days (default 14). Use a longer window once after the scan set grows, to pick up events announced before the new names were scanned."
+        required: false
+        default: ""
+        type: string
       bootstrap_db:
         description: "Start a FRESH events database if the analyst-days-db artifact is missing (board #456). Only for a genuine loss; a scheduled run can never set this."
         required: false
@@ -35,12 +40,15 @@ permissions:
 jobs:
   weekly:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 368 names at ~5 s each (one web search + one classifier call) is ~31 minutes of
+    # discovery alone, measured 2026-11-09 at 5.0 s/ticker over 75. 30 was the old limit.
+    timeout-minutes: 75
     steps:
       - name: Checkout analyst-days
         uses: actions/checkout@v5
 
-      # Coverage Manager is public — clone its exports for the core watchlist.
+      # Coverage Manager is PRIVATE (read-only deploy key). Its exports carry lists.json,
+      # whose `analyst_days` scope is the scan set.
       - name: Checkout Coverage Manager exports
         uses: actions/checkout@v5
         with:
@@ -113,10 +121,14 @@ jobs:
           COVERAGE_MANAGER_PATH: ${{ github.workspace }}/coverage-manager
           ANALYST_DAYS_BOOTSTRAP_DB: ${{ github.event.inputs.bootstrap_db }}
         run: |
+          LOOKBACK=""
+          if [ -n "${{ github.event.inputs.lookback_days }}" ]; then
+            LOOKBACK="--lookback ${{ github.event.inputs.lookback_days }}"
+          fi
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            python -m src.cli --weekly --dry-run
+            python -m src.cli --weekly --dry-run $LOOKBACK
           else
-            python -m src.cli --weekly
+            python -m src.cli --weekly $LOOKBACK
           fi
 
       # Backstop heartbeat: the --weekly run posts its own health/v1 heartbeat

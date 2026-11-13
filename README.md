@@ -1,9 +1,9 @@
 # analyst-days
 > Discovers upcoming Investor/Analyst/R&D/Capital Markets Days across the coverage universe (EDGAR 8-K/6-K + Tavily, Claude-classified) and fans confirmed events out to Slack, Calendar, TickTick, and a weekly email digest.
 
-- **Status:** live (Phase 1 — core watchlist; discovery + reminders + Slack/Calendar/TickTick/email digest all wired)
+- **Status:** live (scan set = every Core name plus the position lists, 368 on 2026-11-13; discovery + reminders + Slack/Calendar/TickTick/email digest all wired)
 - **Runtime/trigger:** Python via GitHub Actions (`monday.yml` weekly + `friday.yml` radar, 12:13 UTC) · or `python -m src.cli` on-demand
-- **Reads:** Coverage Manager `exports/universe_metadata.json` (Core=Y watchlist) · SEC EDGAR 8-K/6-K · Tavily web search
+- **Reads:** Coverage Manager `exports/lists.json` (`analyst_days` scope) + `universe.csv` · SEC EDGAR 8-K/6-K full-text search · Tavily web search
 - **Writes:** Slack `#analyst-days` · Google Calendar ("Other Investing") · TickTick ("Analyst Days" list) · weekly Monday/Friday email digest · `#status-reports` health heartbeat · SQLite `data/events.db`
 - **Run:** `python -m src.cli --weekly` (discover → remind → digest)  ·  **Entry points:** `src/cli.py`, `src/universe.py`, `src/discovery/classify.py`
 
@@ -46,6 +46,6 @@ python -m src.cli --status
 
 ## Phase
 
-Phase 1 (current): Core Watchlist (`Coverage Manager/exports/watchlist.csv` where `Core=Y`). Generalizable per-ticker discovery — Phases 2/3 swap the iterator for HC Services + MedTech, then full universe.
+Scan set: the `analyst_days` scope of `Coverage Manager/exports/lists.json` — Portfolio + Researching + Ready to Buy + every Core=Y name + Following for Interest (368 names on 2026-11-13; it follows the lists). The full coverage universe (~1,360) is not scanned.
 
 See `CLAUDE.md` for the full plan, schema, and operational notes.

@@ -4,9 +4,11 @@ Load the universe of tickers to track from Coverage Manager exports.
 In dev, set COVERAGE_MANAGER_PATH to your local CM checkout. In CI, the
 Coverage Manager exports are sparse-checked-out into a sibling directory.
 
-Phase 1: core watchlist (`watchlist.csv` rows where `Core == 'Y'`).
-Phase 2/3 swap the loader for HC Services / MedTech filters or the full
-universe — the rest of the discovery pipeline is universe-agnostic.
+The scan set is the `analyst_days` scope of CM's `exports/lists.json`
+(Portfolio + Researching + Ready to Buy + every Core=Y name + Following for
+Interest), read BY NAME. This repo does not compose the union itself: until
+2026-11-13 it did, from the legacy `watchlist.csv`, and scanned 75 names while
+earnings_review covered 351 -- which is how Revvity's Investor Day was missed.
 
 We assert on schema_version so a Coverage Manager schema bump fails loudly
 here instead of silently propagating bad data downstream.
@@ -76,12 +78,10 @@ def _resolve_cm_path(cm_path: Optional[str | Path] = None) -> Path:
 
 
 def _assert_schema(cm_root: Path) -> None:
-    status_path = cm_root / "exports" / "watchlist_status.json"
-    if not status_path.exists():
-        # Older CM checkouts may not have the watchlist status file yet.
-        # Fall back to the universe status file's schema_version, which moves
-        # in lockstep with the watchlist's.
-        status_path = cm_root / "exports" / "universe_status.json"
+    # universe_status.json, not watchlist_status.json: the watchlist files are a
+    # deprecated back-compat view CM is retiring, and a gate hung on a file that is
+    # about to disappear would fail the run for the wrong reason.
+    status_path = cm_root / "exports" / "universe_status.json"
     # utf-8-sig: a BOM here raises `JSONDecodeError: Expecting value: line 1
     # column 1` from inside the schema gate, which reads as "CM broke its
     # schema" rather than "encoding" -- a misleading diagnosis. Tolerant in,
@@ -120,84 +120,77 @@ def _row_to_ticker(row: dict) -> Ticker:
     )
 
 
-def _read_position_rows(cm_root: Path, filename: str) -> list[dict]:
-    """Rows from one of CM's per-state JSON exports, shaped like a CSV row.
-
-    Returns [] when the file is absent rather than raising: a missing optional
-    state file must degrade this lane to its previous behaviour, not take out the
-    whole run for the sake of an addition.
-    """
-    p = cm_root / "exports" / filename
-    if not p.exists():
-        return []
-    try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-    except Exception:                                    # noqa: BLE001
-        return []
-    rows = []
-    for ticker, entry in (data or {}).items():
-        row = dict(entry)
-        row["Ticker"] = ticker
-        # The JSON carries lower-case joined keys; `_row_to_ticker` reads the
-        # CSV-style headers, so bridge the two the same way the JSON export built
-        # them rather than duplicating the mapping.
-        row.setdefault("Company Name", entry.get("name", ""))
-        row.setdefault("Sector (JP)", entry.get("sector", ""))
-        row.setdefault("Subsector (JP)", entry.get("subsector", ""))
-        row.setdefault("Sub-subsector (JP)", entry.get("sub_subsector", ""))
-        row.setdefault("Core", entry.get("core", ""))
-        rows.append(row)
-    return rows
+SCAN_SCOPE = "analyst_days"
+_ACCEPTED_LISTS_SCHEMA = frozenset({1})
 
 
-def load_core_watchlist(cm_path: Optional[str | Path] = None) -> list[Ticker]:
-    """Return all watchlist rows where Core == 'Y'.
+class ScanUniverseError(RuntimeError):
+    """The scan set could not be established. Raised, never defaulted: falling back
+    to a smaller list is exactly the failure this loader replaced."""
 
-    Continues to read `exports/watchlist.csv`, which Coverage Manager Phase B
-    keeps writing as a derived back-compat view of `positions_and_researching.csv`
-    for one cycle. This loader returns the union of Portfolio + Researching ∩ Core.
 
-    For the explicit Portfolio-only or Researching-only split, use
-    `load_portfolio()` and `load_researching()`.
+def load_scan_universe(cm_path: Optional[str | Path] = None) -> list[Ticker]:
+    """Every name discovery scans: the `analyst_days` scope of CM's lists.json.
+
+    JP 2026-11-13: "I want all of my core stocks to be flagged ... the same stocks
+    that we flag for earnings review I want to flag here", and on Core: "Core means
+    I want to stay up on it and if there is one thing to pay attention to for a
+    stock each year it is the analyst day." Following for Interest stays in (his
+    2026-08-23 ruling: bellwethers whose analyst days are the point of the list).
+
+    Membership follows the lists -- a name gaining or losing Core moves on the next
+    run with no edit here. Identity fields (name, CIK, website) come from
+    `universe.csv`, joined on the raw ticker.
+
+    There is NO fallback to `watchlist.csv` or to any smaller set. A missing or
+    unreadable lists.json, an unknown schema, or a scope that has lost Core raises.
     """
     cm_root = _resolve_cm_path(cm_path)
     _assert_schema(cm_root)
 
-    csv_path = cm_root / "exports" / "watchlist.csv"
-    out: list[Ticker] = []
-    seen: set[str] = set()
-    # utf-8-sig: a BOM on CM's export otherwise makes the first field "﻿Ticker"
-    # and every Sector (JP) row silently fails to match.
-    with csv_path.open(newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if (row.get("Core") or "").strip().upper() == "Y":
-                out.append(_row_to_ticker(row))
-                seen.add((row.get("Ticker") or "").strip().upper())
+    lists_path = cm_root / "exports" / "lists.json"
+    if not lists_path.exists():
+        raise ScanUniverseError(
+            f"{lists_path} is missing. Coverage Manager publishes it from the "
+            "positions export; refusing to fall back to a smaller scan set.")
+    doc = json.loads(lists_path.read_text(encoding="utf-8-sig"))
+    sv = doc.get("schema_version") if isinstance(doc, dict) else None
+    if sv not in _ACCEPTED_LISTS_SCHEMA:
+        raise ScanUniverseError(
+            f"lists.json schema is {sv!r}, expected one of "
+            f"{sorted(_ACCEPTED_LISTS_SCHEMA)}. Update analyst-days before continuing.")
+    try:
+        members = list(doc["scopes"][SCAN_SCOPE]["members"])
+        core = set(doc["lists"]["core"]["members"])
+    except (KeyError, TypeError) as e:
+        raise ScanUniverseError(
+            f"lists.json has no usable scopes.{SCAN_SCOPE} / lists.core ({e!r})") from e
+    # A scope that silently lost Core is ~90 position names: plausible, non-empty,
+    # and the exact shape of the miss this loader exists to prevent.
+    if not core or not core <= set(members):
+        raise ScanUniverseError(
+            f"lists.json: scopes.{SCAN_SCOPE} ({len(members)} names) does not contain "
+            f"the Core list ({len(core)} names). Refusing to scan a partial universe.")
 
-    # ---- Following for Interest, added 2026-08-23 ----------------------------
-    # JP described what the state is FOR: *"Following for interest probably means
-    # something like I would be interested in particular in what they are saying on
-    # their earnings calls... other companies are like bellwethers in their category
-    # and so maybe their transcripts or anything incremental for the analyst days
-    # sounds interesting."* Analyst days are exactly that, and this lane could not
-    # see them: `watchlist.csv` is a deprecated back-compat view filtered to
-    # Portfolio + Researching, so all 16 FFI names were invisible here while
-    # transcripts, earnings_agent and sigma-alert all received them.
-    #
-    # NOT gated on `Core`, deliberately, unlike the rows above. Core answers "do I
-    # model this company"; FFI answers "do I want to hear what they say". They are
-    # different axes and half the list fails the first one -- measured 2026-08-23,
-    # 8 of 16 are Core, and the ones dropped include TSM and LULU, which are
-    # bellwethers-in-their-category in the exact sense he meant. The FFI flag is
-    # itself a hand-curated statement of interest; filtering it again would be
-    # second-guessing the operator with a column that answers another question.
-    for row in _read_position_rows(cm_root, "following_for_interest.json"):
-        t = (row.get("Ticker") or "").strip().upper()
-        if t and t not in seen:
-            out.append(_row_to_ticker(row))
-            seen.add(t)
-    return out
+    rows: dict[str, dict] = {}
+    csv_path = cm_root / "exports" / "universe.csv"
+    # utf-8-sig: a BOM on CM's export otherwise makes the first field "﻿Ticker"
+    # and every row lookup below silently misses.
+    with csv_path.open(newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            t = (row.get("Ticker") or "").strip()
+            if t:
+                rows[t] = row
+
+    missing = [t for t in members if t not in rows]
+    if missing:
+        # Every scope member is a universe row by CM's own acceptance check, so this
+        # is a broken publish, not a detail. Naming them beats scanning a name with
+        # no company name (a web search for "" returns confident noise).
+        raise ScanUniverseError(
+            f"{len(missing)} scan-scope ticker(s) have no universe.csv row: "
+            f"{missing[:10]}")
+    return [_row_to_ticker(rows[t]) for t in members]
 
 
 def _load_position_json(cm_root: Path, filename: str) -> list[Ticker]:
@@ -230,7 +223,7 @@ def _load_position_json(cm_root: Path, filename: str) -> list[Ticker]:
 
 def load_portfolio(cm_path: Optional[str | Path] = None) -> list[Ticker]:
     """Return Position == 'Portfolio' rows where Core == 'Y' — names the user
-    actively covers AND owns. Subset of `load_core_watchlist()`."""
+    actively covers AND owns. Subset of `load_scan_universe()`."""
     cm_root = _resolve_cm_path(cm_path)
     _assert_schema(cm_root)
     return _load_position_json(cm_root, "portfolio.json")
@@ -239,7 +232,7 @@ def load_portfolio(cm_path: Optional[str | Path] = None) -> list[Ticker]:
 def load_researching(cm_path: Optional[str | Path] = None) -> list[Ticker]:
     """Return Position == 'Researching' rows where Core == 'Y' — names the user
     actively covers AND is building a thesis to buy. Subset of
-    `load_core_watchlist()`."""
+    `load_scan_universe()`."""
     cm_root = _resolve_cm_path(cm_path)
     _assert_schema(cm_root)
     return _load_position_json(cm_root, "researching.json")
@@ -256,7 +249,7 @@ def load_by_sectors(
     wanted = {s.strip() for s in sectors_jp}
     csv_path = cm_root / "exports" / "universe.csv"
     out: list[Ticker] = []
-    # utf-8-sig for the same reason as load_core_watchlist above: 3df75d0 fixed
+    # utf-8-sig for the same reason as load_scan_universe above: 3df75d0 fixed
     # only that one call site, and this reader has the identical BOM exposure.
     with csv_path.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)

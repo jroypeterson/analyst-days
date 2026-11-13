@@ -29,8 +29,8 @@ feedback. For mechanics — pipeline, schema, CLI modes, secrets, module map —
 Give the user a **standing radar for the prep-worthy investor-facing events**
 across their coverage universe — Investor Days, Analyst Days, R&D Days, Capital
 Markets Days — so a single solo, part-time investor never gets surprised by one
-and can plan reading/work around it. The user can't manually watch ~22 core
-names (let alone the full universe) for these announcements, which surface
+and can plan reading/work around it. The user can't manually watch several
+hundred covered names (368 in the scan set on 2026-11-13) for these announcements, which surface
 unevenly across 8-Ks, IR pages, and press chatter. The tool's job is to **turn
 that noise into a small, confirmed, calendar-ready signal** and push it to where
 the user already lives: Slack, Google Calendar, and TickTick.
@@ -45,7 +45,7 @@ calendar."
 
 | # | Criterion | Status | Evidence |
 |---|---|---|---|
-| 1 | Discover marquee events from authoritative + web sources | ✅ Done | `--discover`: EDGAR 8-K (Items 7.01/8.01) + 6-K incl. Ex-99 attachments via edgartools, plus per-ticker Tavily. `src/discovery/scan_edgar.py`, `scan_tavily.py` |
+| 1 | Discover marquee events from authoritative + web sources | ✅ Done | `--discover`: one EDGAR full-text pass over 8-K + 6-K (every item type and exhibit, matched on CIK — `src/discovery/scan_edgar_fts.py`, 2026-11-13) plus per-ticker Tavily (`scan_tavily.py`). The per-ticker edgartools scan it replaced read only Items 7.01/8.01 and yielded ~1 hit a run |
 | 2 | Classify type/date/precision/confidence with an LLM | ✅ Done | Sonnet 4.6 extractor in `src/discovery/classify.py`; per-type confidence bars (Investor/Analyst/R&D/CMD = 0.85, Conference 0.70) in `events_repo.py` |
 | 3 | Only confirmed, precise-date events fan out; imprecise stay tentative | ✅ Done | `recompute_statuses` promotion-only; imprecise dates ("Q3 2026") never auto-confirm; surfaced in digest only |
 | 4 | Fan confirmed events out to Slack + Calendar + TickTick | ✅ Done | `--fanout` + `_fan_out_confirmed`; `src/outputs/{slack,gcal,ticktick}.py`; type-prefixed titles; multi-day all-day blocks |
@@ -64,10 +64,11 @@ calendar."
 *discovery → classify → fan-out* core, reminders, the email digest, the `--weekly`
 orchestrator, and the Monday/Friday GitHub Actions crons all shipped (2026-06-29);
 the health heartbeat, date-grounding gate, source-sensitive bar and `--retire`
-followed 2026-06-30, and the state guard + idempotent fan-out 2026-10-05. Phase 1's
-scan set is now **watchlist `Core=Y` ∪ Following for Interest** (`b29caec`,
-2026-08-23 — FFI deliberately *not* gated on Core; 75 names measured 2026-10-04),
-not the ~22 core names this brief originally described. The remaining work is
+followed 2026-06-30, and the state guard + idempotent fan-out 2026-10-05. **The scan
+set is the `analyst_days` scope of Coverage Manager's `lists.json` since 2026-11-13**
+(Portfolio + Researching + Ready to Buy + every Core=Y name + Following for Interest;
+368 names) — widened from 75 after Revvity's Investor Day was missed; see `CLAUDE.md`
+"The scan set". The remaining work is
 **reach** — broader discovery sourcing, Phase 2/3 scale-up, the Phase 4 historical
 backfill — see §5.
 
@@ -105,10 +106,11 @@ backfill — see §5.
 
 ## 4. Non-goals / accepted tradeoffs
 
-- **Not full-universe coverage (yet).** Phase 1 is watchlist `Core=Y` ∪
-  Following for Interest (75 names on 2026-10-04); the #439 page counts the 277
-  Core-coverage tickers that are *not* scanned rather than hiding them. The per-ticker discovery loop is deliberately generalizable so
-  Phases 2/3 swap the iterator (HC Services + MedTech, then ~1094 full universe)
+- **Not full-universe coverage.** The scan set is Coverage Manager's `analyst_days`
+  scope (every Core name plus the position lists, 368 on 2026-11-13). It was 75 until
+  that day, and the #439 page counted the unscanned Core names rather than hiding them —
+  one of which was Revvity. The remaining ~1,000 universe names are not scanned; the
+  per-ticker web search is the cost that scales (the EDGAR pass does not)
   without re-architecting. Don't critique the *scale* — critique whether the
   per-ticker primitive scales.
 - **Not real-time.** Discovery is a once-a-week batch by design; an event
@@ -174,7 +176,8 @@ backfill — see §5.
   earnings_agent does) is the follow-up noted in `CLAUDE.md`, not done.
 - **Scale (Phase 2/3) needs caching + tiered cadence first.** The per-ticker
   Tavily sweep runs unconditionally every week and is the first wall at ~1094
-  names (not Anthropic, which only fires on hits). Before scaling: a discovery-
+  names (and Anthropic with it: web search always returns results, so the classifier
+  runs once per name, 368 calls a run). Before scaling: a discovery-
   hit cache (content hash + `last_seen`, classify only new/changed) and tiered
   cadence (core weekly, lower tiers monthly/rotating); a CIK fan-in EDGAR pass
   instead of per-ticker `Company()`. Parallelism is an *after*, not a *before*.
