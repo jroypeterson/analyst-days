@@ -1,0 +1,2190 @@
+[
+  {
+    "ticker": "BNTX",
+    "company_name": "BioNTech SE - ADR",
+    "event_type": "rd_day",
+    "start_date": "2024-11-14",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1776985/000177698524000094/a99_1biontechtoacquirebiot.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.biontech.de/node/16771/pdf"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SHC",
+    "company_name": "Sotera Health Company",
+    "event_type": "investor_day",
+    "start_date": "2024-11-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1822479/000119312524262222/d874127dex991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.soterahealth.com/events/event-details/sotera-health-investor-day/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "GEHC",
+    "company_name": "GE HealthCare Technologies Inc.",
+    "event_type": "investor_day",
+    "start_date": "2024-11-21",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1932393/000193239324000054/releaseinvestorday2024.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.gehealthcare.com/news-releases/news-release-details/ge-healthcare-hosts-2024-investor-day-focus-innovation-deliver"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "RVTY",
+    "company_name": "Revvity, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2024-11-21",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/31791/000003179124000026/q32024pressrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://news.revvity.com/press-announcements/press-releases/press-release-details/2024/Revvity-to-Host-Investor-Day-and-Updates-Organizational-Structure-to-Reflect-Recent-Transformation/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "068270.KS",
+    "company_name": "Celltrion, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2024-11-27",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.celltrion.com/en-us/company/notice/3556"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ARE",
+    "company_name": "Alexandria Real Estate Equities Inc",
+    "event_type": "investor_day",
+    "start_date": "2024-12-04",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1035443/000103544324000313/ex991-2024investorday.htm"
+      },
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1035443/000103544324000313/are-20241204.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "HOOD",
+    "company_name": "Robinhood Markets Inc",
+    "event_type": "investor_day",
+    "start_date": "2024-12-04",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1783879/000178387924000324/hood-20241204.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.robinhood.com/news-releases/news-release-details/robinhood-announces-first-investor-day-december-4-2024"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "IQV",
+    "company_name": "IQVIA Holdings Inc.",
+    "event_type": "investor_day",
+    "start_date": "2024-12-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1478242/000147824224000113/iqv-q3x2024earningspressre.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.iqvia.com/events-and-presentations/events/event-details/2024/IQVIA-Investor-Day-2024/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TMDX",
+    "company_name": "TransMedics Group Inc",
+    "event_type": "analyst_day",
+    "start_date": "2024-12-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1756262/000119312524268922/d856128dex991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.transmedics.com/investor-calendar/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CNC",
+    "company_name": "Centene Corp",
+    "event_type": "investor_day",
+    "start_date": "2024-12-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1071739/000107173924000215/a20241212ex991pressrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.centene.com/Centene-Corporation-December-2024-Investor-Day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "LONN CH",
+    "company_name": "Lonza Group AG",
+    "event_type": "investor_day",
+    "start_date": "2024-12-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.lonza.com/investor-relations/agenda-and-events/capital-markets-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TAK",
+    "company_name": "Takeda Pharmaceutical Co Ltd",
+    "event_type": "rd_day",
+    "start_date": "2024-12-13",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1395064/000139506424000172/a2024-rd_day.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.takeda.com/newsroom/newsreleases/2024/takeda-late-stage-pipeline-2024/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "4568.T",
+    "company_name": "Daiichi Sankyo Company, Limited",
+    "event_type": "rd_day",
+    "start_date": "2024-12-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.daiichisankyo.com/investors/ir_news/detail/index_4529.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "A",
+    "company_name": "Agilent Technologies, Inc.",
+    "event_type": "analyst_day",
+    "start_date": "2024-12-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1090872/000095017024130441/a-ex99_1.htm"
+      },
+      {
+        "label": "Web hit",
+        "url": "https://www.agilent.com/about/newsroom/presrel/2024/30sep-gp24023.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "V",
+    "company_name": "Visa Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-02-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316124000053/q42024earningsrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://visa.q4web.com/events-calendar/Event-Details/2025/Visa-Investor-Day-2025/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ALNY",
+    "company_name": "Alnylam Pharmaceuticals, Inc.",
+    "event_type": "rd_day",
+    "start_date": "2025-02-25",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1178670/000117867025000020/alny2024q4earningsrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://capella.alnylam.com/2025/02/25/alnylam-rd-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "NVST",
+    "company_name": "Envista Holdings Corporation",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-03-05",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.envistaco.com/2025-02-04-Envista-to-hold-Capital-Markets-Day-on-March-5%2C-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "WAT",
+    "company_name": "Waters Corp",
+    "event_type": "investor_day",
+    "start_date": "2025-03-05",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1000697/000119312525005378/d915010dex991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.waters.com/News--Events/newsroom/news-details/2025/Waters-Corporation-to-Host-Investor-Day-on-March-5-2025/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ACVA",
+    "company_name": "ACV Auctions Inc",
+    "event_type": "analyst_day",
+    "start_date": "2025-03-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1637873/000162828025006357/q4-24earningspressrelease.htm"
+      },
+      {
+        "label": "Web hit",
+        "url": "https://investors.acvauto.com/news-events/press-releases/detail/86/acv-to-report-fourth-quarter-2024-financial-results-on-february-19-2025-and-host-analyst-day-on-march-11-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "DGX",
+    "company_name": "Quest Diagnostics Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-03-19",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1022079/000094787125000317/ss4592500_ex9901.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.questdiagnostics.com/events-and-presentations/event-details/2025/Quest-Diagnostics-to-Host-Investor-Day-on-March-19-2025-2025-AwMzpojweF/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SOLV",
+    "company_name": "Solventum Corporation",
+    "event_type": "investor_day",
+    "start_date": "2025-03-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.solventum.com/news-events/events-presentations/past"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ATRC",
+    "company_name": "AtriCure Inc",
+    "event_type": "analyst_day",
+    "start_date": "2025-03-26",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1323885/000132388525000002/atrc-20250113xexx991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.atricure.com/news-releases/news-release-details/atricure-host-analyst-investor-day-march-26-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ALC",
+    "company_name": "Alcon Inc.",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-03-27",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.alcon.com/media-release/alcon-host-2025-capital-markets-day/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SECTB SS",
+    "company_name": "Sectra AB",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-03-27",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investor.sectra.com/event/capital-markets-day-2025/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "HLN",
+    "company_name": "Haleon plc",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-05-01",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1900304/000165495425004945/a0711h.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.haleon.com/investors/capital-markets-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ALGN",
+    "company_name": "Align Technology, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-05-06",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1097149/000109714925000028/algn-q125earningspressrele.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.aligntech.com/news-releases/news-release-details/align-technology-host-investor-day-may-6-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "KYMR",
+    "company_name": "Kymera Therapeutics Inc",
+    "event_type": "rd_day",
+    "start_date": "2025-05-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.kymeratx.com/static-files/071547a4-f21a-48ef-bc48-a633a6284343"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "JPM",
+    "company_name": "JPMorgan Chase & Co",
+    "event_type": "investor_day",
+    "start_date": "2025-05-19",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/19617/000001961725000483/investordaycoverpageforw.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.jpmorganchase.com/ir/news/2025/jpmc-investor-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TEVA",
+    "company_name": "Teva Pharmaceutical Industries Ltd",
+    "event_type": "investor_day",
+    "start_date": "2025-05-29",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/818686/000117184325002849/exh_991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.tevapharm.com/news-and-events/press-releases/press-release-details/2025/Teva-Reaffirms-Pivot-to-Growth-Strategy-Progress-with-Launch-of-Acceleration-Phase-at-2025-Innovation-and-Strategy-Day/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CAH",
+    "company_name": "Cardinal Health Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-06-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/721371/000072137125000053/investorday2025pressreleas.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ESTA",
+    "company_name": "Establishment Labs Holdings Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-06-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1688757/000168875725000022/ex991pressrelease41025.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://establishmentlabs2023cr.q4web.com/events-and-presentations/presentations/2025/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "FMS",
+    "company_name": "Fresenius Medical Care AG",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-06-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1333141/000110465925060221/tm2518144d2_ex99-2.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://freseniusmedicalcare.com/en/investors/events/capital-markets-day/capital-markets-day/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BBIO",
+    "company_name": "BridgeBio Pharma Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-07-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investor.bridgebio.com/events-and-presentations/event-details/2025/BridgeBio-Limb-girdle-Muscular-Dystrophy-Type-2IR9-Investor-Webinar-2025-Mvv_MNoge9/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "IDXX",
+    "company_name": "IDEXX Laboratories Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-08-14",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/874716/000110465925073304/tm2522386d1_ex99-1.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.idexx.com/en/about-idexx/news/stifel-conference-2025-investor-day/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "COLOB DC",
+    "company_name": "Coloplast A/S",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-09-02",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.coloplast.com/news-and-media/press-releases/2025/Coloplast-presents-new-5-year-strategy-Impact4/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ATR",
+    "company_name": "Aptargroup Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-09-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.aptar.com/news/news-details/2025/Aptar-Announces-2025-Investor-Day/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "MICC",
+    "company_name": "The Magnum Ice Cream Company N.V.",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-09-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://news.magnumicecream.com/capital-markets-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BBIO",
+    "company_name": "BridgeBio Pharma Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-09-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investor.bridgebio.com/events-and-presentations/event-details/2025/Autosomal-Dominant-Hypocalcemia-Type-1-ADH1-Investor-Webinar-2025--pALHet5pZ/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "RPRX",
+    "company_name": "Royalty Pharma plc",
+    "event_type": "investor_day",
+    "start_date": "2025-09-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1802768/000119312525173988/d90343dex991.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.royaltypharma.com/events/royalty-pharma-investor-day/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "NVO",
+    "company_name": "Novo Nordisk A/S",
+    "event_type": "rd_day",
+    "start_date": "2025-09-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.novonordisk.com/investors/financial-results.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TRUP",
+    "company_name": "Trupanion, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-09-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.trupanion.com/news/Press-Releases/news-details/2025/Trupanion-to-Host-2025-Annual-Investor-Day-on-September-17/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "MCK",
+    "company_name": "McKesson Corp",
+    "event_type": "investor_day",
+    "start_date": "2025-09-23",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/927653/000092765325000125/mck_ex991investordaypressr.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.mckesson.com/news/financial-news/2025/McKesson-to-Host-Investor-Day-on-September-23-2025/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "GH",
+    "company_name": "Guardant Health, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-09-24",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1576280/000157628025000269/gh-20250924.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.guardanthealth.com/events-and-presentations/presentations/presentation-details/2025/Guardant-Health-2025-Investor-Day/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "2359.HK",
+    "company_name": "WUXI Apptech",
+    "event_type": "investor_day",
+    "start_date": "2025-09-25",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.wuxiapptec.com/investors/announcement/ir-material?page=2"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BSX",
+    "company_name": "Boston Scientific Corp",
+    "event_type": "investor_day",
+    "start_date": "2025-09-30",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://news.bostonscientific.com/2025-09-02-Boston-Scientific-announces-2025-Investor-Day-meeting-and-conference-call-discussing-third-quarter-2025-results"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "AMBUB DC",
+    "company_name": "Ambu A/S",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-10-01",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.ambu.com/corporate-info/investors/presentations/capital-markets-days"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BNTX",
+    "company_name": "BioNTech SE - ADR",
+    "event_type": "analyst_day",
+    "start_date": "2025-10-01",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.85,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1776985/000177698525000049/a991bntxq22025pressrelease.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "IONS",
+    "company_name": "Ionis Pharmaceuticals Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-10-07",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://ir.ionis.com/news-releases/news-release-details/ionis-host-investors-and-analysts-innovation-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "VEEV",
+    "company_name": "Veeva Systems Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-10-16",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://ir.veeva.com/events/event-details/2025/Veeva-Systems-2025-Investor-Day-2025-wlOy2kVu4p/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ERF FP",
+    "company_name": "Eurofins Scientific SE",
+    "event_type": "investor_day",
+    "start_date": "2025-10-24",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://cdnmedia.eurofins.com/corporate-eurofins/media/50ndbiat/2025-eu-investor-day-for-website.pdf"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CAT",
+    "company_name": "Caterpillar Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-11-04",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.caterpillar.com/events-presentations/event-details/2025/Caterpillar-Investor-Day-2025/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CSL",
+    "company_name": "CSL Ltd",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-11-04",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.csl.com/pdf/203d4ca9-fce1-4895-9485-48974914fa31/Platform/ListPage/CSL-Capital-Markets-Day-Notice.pdf"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BNTX",
+    "company_name": "BioNTech SE - ADR",
+    "event_type": "rd_day",
+    "start_date": "2025-11-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1776985/000177698525000067/ex991bntxinnovationserie.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.biontech.de/events/event-details/innovation-series-rd-day-2025/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "RDNT",
+    "company_name": "Radnet Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-11-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.radnet.com/newsroom/press-releases/radnet-announces-the-agenda-for-its-november-11-2025-investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "LIVN",
+    "company_name": "LivaNova PLC",
+    "event_type": "investor_day",
+    "start_date": "2025-11-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.92,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1639691/000163969125000146/a3q2025earningspressrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://livanova.gcs-web.com/events/event-details/livanova-investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BLCO",
+    "company_name": "Bausch + Lomb Corporation",
+    "event_type": "investor_day",
+    "start_date": "2025-11-13",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1860742/000095010325014656/dp237254_ex9901.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.bausch.com/press-releases/bausch-lomb-hold-investor-day-nov-13"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "GRAL",
+    "company_name": "GRAIL, Inc.",
+    "event_type": "analyst_day",
+    "start_date": "2025-11-13",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1699031/000169903125000189/ex9912025q3earningspressre.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://grail.gcs-web.com/news-releases/news-release-details/grail-announce-third-quarter-2025-financial-results"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SPGI",
+    "company_name": "S&P Global Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-11-13",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/64040/000006404025000175/a2025investordaypressrelea.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.spglobal.com/investor-presentations/event-details/2025/Investor-Presentation--SP-Global-Investor-Day-2025/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SYK",
+    "company_name": "Stryker Corp",
+    "event_type": "investor_day",
+    "start_date": "2025-11-13",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.stryker.com/press-releases/news-details/2025/Stryker-to-host-investor-day/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SHL GY",
+    "company_name": "Siemens Healthineers AG",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-11-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.siemens-healthineers.com/press/features/cmd2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SRTA",
+    "company_name": "Strata Critical Medical, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-11-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1779128/000177912825000114/keystonepressrelease.htm"
+      },
+      {
+        "label": "Press release",
+        "url": "https://www.globenewswire.com/news-release/2025/11/17/3189511/0/en/Strata-Critical-Medical-Hosts-2025-Investor-Day-Provides-2026-and-Medium-Term-Financial-Guidance.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "MRNA",
+    "company_name": "Moderna Inc",
+    "event_type": "analyst_day",
+    "start_date": "2025-11-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682852/000162828025053318/exhibit9912025analystday.htm"
+      },
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000015/exhibit9912025q4pressrelea.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.modernatx.com/media-center/all-media/blogs/analyst-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "PODD",
+    "company_name": "Insulet Corporation",
+    "event_type": "investor_day",
+    "start_date": "2025-11-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.insulet.com/news/news-details/2025/Insulet-Outlines-Long-Term-Strategy-to-Drive-Growth-and-Value-Creation-at-2025-Investor-Day/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "STMN.SW",
+    "company_name": "Straumann Holding AG",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-11-25",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.straumann.com/group/en/home/media/newsroom/mr/details.mr-detail.en.5a51029f-6c5c-4f4b-af09-6d324641e688.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ARE",
+    "company_name": "Alexandria Real Estate Equities Inc",
+    "event_type": "investor_day",
+    "start_date": "2025-12-03",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1035443/000103544325000211/ex991-2025areinvestorday.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.are.com/financial-information/company-presentations/presentation-details/2025/2025-Investor-Day-Presentation/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SNN",
+    "company_name": "Smith & Nephew PLC",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-12-08",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/845982/000165495425013739/a6170ksmithnephew.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.smith-nephew.com/en/who-we-are/investors"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CVS",
+    "company_name": "CVS Health Corp",
+    "event_type": "investor_day",
+    "start_date": "2025-12-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/64803/000006480325000082/cvs_ex99x1investorday2025.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.cvshealth.com/news/company-news/cvs-health-to-hold-investor-day-on-december-9-2025.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ELAN",
+    "company_name": "Elanco Animal Health Incorporated",
+    "event_type": "investor_day",
+    "start_date": "2025-12-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1739104/000110465925119486/tm2533048d1_ex99-1.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.elanco.com/us/newsroom/press-releases/elanco-investor-day-2025"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "AZTA",
+    "company_name": "Azenta, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2025-12-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/933974/000143774925037345/azta20251209_8k.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.azenta.com/investor-presentations"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ROIV",
+    "company_name": "Roivant Sciences Ltd",
+    "event_type": "investor_day",
+    "start_date": "2025-12-11",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.3,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.youtube.com/watch?v=yALd6ZKHwaA"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "SNN",
+    "company_name": "Smith & Nephew PLC",
+    "event_type": "capital_markets_day",
+    "start_date": "2025-12-11",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.92,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/845982/000165495425013739/a6170ksmithnephew.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.smith-nephew.com/en/who-we-are/investors"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BBIO",
+    "company_name": "BridgeBio Pharma Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-01-09",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investor.bridgebio.com/events-and-presentations/event-details/2026/Achondroplasia-Investor-Webinar-2026-V4ZvbpAoiI/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BKD",
+    "company_name": "Brookdale Senior Living Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-01-30",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.82,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://brookdaleinvestors.com/news/news-details/2026/Brookdale-Announces-2026-Investor-Day-and-Webcast/default.aspx"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "PHG",
+    "company_name": "Koninklijke Philips N.V.",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-02-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/313216/000162828026006653/a2025q4-philipsquarterlyen.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.philips.com/a-w/about/investor-relations/events/capital-markets-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "FDX",
+    "company_name": "FedEx Corp",
+    "event_type": "investor_day",
+    "start_date": "2026-02-12",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://newsroom.fedex.com/newsroom/global-english/fedex-corporation-hosts-2026-investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "PRCT",
+    "company_name": "PROCEPT BioRobotics Corporation",
+    "event_type": "investor_day",
+    "start_date": "2026-02-26",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1588978/000158897826000002/prct_q42025earningsrelease.htm"
+      },
+      {
+        "label": "Web hit",
+        "url": "https://ir.procept-biorobotics.com/static-files/b765f4fc-d474-4521-9f37-01c3e5480f67"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "BTSG",
+    "company_name": "Brightspring Health Services Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-03-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://brightspringhealth.gcs-web.com/events/event-details/2026-investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SRT.DE",
+    "company_name": "Sartorius AG",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-03-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.sartorius.com/en/company/investor-relations/capital-markets-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "4503.T",
+    "company_name": "Astellas Pharma Inc.",
+    "event_type": "rd_day",
+    "start_date": "2026-03-31",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.astellas.com/en/investors/ir-library"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "FDX",
+    "company_name": "FedEx Corp",
+    "event_type": "investor_day",
+    "start_date": "2026-04-08",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.82,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.fedex.com/news-and-events/investor-news/investor-news-details/2026/FedEx-Corporation-Hosts-2026-Investor-Day/default.aspx"
+      },
+      {
+        "label": "Press release",
+        "url": "https://newsroom.fedex.com/newsroom/global-english/fedex-corporation-hosts-2026-investor-day"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "TSM",
+    "company_name": "Taiwan Semiconductor Manufacturing Company Limited",
+    "event_type": "investor_day",
+    "start_date": "2026-04-25",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.3,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://finance.biggo.com/news/twse_major_2330_1150423_172745"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "MOH",
+    "company_name": "Molina Healthcare Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-05-08",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1179929/000143774926015766/moh20260507_8k.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.molinahealthcare.com/node/24601"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "SPGI",
+    "company_name": "S&P Global Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-05-12",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.82,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://finance.yahoo.com/markets/stocks/articles/p-global-announces-mobility-global-131600927.html"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investor.spglobal.com/news-releases/news-details/2026/SP-Global-Announces-Mobility-Global-to-Host-Investor-Day-on-May-12-2026/default.aspx"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "DXCM",
+    "company_name": "DexCom, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-05-14",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1093557/000109355726000085/dxcm-20260514.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.dexcom.com/news/news-details/2026/Dexcom-to-Host-Investor-Day-on-May-14-2026/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "FI",
+    "company_name": "Fiserv Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-05-14",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/798354/000079835426000006/fisv4q25earningsrelease.htm"
+      },
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/798354/000119312526224085/d127045ddefa14a.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TPL",
+    "company_name": "Texas Pacific Land Corp",
+    "event_type": "investor_day",
+    "start_date": "2026-05-18",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1811074/000181107426000040/tpl-20260518.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "DIA.MI",
+    "company_name": "DiaSorin S.p.A.",
+    "event_type": "investor_day",
+    "start_date": "2026-05-20",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://int.diasorin.com/en/investors/investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "AZN",
+    "company_name": "AstraZeneca PLC",
+    "event_type": "investor_day",
+    "start_date": "2026-05-21",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.75,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.astrazeneca.com/investor-relations/astrazeneca-investor-day.html"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "SPOT",
+    "company_name": "Spotify Technology SA",
+    "event_type": "investor_day",
+    "start_date": "2026-05-21",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://newsroom.spotify.com/2026-05-21/investor-day-recap/"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TWST",
+    "company_name": "Twist Bioscience Corporation",
+    "event_type": "investor_day",
+    "start_date": "2026-05-21",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investors.twistbioscience.com/node/17131/pdf"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "TEM",
+    "company_name": "Tempus AI, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-05-29",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.82,
+    "sources": [
+      {
+        "label": "Press release",
+        "url": "https://www.tempus.com/news/pr/tempus-to-host-inaugural-investor-day-on-may-29-2026"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "SECARE SS",
+    "company_name": "Swedencare AB",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-06-02",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.swedencare.com/en/news/capital-markets-day-2026"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "HNGE",
+    "company_name": "Hinge Health Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-06-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1673743/000162828026041886/hnge-202669ex991.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "AMZN",
+    "company_name": "Amazon.com, Inc.",
+    "event_type": "analyst_day",
+    "start_date": "2026-06-14",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.45,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.marketscreener.com/quote/stock/AMAZON-COM-INC-12864605/calendar"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "MRNA",
+    "company_name": "Moderna Inc",
+    "event_type": "rd_day",
+    "start_date": "2026-06-25",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.85,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000057/exhibit9912026q1pressrelea.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.modernatx.com/science-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ADI",
+    "company_name": "Analog Devices Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-07-12",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.3,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://s206.q4cdn.com/301352751/files/doc_downloads/2026/07/20260712_ADIG_Investor_Day_vFinal_8K.pdf"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "ADI",
+    "company_name": "Analog Devices Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-07-14",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.62,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://investor.resideo.com/events-and-presentations/event-details/2026/ADI-Global-Distribution-Investor-Day-2026-See-link-above-to-register-2026-wSV_yAmmC-/default.aspx"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "IDXX",
+    "company_name": "IDEXX Laboratories Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-08-13",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.88,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://ir.idexx.com/news-events/ir-calendar/detail/20260813-idexx-investor-day-2026"
+      },
+      {
+        "label": "Press release",
+        "url": "https://ir.idexx.com/news-events/press-releases/detail/409/idexx-laboratories-to-present-at-stifel-conference-and-announces-2026-investor-day"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "WAY",
+    "company_name": "Waystar Holding Corp",
+    "event_type": "investor_day",
+    "start_date": "2026-08-25",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "Press release",
+        "url": "https://www.prnewswire.com/news-releases/waystar-to-host-investor-day-at-waystar-true-north-conference-on-august-25-2026-302815048.html"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.waystar.com/news-events/events"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.waystar.com/investor-relations"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "LH",
+    "company_name": "Labcorp Holdings Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-09-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/920148/000092014826000185/formpr081726ex991investord.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.labcorp.com/events/event-details/labcorp-holdings-inc-2026-investor-day"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "OMDA",
+    "company_name": "Omada Health, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-09-10",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1611115/000162828026054266/q2fy26pressrelease.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.omadahealth.com/events/event-details/omada-health-investor-day-2026"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "OSCR",
+    "company_name": "Oscar Health Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-09-16",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1568651/000156865126000074/oscr-20260916.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "NVST",
+    "company_name": "Envista Holdings Corporation",
+    "event_type": "investor_day",
+    "start_date": "2026-09-17",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1757073/000175707326000078/nvst-20260917.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://investors.envistaco.com/2026-07-28-Envista-to-Host-Investor-Day-on-September-17%2C-2026"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "NVO",
+    "company_name": "Novo Nordisk A/S",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-09-21",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/353278/000035327826000006/caq42025.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://www.novonordisk.com/investors/financial-results.html"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CRL",
+    "company_name": "Charles River Lbrtrs ntrntl Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-09-24",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1100682/000110068226000142/crlinvestorday2026pressr.htm"
+      },
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1100682/000110068226000142/crl-20260924.htm"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "CI",
+    "company_name": "Cigna Group",
+    "event_type": "investor_day",
+    "start_date": "2026-09-30",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.92,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.thecignagroupinvestorday.com"
+      },
+      {
+        "label": "Press release",
+        "url": "https://www.prnewswire.com/news-releases/the-cigna-group-to-host-investor-day-on-september-30-302872999.html"
+      },
+      {
+        "label": "Web hit",
+        "url": "https://www.stocktitan.net/news/CI/the-cigna-group-to-host-investor-day-in-new-york-city-on-march-b8ctqzmo0ebo.html"
+      },
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1739940/000114036126038056/ef20082869_8k.htm"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "LONN CH",
+    "company_name": "Lonza Group AG",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-10-14",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.9,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.lonza.com/news/2026-10-14-06-30"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "VEEV",
+    "company_name": "Veeva Systems Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-10-16",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.75,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.stocktitan.net/news/VEEV/veeva-to-host-virtual-investor-day-on-october-16-pb2v583nfegd.html"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "AUNA",
+    "company_name": "Auna SA",
+    "event_type": "investor_day",
+    "start_date": "2026-10-22",
+    "end_date": null,
+    "status": "historical",
+    "confidence": 0.95,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1799207/000095010326015991/dp255384_ex9901.htm"
+      },
+      {
+        "label": "IR page",
+        "url": "https://aunainvestors.com/English/news-and-presentations/news-releases/news-details/2026/Auna-to-Host-2026-Investor-Day-on-October-22-2026/default.aspx"
+      }
+    ],
+    "origin": "backfill"
+  },
+  {
+    "ticker": "ZTS",
+    "company_name": "Zoetis Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-10-22",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.55,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.stocktitan.net/news/ZTS/zoetis-holds-investor-day-and-presents-strategy-to-shape-animal-qtwjf1lunao7.html"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "ERF FP",
+    "company_name": "Eurofins Scientific SE",
+    "event_type": "investor_day",
+    "start_date": "2026-10-23",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.0,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.eurofins.com/en/investors/calendar"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "SPGI",
+    "company_name": "S&P Global Inc",
+    "event_type": "investor_day",
+    "start_date": "2026-10-27",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.72,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://investor.spglobal.com/investor-presentations/default.aspx"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "VEEV",
+    "company_name": "Veeva Systems Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-11-05",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.88,
+    "sources": [
+      {
+        "label": "Press release",
+        "url": "https://www.stocktitan.net/news/VEEV/veeva-to-host-virtual-investor-day-on-november-5-8iij6lwplvua.html"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.veeva.com/events/event-details/2026/Veeva-Systems-2026-Investor-Day-2026-ozGeDJO3l7/default.aspx"
+      },
+      {
+        "label": "IR page",
+        "url": "https://ir.veeva.com/overview/default.aspx"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "ERF FP",
+    "company_name": "Eurofins Scientific SE",
+    "event_type": "investor_day",
+    "start_date": "2026-11-11",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.78,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://www.eurofins.com/en/investors/calendar"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "TEVA",
+    "company_name": "Teva Pharmaceutical Industries Ltd",
+    "event_type": "rd_day",
+    "start_date": "2026-11-11",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.55,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.stocktitan.net/news/TEVA"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "CP",
+    "company_name": "Canadian Pacific Kansas City Ltd",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-11-12",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.5,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.boerse-stuttgart.de/en/products/equities/stuttgart/a1dahh-brenntag"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "MRNA",
+    "company_name": "Moderna Inc",
+    "event_type": "analyst_day",
+    "start_date": "2026-11-12",
+    "end_date": null,
+    "status": "tentative",
+    "confidence": 0.88,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000194/exhibit9912026q3pressrelea.htm"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "BLCO",
+    "company_name": "Bausch + Lomb Corporation",
+    "event_type": "investor_day",
+    "start_date": "2026-11-13",
+    "end_date": null,
+    "status": "tentative",
+    "confidence": 0.88,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://ir.bausch.com/press-releases/bausch-lomb-hold-investor-day-nov-13"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "COH.AX",
+    "company_name": "Cochlear Limited",
+    "event_type": "capital_markets_day",
+    "start_date": "2026-11-13",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.88,
+    "sources": [
+      {
+        "label": "IR page",
+        "url": "https://coh.live.irmau.com/irm/pdf/1d7ae0fc-b5be-4d0c-9a79-d4378d4e9bc6/Platform/ListPage/Cochlear-to-host-Capital-Markets-Day.pdf"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "RVTY",
+    "company_name": "Revvity, Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-11-13",
+    "end_date": null,
+    "status": "day_of",
+    "confidence": 0.93,
+    "sources": [
+      {
+        "label": "8-K",
+        "url": "https://www.sec.gov/Archives/edgar/data/31791/000162828026073578/a2026investordaypressrelea.htm"
+      }
+    ],
+    "origin": "live"
+  },
+  {
+    "ticker": "ZTS",
+    "company_name": "Zoetis Inc.",
+    "event_type": "investor_day",
+    "start_date": "2026-11-13",
+    "end_date": null,
+    "status": "discovered",
+    "confidence": 0.75,
+    "sources": [
+      {
+        "label": "Web hit",
+        "url": "https://www.stocktitan.net/news/ZTS/zoetis-holds-investor-day-and-presents-strategy-to-shape-animal-qtwjf1lunao7.html"
+      }
+    ],
+    "origin": "live"
+  }
+]
