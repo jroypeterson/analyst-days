@@ -130,8 +130,21 @@ def upsert_event(
     candidate: CandidateEvent,
     confidence_threshold: Optional[float] = None,
     today_iso: Optional[str] = None,
+    historical: bool = False,
 ) -> tuple[int, str, bool]:
     """Insert or merge a candidate event.
+
+    `historical=True` is the past-events mode (Phase 4 backfill, 2026-11-14). It
+    replaces `confirmed` with `historical` as the only status a row can be promoted
+    to, and inverts the date test: the row must be strictly BEFORE `today_iso`. The
+    other three bars are the same ones `confirmed` needs -- precise date, grounded
+    in raw source text, confidence at the per-type threshold, authoritative source
+    for a pushable type. A row that misses any of them is stored `discovered`
+    (never `tentative`: that status is what the Friday radar lists). In this mode a
+    row can never come out `confirmed`, so nothing it writes is a fan-out candidate
+    (`_fanout_candidates` selects the confirmed family AND `start_date >= today`),
+    and an existing row in any other state than discovered / tentative is left as
+    it is. Default False: the forward-looking behaviour, unchanged.
 
     `confidence_threshold` defaults to the per-event-type threshold from
     EVENT_TYPE_THRESHOLDS; pass an explicit value to override (mostly useful
@@ -179,7 +192,18 @@ def upsert_event(
         # confidence clears the per-type bar AND the date is precise AND grounded
         # in raw source text (wrong-date guard) AND, for pushable types, backed by
         # an authoritative source (weak-source guard).
-        if (
+        if historical:
+            if (
+                existing["status"] in ("discovered", "tentative")
+                and not candidate.date_imprecise
+                and candidate.start_date
+                and candidate.start_date < today
+                and new_confidence >= threshold
+                and new_grounded
+                and (not requires_auth or has_auth)
+            ):
+                new_status = "historical"
+        elif (
             existing["status"] in ("discovered", "tentative")
             and not candidate.date_imprecise
             and candidate.start_date
@@ -217,7 +241,18 @@ def upsert_event(
     else:
         precise = not candidate.date_imprecise and bool(candidate.start_date)
         auth_ok = (not requires_auth) or cand_auth
-        if not precise:
+        if historical:
+            if (
+                precise
+                and candidate.start_date < today
+                and candidate.confidence >= threshold
+                and candidate.date_grounded
+                and auth_ok
+            ):
+                status = "historical"
+            else:
+                status = "discovered"
+        elif not precise:
             status = "tentative"
         elif (
             candidate.confidence >= threshold

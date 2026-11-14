@@ -113,12 +113,13 @@ def read_events(stdout: str) -> tuple[str, dict, list[str], int]:
     return final, usage, errors, searches
 
 
-def run_batch(companies: list[tuple[str, str]], today: date, *, runner=subprocess.run,
-              workdir: str | None = None) -> tuple[dict, dict]:
-    """({ticker: Answer|None}, usage) for one Codex call.
+def ask_codex(prompt: str, *, runner=subprocess.run, workdir: str | None = None) -> tuple[str, dict]:
+    """(final message, usage) for one `codex --search exec` call with the prompt on stdin.
 
-    Raises QuotaExhausted, SearchUnavailable (both stop the pass) or BatchFailed (retried once)."""
-    prompt = web_answers.batch_prompt(companies, today)
+    Raises QuotaExhausted, SearchUnavailable (both mean: stop asking) or BatchFailed
+    (retry once). Shared by the weekly pass and the history backfill (`src/backfill_web.py`)
+    so both refuse an answer that has no web search behind it.
+    """
     try:
         p = runner(
             [_codex_bin(), "--search", "exec", "--skip-git-repo-check", "--ephemeral",
@@ -138,6 +139,16 @@ def run_batch(companies: list[tuple[str, str]], today: date, *, runner=subproces
         raise SearchUnavailable(
             "Codex replied without running a web search (is the web-search tool installed? "
             "stderr: %s)" % ((p.stderr or "").strip().splitlines() or ["-"])[-1][:200])
+    return final, usage
+
+
+def run_batch(companies: list[tuple[str, str]], today: date, *, runner=subprocess.run,
+              workdir: str | None = None) -> tuple[dict, dict]:
+    """({ticker: Answer|None}, usage) for one Codex call.
+
+    Raises QuotaExhausted, SearchUnavailable (both stop the pass) or BatchFailed (retried once)."""
+    final, usage = ask_codex(web_answers.batch_prompt(companies, today), runner=runner,
+                             workdir=workdir)
     try:
         answers = web_answers.parse_answers(final, [t for t, _ in companies])
     except web_answers.AnswerParseError as e:

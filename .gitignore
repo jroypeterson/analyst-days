@@ -46,3 +46,9 @@ codex_feedback/
 # #439 analyst-day listing: fetched CI DB snapshot + the generated page (published as a private Artifact, never committed)
 data/ci_snapshot/
 exports/analyst_day_listing.html
+
+# Historical backfill working files (raw EDGAR hits, model replies, the backfill DB).
+# The published result is exports/backfill_last2yr.json + backfill_summary.md.
+data/backfill_*
+backfill-run-*
+backfill-prompt-*

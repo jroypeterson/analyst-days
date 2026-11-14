@@ -229,12 +229,100 @@ Never include prose outside the JSON. Never wrap the JSON in markdown fences.
 """
 
 
+# --------------------------------------------------------------------------
+# Past-events mode (Phase 4 backfill, 2026-11-14)
+#
+# A SEPARATE system prompt, not a flag inside the one above: the forward prompt's
+# rule 1 ("Future events only ... Exclude past events entirely") and its Example 3
+# are the opposite instruction, and the weekly run's prompt must stay bit-stable
+# for its cache and its behaviour. `classify_ticker(past_events=True)` selects
+# this one; the default is unchanged. Only `src/backfill.py` passes it.
+# --------------------------------------------------------------------------
+
+# How much of each EDGAR excerpt the classifier is shown. An excerpt is up to three
+# trigger windows (`scan_edgar_fts.cut_excerpt`) and the date-grounding gate reads all
+# of it. The weekly bundle shows the first 1,500 characters, unchanged. 62 of the 454
+# filings in the first backfill were longer (max 5,120), and a date past the cut
+# cannot be extracted, so past-events mode shows the whole excerpt.
+WEEKLY_EXCERPT_CHARS = 1500
+PAST_EXCERPT_CHARS = 6000
+
+PAST_EVENTS_SYSTEM_PROMPT = """You are an analyst-day HISTORY classifier for an equity research workflow.
+
+Your job: read the bundled SEC filing excerpts (8-K / 6-K) for ONE company and extract every company-hosted event of the types below that the excerpts give evidence for, WHETHER IT HAS ALREADY HAPPENED OR NOT. This is a historical backfill: a past event is exactly what is wanted. The `Today's date:` line is context only; do NOT exclude an event for being in the past.
+
+- **Investor Day** (`investor_day`) - investor presentation hosted by the company, typically a half or full day
+- **Analyst Day** (`analyst_day`) - similar; "Investor and Analyst Day" counts
+- **R&D Day** (`rd_day`) - research-and-development / pipeline / innovation / science day hosted by the company
+- **Capital Markets Day** (`capital_markets_day`) - international (often European) term for investor day
+
+Never output `conference` in this mode.
+
+## Hard rules
+
+1. **Company-hosted marquee days only.** Do NOT extract: quarterly earnings calls; a "business update" or "strategic update" that is only a press release or a conference call; appearances at a bank's or a society's conference; annual shareholder meetings; product launches; another company's event. If the excerpt only uses a trigger phrase in passing ("provides business update") with no hosted investor event, return nothing for it.
+2. **Past and future both count.** An excerpt announcing a day ahead of time ("will host its Investor Day on March 5, 2025") and one reporting it afterwards ("at its Investor Day held on March 5, 2025") are both evidence of the same event.
+3. **One event per output item.** Several excerpts about the same event (announcement, reminder, the release issued on the day, a later recap) are ONE event. Prefer as `source_url` the excerpt that states the full date most explicitly. Distinct events (e.g. the 2025 and the 2026 Investor Day) are separate items.
+4. **Date precision, and where the year comes from.**
+   - Precise: the excerpt states the day and month of the event. Fill `start_date` as ISO `YYYY-MM-DD`, `date_imprecise=false`. If the excerpt gives no year for the event, infer it from that excerpt's `filed:` date: an announced ("will host") event is the first such date on or after the filing date; a reported ("held", "hosted today") event is the latest such date on or before it. "Today" in a release means the filing date only if the release is clearly dated that day.
+   - Imprecise: only a quarter, season, month or "later this year" is given -> `start_date` null, `date_imprecise=true`, copy the phrase into `imprecise_hint`.
+   - Never guess a day. Never use the filing date as the event date unless the excerpt says the event is that day.
+5. **Multi-day.** A range ("September 12-13, 2025") -> `start_date` first day, `end_date` last day, `multi_day=true`.
+6. **Postponed or cancelled.** If any excerpt says the event was postponed, rescheduled or cancelled, report only the date it was actually (re)scheduled for; if cancelled outright, do not report it.
+7. **Confidence.**
+   - 0.85-0.95: the excerpt explicitly names the company's own investor/analyst/R&D/capital markets day AND states its day and month
+   - 0.70-0.85: clearly this kind of event, but the naming is looser ("investor event", "innovation day", "strategy update for investors") or the date is only implied
+   - 0.50-0.70: ambiguous whether it is a hosted investor day at all
+   - <0.50: weak; still report so it can be reviewed
+8. **No hallucinated events.** If nothing qualifies return an empty `events` array.
+9. **Source provenance.** `source_url` must be copied verbatim from a `url:` line of the bundle, and `source_type` is `8K` (use `8K` for 6-K excerpts too: it means "an SEC filing").
+
+## Examples
+
+### A - reported after the fact (this is the case the weekly classifier discards)
+
+Input excerpt (filed: 2025-12-01):
+> Beta Corp held its Annual Investor Day on November 18, 2025, where management discussed the long-term strategy and financial framework.
+
+Output:
+{"events": [{"event_type": "investor_day", "start_date": "2025-11-18", "end_date": null, "multi_day": false, "date_imprecise": false, "imprecise_hint": null, "confidence": 0.92, "source_url": "<the url line of that excerpt>", "source_type": "8K", "rationale": "8-K filed 2025-12-01 reports Beta's Annual Investor Day was held on November 18, 2025."}]}
+
+### B - announced in an earnings release, year inferred from the filing date
+
+Input excerpt (filed: 2025-02-06, item 2.02,9.01):
+> ... The Company will host an Investor Day on Thursday, March 20 in New York City ...
+
+Output: one `investor_day`, `start_date` "2025-03-20", confidence about 0.88, rationale noting the year comes from the filing date.
+
+### C - trigger phrase, no hosted event
+
+Input excerpt (filed: 2025-05-08):
+> Gamma Therapeutics Reports First Quarter 2025 Financial Results and Provides Business Update
+
+Output:
+{"events": []}
+
+### D - two filings, one event
+
+Input excerpts:
+- filed 2025-04-12: "will host its 2025 Capital Markets Day on Wednesday, June 4, 2025"
+- filed 2025-06-04: "At its Capital Markets Day today, Delta plc presented ..."
+
+Output: ONE `capital_markets_day`, `start_date` "2025-06-04", citing the first excerpt's url.
+
+## Output
+
+Return ONLY a JSON object matching the ExtractionResult schema: `events`, an array of ExtractedEvent objects (may be empty). `rationale` is one sentence saying which filing shows the event and how the date was derived. Never include prose outside the JSON. Never wrap the JSON in markdown fences.
+"""
+
+
 def _bundle_user_message(
     ticker: str,
     company_name: str,
     edgar_hits: list[dict],
     tavily_hits: list[dict],
     today_iso: str,
+    excerpt_chars: int = WEEKLY_EXCERPT_CHARS,
 ) -> str:
     parts: list[str] = [
         f"Today's date: {today_iso}\n",
@@ -249,7 +337,7 @@ def _bundle_user_message(
                 f"  filed: {h['filing_date']}\n"
                 f"  item: {h['item']}\n"
                 f"  url: {h['url']}\n"
-                f"  excerpt: {h['excerpt'][:1500]}\n"
+                f"  excerpt: {h['excerpt'][:excerpt_chars]}\n"
             )
     else:
         parts.append("(none)\n")
@@ -276,15 +364,21 @@ def classify_ticker(
     edgar_hits: list[dict],
     tavily_hits: list[dict],
     today_iso: Optional[str] = None,
+    past_events: bool = False,
 ) -> ExtractionResult:
     """Bundle hits for one ticker and run the structured-output extractor.
 
     `today_iso` is injected into the user message so the classifier can
     filter past events. Defaults to today.
+
+    `past_events=True` swaps in PAST_EVENTS_SYSTEM_PROMPT, which keeps events
+    that have already happened (the Phase 4 backfill). The default, False, is
+    the weekly forward-looking behaviour, unchanged.
     """
     today_iso = today_iso or date.today().isoformat()
     user_content = _bundle_user_message(
-        ticker, company_name, edgar_hits, tavily_hits, today_iso
+        ticker, company_name, edgar_hits, tavily_hits, today_iso,
+        excerpt_chars=PAST_EXCERPT_CHARS if past_events else WEEKLY_EXCERPT_CHARS,
     )
 
     # Stable system block — cache_control on the system text holds the prompt
@@ -294,7 +388,7 @@ def classify_ticker(
         max_tokens=4096,
         system=[{
             "type": "text",
-            "text": SYSTEM_PROMPT,
+            "text": PAST_EVENTS_SYSTEM_PROMPT if past_events else SYSTEM_PROMPT,
             "cache_control": {"type": "ephemeral"},
         }],
         messages=[{"role": "user", "content": user_content}],

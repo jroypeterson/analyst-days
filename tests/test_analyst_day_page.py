@@ -473,3 +473,50 @@ def test_a_deliberate_bootstrap_is_announced_amber_not_red(tmp_path, monkeypatch
     conn.close()
     older = page.build(page.load_events(path), uni, _prov(), TODAY, bootstrapped_at=page.load_bootstrapped_at(path))
     assert "reset" in _banners(older)
+
+
+# -- fetch_snapshot: a failed download must not cost the copy already on disk -------------
+
+def _fake_gh(download):
+    arts = {"artifacts": [{"id": 1, "name": page.ARTIFACT_NAME, "expired": False,
+                           "created_at": "2026-11-13T21:14:00Z",
+                           "workflow_run": {"id": 7, "head_branch": "master"}}]}
+
+    def gh(args):
+        if args[0] == "api":
+            return json.dumps(arts)
+        if args[:2] == ["run", "view"]:
+            return json.dumps({"conclusion": "success", "event": "schedule"})
+        if args[:2] == ["run", "download"]:
+            return download(Path(args[args.index("-D") + 1]))
+        raise AssertionError(args)
+    return gh
+
+
+def test_a_failed_download_leaves_the_old_snapshot_in_place(tmp_path):
+    """2026-11-14: the old copy was unlinked first, the download hit HTTP 401, and the only
+    local copy of the live database was gone."""
+    (tmp_path / "events.db").write_bytes(b"OLD")
+
+    def fail(dest):
+        raise RuntimeError("HTTP 401: Requires authentication")
+
+    with pytest.raises(RuntimeError, match="401"):
+        page.fetch_snapshot(tmp_path, gh=_fake_gh(fail))
+    assert (tmp_path / "events.db").read_bytes() == b"OLD"
+    assert [p.name for p in tmp_path.iterdir()] == ["events.db"]      # no leftover temp dir
+
+
+def test_a_download_that_delivers_nothing_also_leaves_it_in_place(tmp_path):
+    (tmp_path / "events.db").write_bytes(b"OLD")
+    with pytest.raises(SystemExit, match="missing"):
+        page.fetch_snapshot(tmp_path, gh=_fake_gh(lambda dest: ""))
+    assert (tmp_path / "events.db").read_bytes() == b"OLD"
+
+
+def test_a_good_download_replaces_the_snapshot_and_writes_provenance(tmp_path):
+    (tmp_path / "events.db").write_bytes(b"OLD")
+    prov = page.fetch_snapshot(tmp_path, gh=_fake_gh(
+        lambda dest: (dest / "events.db").write_bytes(b"NEW") and ""))
+    assert (tmp_path / "events.db").read_bytes() == b"NEW" and prov["run_id"] == 7
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["events.db", page.PROVENANCE_NAME]

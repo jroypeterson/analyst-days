@@ -253,7 +253,7 @@ verify auth in isolation.
 
 - **Current (2026-11-13)** — the `analyst_days` scope of Coverage Manager's `exports/lists.json`: Portfolio + Researching + Ready to Buy + **every Core=Y name** + Following for Interest. 368 names on 2026-11-13; it moves with the lists, no edit here. See "The scan set" below.
 - **Not built** — the full coverage universe (~1,360).
-- **Phase 4** — 10-year historical backfill: sweep all 8-Ks per ticker for past investor/analyst/R&D days, populate as `status=historical`.
+- **History** — a bounded 2-year backfill ran 2026-11-14 (see "Historical backfill" below). The 10-year version is not built.
 
 ## The scan set — read CM's scope by name, never compose it here (2026-11-13)
 
@@ -367,6 +367,39 @@ plus 2 clean controls, Claude Haiku 5.5 and gpt-5-mini 10 of 10 at USD 39-60 a m
 being scanned when its event was announced, so run once with a long window (e.g. 90) and
 `dry_run=true`, read the output, then run it live. Fan-out floors on `start_date >= today`,
 so past events do not post.
+
+## Historical backfill — the last 2 years (2026-11-14)
+
+Events HELD 2024-11-14 to 2026-11-14, in their own database `data/backfill_2yr.db` (gitignored,
+never the production DB, never under GitHub Actions). Published as `exports/backfill_last2yr.json`
+(backfill rows merged with the live system's, live preferred) and `backfill_summary.md`.
+
+```
+python -m src.backfill     --db data/backfill_2yr.db --event-start 2024-11-14 --event-end 2026-11-14 --filings-from 2024-09-01
+python -m src.backfill_web --db data/backfill_2yr.db --event-start 2024-11-14 --event-end 2026-11-14
+python scripts/export_backfill.py --event-start 2024-11-14 --event-end 2026-11-14 --fetch
+```
+
+- **Two passes.** `src/backfill.py` sweeps EDGAR month by month and classifies in a separate
+  past-events prompt (`classify_ticker(past_events=True)`). `src/backfill_web.py` asks Codex (JP's
+  ChatGPT subscription) for every such day each company held, 8 companies a call, for what EDGAR
+  cannot see: unfiled announcements and the 58 names with no SEC registration.
+- ⛑ **In the web pass the model finds and code decides.** A row is `historical` only when the cited
+  page was read, states the date, names the event (the weekly trigger phrases) and the company, and
+  is the company's own site, an SEC filing or a press-release wire. A news article or transcript
+  site is a lead (`discovered`), never proof. There is no classifier call and no model confidence:
+  0.90 when the checks pass, 0.70 otherwise.
+- **`historical` is a terminal, silent status.** `upsert_event(historical=True)` can produce only
+  `historical` or `discovered`; neither is selected by fan-out, reminders, digests or the events feed.
+  Both modules import no output channel (asserted on a fresh interpreter).
+- **One marquee day per company per date.** The web pass reuses the type of a row already stored
+  for that day, and the export drops a backfill row when the live DB holds the same day under
+  another type.
+- **Known gaps:** events a company calls something the trigger phrases do not cover ("Investor
+  Conference" at Humana and UnitedHealth, Roche's "Pharma Day") are held as leads; a multi-day
+  event can be stored once per day; today's scan set is applied to the past.
+- `fetch_snapshot` used to delete the old local snapshot before downloading; a failed download on
+  2026-11-14 cost the only local copy. It now downloads beside it and swaps.
 
 ## Event lifecycle (state machine)
 

@@ -140,11 +140,20 @@ def fetch_snapshot(dest_dir: Path = SNAPSHOT_DIR, gh: Callable[[list[str]], str]
     run_id = int(chosen["workflow_run"]["id"])
     dest_dir.mkdir(parents=True, exist_ok=True)
     db = dest_dir / "events.db"
-    if db.exists():
-        db.unlink()
-    gh(["run", "download", str(run_id), "-R", GH_REPO, "-n", ARTIFACT_NAME, "-D", str(dest_dir)])
-    if not db.exists():
-        raise SystemExit(f"gh run download reported success but {db} is missing")
+    # Download beside the old copy and swap only once the new one is on disk. This used
+    # to unlink the old snapshot FIRST: on 2026-11-14 the download then failed (an
+    # invalid gh token), and the only local copy of the live database was gone.
+    import shutil
+    import tempfile
+    with tempfile.TemporaryDirectory(dir=dest_dir, prefix="fetch-") as tmp:
+        gh(["run", "download", str(run_id), "-R", GH_REPO, "-n", ARTIFACT_NAME, "-D", tmp])
+        got = Path(tmp) / "events.db"
+        if not got.exists():
+            raise SystemExit(f"gh run download reported success but {got.name} is missing")
+        try:
+            got.replace(db)
+        except PermissionError:           # Dropbox briefly locks the old file
+            shutil.copyfile(got, db)
     now = now or datetime.now(timezone.utc)
     prov = {
         "artifact_id": chosen["id"],

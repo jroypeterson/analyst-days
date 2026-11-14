@@ -237,3 +237,25 @@ def grounded_in_any(
 ) -> bool:
     """True if the event start date is grounded in ANY of the supplied texts."""
     return any(event_date_grounded(start_date, t) for t in texts)
+
+
+def grounded_in_cited_source(
+    start_date: Optional[str],
+    date_imprecise: bool,
+    source_url: Optional[str],
+    text_by_url: dict[str, str],
+) -> bool:
+    """The gate as discovery applies it to one classifier row: ground against the
+    RAW text of the source the classifier CITED; only if that URL is not one we
+    fetched, fall back to the union of the texts in the same bundle.
+
+    Same rule as `cli._event_grounded` (which predates this and is left alone);
+    it lives here so the backfill applies the production gate without importing
+    `src.cli`, and with it every output channel.
+    """
+    if date_imprecise or not start_date:
+        return False
+    cited = text_by_url.get(source_url or "")
+    if cited is not None:
+        return event_date_grounded(start_date, cited)
+    return grounded_in_any(start_date, list(text_by_url.values()))
