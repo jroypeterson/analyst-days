@@ -1,33 +1,15 @@
 {
   "schema_version": 1,
   "source": "analyst-days",
-  "generated_at": "2026-11-13T21:14:17Z",
+  "generated_at": "2026-11-16T21:59:24Z",
   "window": {
-    "start": "2026-11-13",
-    "end": "2027-01-12"
+    "start": "2026-11-16",
+    "end": "2027-01-15"
   },
   "counts": {
-    "events": 70
+    "events": 74
   },
   "events": [
-    {
-      "ticker": "COH.AX",
-      "company_name": "Cochlear Limited",
-      "event_type": "capital_markets_day",
-      "start_date": "2026-11-13",
-      "end_date": null,
-      "multi_day": false,
-      "status": "day_of"
-    },
-    {
-      "ticker": "RVTY",
-      "company_name": "Revvity, Inc.",
-      "event_type": "investor_day",
-      "start_date": "2026-11-13",
-      "end_date": null,
-      "multi_day": false,
-      "status": "day_of"
-    },
     {
       "ticker": "CNMD",
       "company_name": "CONMED Corporation",
@@ -209,8 +191,26 @@
       "status": "confirmed"
     },
     {
+      "ticker": "ROIV",
+      "company_name": "Roivant Sciences Ltd",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
       "ticker": "SRRK",
       "company_name": "Scholar Rock Holding Corp",
+      "event_type": "conference",
+      "start_date": "2026-11-17",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "TAK",
+      "company_name": "Takeda Pharmaceutical Co Ltd",
       "event_type": "conference",
       "start_date": "2026-11-17",
       "end_date": null,
@@ -569,6 +569,15 @@
       "status": "reminded_30"
     },
     {
+      "ticker": "JNJ",
+      "company_name": "Johnson & Johnson",
+      "event_type": "investor_day",
+      "start_date": "2026-12-08",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
       "ticker": "ROIV",
       "company_name": "Roivant Sciences Ltd",
       "event_type": "investor_day",
@@ -590,6 +599,15 @@
       "ticker": "HUM",
       "company_name": "Humana Inc",
       "event_type": "investor_day",
+      "start_date": "2026-12-10",
+      "end_date": null,
+      "multi_day": false,
+      "status": "reminded_30"
+    },
+    {
+      "ticker": "TAK",
+      "company_name": "Takeda Pharmaceutical Co Ltd",
+      "event_type": "capital_markets_day",
       "start_date": "2026-12-10",
       "end_date": null,
       "multi_day": false,
@@ -636,6 +654,24 @@
       "company_name": "GSK plc",
       "event_type": "conference",
       "start_date": "2027-01-12",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SOON",
+      "company_name": "Sonova Holding AG",
+      "event_type": "conference",
+      "start_date": "2027-01-14",
+      "end_date": null,
+      "multi_day": false,
+      "status": "confirmed"
+    },
+    {
+      "ticker": "SOON",
+      "company_name": "Sonova Holding AG",
+      "event_type": "conference",
+      "start_date": "2027-01-15",
       "end_date": null,
       "multi_day": false,
       "status": "confirmed"
