@@ -1,0 +1,199 @@
+{
+  "conference": "Care at Home 2026",
+  "series": "care-at-home",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "CMS (Centers for Medicare & Medicaid Services) said its enrollment freeze has blocked about 250 new home health agencies from Medicare.",
+      "CMS has suspended $1.4 billion in payments to hospice and home health providers, mostly in California.",
+      "CMS extended the freeze six months after the meeting but narrowed it so established operators can expand.",
+      "The final 2027 home health rule raises Medicare payments about 2.4%, the first increase after four years of cuts."
+    ],
+    "items": [
+      {
+        "title": "Medicare enrollment freeze on new home health agencies and hospices: CMS update at the opening keynote",
+        "tickers": [
+          "CHE",
+          "EHAB",
+          "ADUS",
+          "BTSG",
+          "PNTG",
+          "UNH"
+        ],
+        "when": "",
+        "lines": [
+          "About 250 home health agencies and 50 hospices blocked from Medicare enrollment since the May 2026 freeze, per CMS chief operating officer (COO) Kim Brandt.",
+          "Brandt said billing dropped sharply in some areas, especially California hospice; figures not reported.",
+          "Brandt credited the savings with extending the Medicare trust fund's life and with this year's more favorable rates; dollar savings not reported.",
+          "Alliance government affairs chief Denis Fleming warned of rural access gaps from the nationwide freeze; figures not reported."
+        ],
+        "url": "https://homehealthcarenews.com/2026/10/cms-coo-moratorium-has-blocked-250-home-health-agencies-from-medicare-enrollment/"
+      },
+      {
+        "title": "CMS payment suspensions against hospice and home health providers",
+        "tickers": [
+          "CHE"
+        ],
+        "when": "",
+        "lines": [
+          "CMS has suspended payments to 899 hospice and home health providers, 812 of them in California.",
+          "$1.4 billion in total payments suspended to date, per Brandt.",
+          "Brandt conceded some good providers get caught; the share of legitimate providers affected was not reported.",
+          "Brandt said the decision to impose the freezes took CMS more than 1 year."
+        ],
+        "url": "https://hospicenews.com/2026/10/29/cms-coo-hospice-home-health-moratoria-a-successful-approach/"
+      },
+      {
+        "title": "Freeze extended and narrowed after the meeting (CMS)",
+        "tickers": [
+          "CHE",
+          "EHAB",
+          "ADUS",
+          "BTSG",
+          "PNTG",
+          "UNH"
+        ],
+        "when": "",
+        "lines": [
+          "The original 6-month freeze was due to expire on Nov. 13, 2026.",
+          "CMS extended the freeze by 6 months, modified so established providers can open new locations and expand services.",
+          "Alliance CEO Jennifer Sheets backed the narrower rules and urged targeted, data-driven enforcement over the next 6 months.",
+          "This loosens growth limits for established chains; the impact on specific companies was not reported."
+        ],
+        "url": "https://homehealthcarenews.com/2026/11/a-narrower-freeze-what-changed-in-cms-medicare-home-health-moratorium/"
+      },
+      {
+        "title": "Final 2027 Medicare home health payment rule (CMS)",
+        "tickers": [
+          "EHAB",
+          "ADUS",
+          "BTSG",
+          "PNTG",
+          "UNH"
+        ],
+        "when": "",
+        "lines": [
+          "Total Medicare home health payments up about 2.4%, or $415 million, versus 2026; finalized Nov. 4, 2026.",
+          "The increase is a 2.1% base payment update ($365 million) plus 0.3% from an updated high-cost outlier threshold ($50 million).",
+          "Agencies that fail to report quality data get only a 0.1% update (2.1% minus 2 percentage points).",
+          "Most payment and quality changes take effect Jan. 1, 2027."
+        ],
+        "url": "https://www.cms.gov/newsroom/press-releases/cms-finalizes-broad-medicare-integrity-changes-home-health-final-rule-expected-save-taxpayers-tens"
+      },
+      {
+        "title": "2027 home health rule: temporary cut, reporting deadline and palliative care (CMS)",
+        "tickers": [
+          "EHAB",
+          "ADUS",
+          "BTSG",
+          "PNTG",
+          "UNH"
+        ],
+        "when": "",
+        "lines": [
+          "A 3.0% temporary cut to the 30-day payment rate recovers about $500 million of $4.9 billion CMS considers past overpayments; no new permanent cut.",
+          "Agencies now have 45 days to submit and correct patient assessment data (the Outcome and Assessment Information Set, OASIS).",
+          "CMS clarified that palliative care can be delivered under the existing home health benefit, with no separate payment; figures not reported.",
+          "New provider enrollment and payment recovery rules apply across Medicare; savings estimated at about $82 million a year."
+        ],
+        "url": "https://www.leadingageny.org/providers/home-and-community-based-services/chha/cms-finalizes-cy2027-home-health-payment-rule-and-medicare-program-integrity-changes/"
+      },
+      {
+        "title": "VITAS Healthcare (Chemed) on the opening panel and joining the Alliance board",
+        "tickers": [
+          "CHE"
+        ],
+        "when": "",
+        "lines": [
+          "VITAS CEO Joel Wherley warned that suspicion of fraud makes hospice harder to discuss with families; figures not reported.",
+          "Wherley was named to the Alliance board on Nov. 5, 2026.",
+          "VITAS executive Patty Husted received the Alliance Lifetime Achievement Award in 2026.",
+          "No VITAS volume, rate or guidance figures were reported at the meeting."
+        ],
+        "url": "https://www.mcknightshomecare.com/news/responding-to-complaints-of-fraud-overreach-official-says-cms-aims-to-strike-a-balance/"
+      },
+      {
+        "title": "Meeting footprint, AI focus and awards (Alliance; Aveanna Healthcare)",
+        "tickers": [
+          "AVAH"
+        ],
+        "when": "",
+        "lines": [
+          "More than 1,400 attendees and exhibitors, versus more than 1,700 at the first Alliance meeting in New Orleans in 2025.",
+          "A pre-conference workshop on technology and artificial intelligence (AI) for executives ran Oct. 27-28; adoption figures not reported.",
+          "Aveanna Healthcare government affairs VP Teri Henning was named 2026 Advocate of the Year.",
+          "The next annual meeting is in Seattle, Oct. 19-22, 2027."
+        ],
+        "url": "https://allianceforcareathome.org/over-1400-industry-leaders-convene-for-the-national-alliance-for-care-at-home-annual-meeting-exposition-alliance-awards-presented/"
+      }
+    ],
+    "expert_minds": [
+      "Fraud enforcement and the enrollment freeze dominated the opening keynote: Kim Brandt (CMS), Denis Fleming and Jennifer Sheets (Alliance), Joel Wherley (VITAS).",
+      "Rural access gaps from a nationwide freeze, raised by Denis Fleming of the Alliance.",
+      "Using AI and technology in daily operations, per the Alliance meeting release and a pre-conference workshop for executives.",
+      "Home health, hospice, palliative, Medicaid home-based and personal care working as one community, with more clinical and operational content planned for 2027, per Alliance CEO Jennifer Sheets."
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "Medicare enrollment freeze",
+      "CMS payment suspensions",
+      "California hospice fraud",
+      "2027 home health payment rule",
+      "temporary payment cut for past overpayments",
+      "patient assessment reporting deadline",
+      "palliative care within home health",
+      "rural access to care",
+      "AI and automation",
+      "targeted fraud enforcement",
+      "Alliance CEO transition",
+      "Medicaid home and community based services"
+    ],
+    "sources": [
+      {
+        "label": "Alliance press release on the 2026 meeting",
+        "url": "https://allianceforcareathome.org/over-1400-industry-leaders-convene-for-the-national-alliance-for-care-at-home-annual-meeting-exposition-alliance-awards-presented/"
+      },
+      {
+        "label": "Alliance press release on the 2025 inaugural meeting",
+        "url": "https://allianceforcareathome.org/over-1700-industry-leaders-convene-in-new-orleans-for-the-inaugural-national-alliance-for-care-at-home-annual-meeting-exposition/"
+      },
+      {
+        "label": "Home Health Care News: CMS COO on freeze blocking 250 agencies",
+        "url": "https://homehealthcarenews.com/2026/10/cms-coo-moratorium-has-blocked-250-home-health-agencies-from-medicare-enrollment/"
+      },
+      {
+        "label": "Hospice News: CMS COO says freezes are working",
+        "url": "https://hospicenews.com/2026/10/29/cms-coo-hospice-home-health-moratoria-a-successful-approach/"
+      },
+      {
+        "label": "McKnight's Home Care: opening panel on fraud overreach",
+        "url": "https://www.mcknightshomecare.com/news/responding-to-complaints-of-fraud-overreach-official-says-cms-aims-to-strike-a-balance/"
+      },
+      {
+        "label": "Home Care Magazine: CMS official says freezes are effective",
+        "url": "https://www.homecaremag.com/cms-official-says-hospice-home-health-moratoria-proving-effective/"
+      },
+      {
+        "label": "Home Health Care News: narrower freeze extension",
+        "url": "https://homehealthcarenews.com/2026/11/a-narrower-freeze-what-changed-in-cms-medicare-home-health-moratorium/"
+      },
+      {
+        "label": "CMS press release: final 2027 home health rule",
+        "url": "https://www.cms.gov/newsroom/press-releases/cms-finalizes-broad-medicare-integrity-changes-home-health-final-rule-expected-save-taxpayers-tens"
+      }
+    ],
+    "caveat": "Tool limits kept me from reading most trade-press articles in full; no meeting figures were found on staffing, deals, technology adoption or hospice rates, and tickers for operators affected by sector-wide rules (EHAB, ADUS, BTSG, PNTG, UNH) are my mapping, not named in sources."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 42,
+    "output_tokens": 11424,
+    "cache_read_input_tokens": 502447,
+    "cache_creation_input_tokens": 49482
+  },
+  "posted_ts": "1794940175.013109",
+  "posted_on": "2026-11-17"
+}

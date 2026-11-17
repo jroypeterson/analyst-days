@@ -1,0 +1,185 @@
+{
+  "conference": "ACR Convergence 2026",
+  "series": "acr-rheum",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Amgen's dazodalibep posted positive full Phase 3 data in Sjögren's disease, which has no FDA-approved drug; Novartis's ianalumab is the rival.",
+      "An expert wrap-up named Lilly's retatrutide the top practice-changer: knee osteoarthritis pain fell alongside up to 29% weight loss.",
+      "argenx's efgartigimod won in myositis (p=0.0011), but its Sjögren's trial was stopped in October 2026.",
+      "UCB's bimekizumab beat AbbVie's risankizumab head-to-head in psoriatic arthritis, while CAR-T lupus data shifted toward 12-month durability."
+    ],
+    "items": [
+      {
+        "title": "OASIZ-301 Phase 3, dazodalibep (CD40 ligand blocker) in Sjogren's disease (Amgen); ianalumab extension (Novartis)",
+        "tickers": [
+          "AMGN",
+          "NVS"
+        ],
+        "when": "",
+        "lines": [
+          "ESSDAI (EULAR Sjogren's Syndrome Disease Activity Index) change at week 48: -5.6 (every 4 weeks) and -5.2 (every 12 weeks) vs -3.8 placebo, adjusted p<0.001 and p=0.010, n=648",
+          "ESSPRI (patient-reported index) dryness domain: placebo-adjusted difference -1.17 points, adjusted p<0.001; Amgen reported no imbalance in thromboembolic events or opportunistic infections",
+          "Novartis ianalumab NEPTUNUS long-term extension (abstract LB14) presented as the competing B-cell (BAFF receptor) option; figures not reported in sources opened",
+          "Late-breaking oral LB22; Amgen notes Sjogren's disease has no FDA-approved treatment; Amgen topline results were first announced September 2026"
+        ],
+        "url": "https://www.prnewswire.com/news-releases/amgen-announces-positive-phase-3-results-for-dazodalibep-in-sjogrens-disease-302935991.html"
+      },
+      {
+        "title": "TRIUMPH-4 retatrutide in knee osteoarthritis with obesity; TOGETHER-PsA ixekizumab plus tirzepatide (Eli Lilly)",
+        "tickers": [
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "WOMAC (Western Ontario and McMaster Universities Osteoarthritis Index) pain change: -4.4 to -4.5 points vs -2.4 placebo, p<0.001, n=445, 68 weeks; Plenary I",
+          "Body weight change: -26% to -29% vs -2.1% placebo in TRIUMPH-4; 80-week TRIUMPH-1-OA showed -18.6% to -28.7%",
+          "TOGETHER-PsA: week-52 ACR50 (50% improvement in American College of Rheumatology criteria) 43.7% vs 15.7% ixekizumab alone, nominal p<0.001, n=271",
+          "Janet Pope (RheumNow) ranked retatrutide number 1 practice-changer; open question whether benefit is weight loss alone or structure-modifying"
+        ],
+        "url": "https://rheumnow.com/news/acr-2026-big-pharma-brings-its-biggest-readouts-orlando"
+      },
+      {
+        "title": "ALKIVIA Phase 3, efgartigimod subcutaneous (FcRn, neonatal Fc receptor, blocker) in myositis (argenx)",
+        "tickers": [
+          "ARGX"
+        ],
+        "when": "",
+        "lines": [
+          "Week-52 Total Improvement Score 47.95 vs 32.56 placebo, difference 15.4, p=0.0011, n=175; late-breaking oral LB24",
+          "Total Improvement Score of at least 40 achieved by more patients on drug: 27.2 percentage-point difference vs placebo; separation seen from week 4",
+          "Covered immune-mediated necrotizing myopathy and dermatomyositis with steroid tapering; Pope flagged class-effect low antibody levels (hypogammaglobulinemia)",
+          "Negative: per Pope, an efgartigimod randomized trial in Sjogren's disease was stopped in October 2026; figures not reported"
+        ],
+        "url": "https://rheumnow.com/news/acr-2026-biotech-and-mid-size-companies-bet-novel-mechanisms"
+      },
+      {
+        "title": "BE BOLD head-to-head, bimekizumab vs risankizumab in psoriatic arthritis (UCB vs AbbVie)",
+        "tickers": [
+          "UCB",
+          "ABBV"
+        ],
+        "when": "",
+        "lines": [
+          "Week-16 ACR50 49.1% bimekizumab vs 38.0% risankizumab, p=0.0058, n=553; Phase 3b, Plenary III",
+          "MDA (minimal disease activity) difference not statistically significant (figures not reported); Candida yeast infections more frequent with bimekizumab",
+          "Pope ranked it a top-6 practice-changer but noted uncertainty about which to choose when skin disease is severe"
+        ],
+        "url": "https://rheumnow.com/news/top-6-practice-changing-highlights-acr26"
+      },
+      {
+        "title": "REDUCE-2 Phase 3, pozdeutinurad (URAT1, urate transporter 1, inhibitor) in gout (Sobi)",
+        "tickers": [
+          "SOBI"
+        ],
+        "when": "",
+        "lines": [
+          "Serum urate below 6 mg/dL at month 6: 69.2% (75 mg) and 56.6% (50 mg) vs 8.1% placebo, p<0.0001, n=811",
+          "Kidney stones in 1.8% or fewer of patients; late-breaking oral LB20",
+          "Pope: safety in chronic kidney disease unclear and not all patients had failed allopurinol or febuxostat, so positioning is uncertain"
+        ],
+        "url": "https://www.sobi.com/en/press-releases/sobi-present-new-gout-data-acr-convergence-2026-2494596"
+      },
+      {
+        "title": "Lupus: obinutuzumab REGENCY kidney biopsies (Roche); afimetoran oral TLR7/8 (toll-like receptor) inhibitor Phase 2 (Beeline Medicines, no listed ticker found)",
+        "tickers": [
+          "RHHBY"
+        ],
+        "when": "",
+        "lines": [
+          "Obinutuzumab: among patients without complete kidney response, 52.6% vs 8.3% placebo reached NIH (National Institutes of Health) activity index 0 at week 76; kidney B cells fell (p<0.0001)",
+          "Afimetoran: week-48 SRI-4 (SLE Responder Index-4) 64-68% across three doses vs 34.4% placebo, p<0.001, n=248",
+          "Afimetoran serious adverse events 5.9% vs 12.9% placebo; late-breaking oral LB23",
+          "AstraZeneca (AZN) anifrolumab LASER real-world study: steroid-related damage HR 0.128 and eye damage HR 0.102 vs matched controls over 4 years"
+        ],
+        "url": "https://rheumnow.com/news/acr-2026-big-pharma-brings-its-biggest-readouts-orlando"
+      },
+      {
+        "title": "CAR-T cell therapy in autoimmune disease: zola-cel (Bristol Myers Squibb), rese-cel (Cabaletta Bio), zugo-cel (CRISPR Therapeutics)",
+        "tickers": [
+          "BMY",
+          "CABA",
+          "CRSP"
+        ],
+        "when": "",
+        "lines": [
+          "Zola-cel Breakfree-1 lupus: SLEDAI-2K (SLE Disease Activity Index 2000) fell by a median 10 points at 12 months, 91% off immunosuppressants, n=34; CRS (cytokine release syndrome) mostly grade 1",
+          "Rese-cel refractory dermatomyositis: 6 of 6 patients improved and stayed off immunomodulators at one year, 5 off steroids; grade 1 CRS in 2, no neurotoxicity",
+          "Zugo-cel (off-the-shelf) systemic sclerosis: median mRSS (modified Rodnan skin score) 36 to 25.5, 4 of 6 met CRISS-25; one pulmonary embolism possibly related, n=6",
+          "ACR press office also highlighted the Phase 1 COMPARE CD19 CAR-T trial in refractory rheumatoid arthritis; figures not reported"
+        ],
+        "url": "https://rheumatology.org/press-releases/new-acr-convergence-2026-data-highlight-both-clinical-promise-and-patient-priorities-for-car-t-cell-therapy-in-severe-autoimmune-disease"
+      }
+    ],
+    "expert_minds": [
+      "Healio pre-meeting survey: CAR-T and its safety, lupus, Sjogren's disease, AI, GLP-1 drugs, long COVID and drug costs were top of mind",
+      "ACR President William Harvey: innovation and cell-based therapies like CAR-T drive the meeting; Brian Anderson's opening session focused on responsible AI",
+      "Janet Pope (RheumNow): obesity drug retatrutide is the biggest practice-changer, followed by lupus and Sjogren's trials, myositis, gout and head-to-head PsA",
+      "Alexis Ogdie (ACR year in preview): cell therapy, lupus, PsA and Sjogren's most researched in 2026; Rheumatology Advisor added an immunometabolic theme; Jack Cush noted many first-in-class mechanisms"
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "CAR-T in autoimmune disease",
+      "Sjogren's disease Phase 3 (CD40L, BAFF-R)",
+      "GLP-1 and incretin drugs in osteoarthritis and PsA",
+      "FcRn blockers in myositis",
+      "Lupus new mechanisms (TLR7/8, CD40L, type 1 interferon)",
+      "Lupus nephritis deep B-cell depletion",
+      "Gout URAT1 inhibitors",
+      "Head-to-head biologics in PsA",
+      "IgG4-related disease",
+      "ANCA vasculitis complement inhibition",
+      "JAK head-to-head in rheumatoid arthritis",
+      "Responsible AI in rheumatology",
+      "Pediatric lupus unmet need",
+      "Medicaid and RA healthcare spending"
+    ],
+    "sources": [
+      {
+        "label": "RheumNow: Big Pharma readouts at ACR 2026 (abstract figures by company)",
+        "url": "https://rheumnow.com/news/acr-2026-big-pharma-brings-its-biggest-readouts-orlando"
+      },
+      {
+        "label": "RheumNow: Biotech and mid-size companies at ACR 2026",
+        "url": "https://rheumnow.com/news/acr-2026-biotech-and-mid-size-companies-bet-novel-mechanisms"
+      },
+      {
+        "label": "RheumNow: Janet Pope, Top 6 practice-changing highlights from ACR26",
+        "url": "https://rheumnow.com/news/top-6-practice-changing-highlights-acr26"
+      },
+      {
+        "label": "Amgen press release: positive Phase 3 dazodalibep results",
+        "url": "https://www.prnewswire.com/news-releases/amgen-announces-positive-phase-3-results-for-dazodalibep-in-sjogrens-disease-302935991.html"
+      },
+      {
+        "label": "argenx press release: ALKIVIA data at ACR Convergence 2026",
+        "url": "https://argenx.com/news/2026/press-release-3397967"
+      },
+      {
+        "label": "Sobi press release: gout data at ACR Convergence 2026",
+        "url": "https://www.sobi.com/en/press-releases/sobi-present-new-gout-data-acr-convergence-2026-2494596"
+      },
+      {
+        "label": "ACR press release: CAR T-cell therapy data and patient priorities",
+        "url": "https://rheumatology.org/press-releases/new-acr-convergence-2026-data-highlight-both-clinical-promise-and-patient-priorities-for-car-t-cell-therapy-in-severe-autoimmune-disease"
+      },
+      {
+        "label": "Healio: CAR T-cell safety, Sjogren's pipeline top of mind",
+        "url": "https://www.healio.com/news/rheumatology/20261105/car-tcell-safety-sjgrens-pipeline-top-of-mind-as-acr-convergence-kicks-off"
+      }
+    ],
+    "caveat": "No share-price moves were found; most figures come from RheumNow abstract summaries, and the J&J icotrokinra, ianalumab extension and stopped efgartigimod Sjogren's trial figures were not retrieved."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 26,
+    "output_tokens": 10829,
+    "cache_read_input_tokens": 261853,
+    "cache_creation_input_tokens": 48768
+  },
+  "posted_ts": "1794940308.135709",
+  "posted_on": "2026-11-17"
+}

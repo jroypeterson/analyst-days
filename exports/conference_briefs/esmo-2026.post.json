@@ -1,0 +1,195 @@
+{
+  "conference": "ESMO 2026",
+  "series": "esmo",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Merck/Moderna's mRNA melanoma vaccine met its endpoint, but the delayed effect and immature survival data disappointed investors; both stocks fell.",
+      "Next-generation drugs beat current standards on survival head-to-head: Roche's divarasib, Akeso/Summit's ivonescimab, Amgen/AstraZeneca's tarlatamab combination.",
+      "AstraZeneca had the broadest slate, with survival data from four Phase III trials in the Presidential Symposia, mostly positive.",
+      "Antibody-drug conjugates filled 23 of 91 late-breakers, while spacing out immunotherapy doses backfired on survival."
+    ],
+    "items": [
+      {
+        "title": "INTerpath-001, intismeran autogene (individualized mRNA neoantigen therapy) plus Keytruda (pembrolizumab) in resected stage IIB-IV melanoma (Merck and Moderna)",
+        "tickers": [
+          "MRK",
+          "MRNA"
+        ],
+        "when": "",
+        "lines": [
+          "Recurrence-free survival (RFS) hazard ratio (HR) 0.58, 95% confidence interval (CI) 0.45-0.75, p<0.001, n=1,137 (757 vs 380); 24-month RFS 82.2% vs 70.0%.",
+          "Curves overlapped for the first 6 months (HR 0.99, 95% CI 0.66-1.49), then separated beyond 6 months (HR 0.42, 95% CI 0.30-0.58).",
+          "Overall survival (OS) immature and not significant: HR 0.77, 95% CI 0.45-1.31; distant metastasis-free survival HR 0.62, 95% CI 0.45-0.85.",
+          "Merck fell just over 1% to $147.93 after the data leaked; Moderna fell double digits during ESMO but is still up 525% year to date."
+        ],
+        "url": "https://www.biospace.com/drug-development/esmo-2026-merck-moderna-shares-fall-as-cancer-vaccine-disappoints-after-data-leak"
+      },
+      {
+        "title": "Krascendo 1, divarasib vs sotorasib (Lumakras, Amgen) or adagrasib (Krazati, Bristol Myers Squibb) in previously treated KRAS G12C non-small cell lung cancer (NSCLC) (Roche)",
+        "tickers": [
+          "RHHBY",
+          "AMGN",
+          "BMY"
+        ],
+        "when": "",
+        "lines": [
+          "Progression-free survival (PFS) 9.8 vs 5.7 months, HR 0.58, 95% CI 0.44-0.76, p<0.001, n=338; published in the New England Journal of Medicine (NEJM).",
+          "OS 17.7 vs 12.0 months, HR 0.56, 95% CI 0.41-0.78, p<0.001; confirmed objective response rate (ORR) 58% vs 32%.",
+          "91% of control patients received Amgen's sotorasib, so this is a direct competitive hit to Lumakras; grade 3-4 diarrhea was 9.0% vs 2.9%.",
+          "Investigators called divarasib a new standard of care; caveats: open-label design and untreated brain metastases excluded."
+        ],
+        "url": "https://www.oncnursingnews.com/view/esmo-2026-key-kras-inhibitor-takeaways-for-oncology-nurses"
+      },
+      {
+        "title": "DeLLphi-305, Imdelltra (tarlatamab) plus Imfinzi (durvalumab) first-line maintenance in extensive-stage small cell lung cancer (ES-SCLC) (Amgen and AstraZeneca)",
+        "tickers": [
+          "AMGN",
+          "AZN"
+        ],
+        "when": "",
+        "lines": [
+          "OS, the primary endpoint: 21.1 vs 12.7 months, HR 0.42, 95% CI 0.32-0.54, p<0.001, n=563 (282 vs 281).",
+          "12-month OS 79% vs 53%; data cutoff 7 July 2026; median follow-up 15.9 months.",
+          "First Phase III trial of a bispecific T-cell engager to show an OS benefit in first-line ES-SCLC maintenance (Dana-Farber).",
+          "Amgen shares were up 0.8% at $442.86 in premarket trading on 26 October."
+        ],
+        "url": "https://www.dana-farber.org/newsroom/news-releases/2026/immunotherapy-combo-extends-survival-for-patients-with-aggressive-small-cell-lung-cancer-based-on-trial-results-presented-by-dana-farber-at-esmo-congress-2026"
+      },
+      {
+        "title": "HARMONi-GI1, ivonescimab (PD-1/VEGF bispecific antibody) plus chemotherapy vs durvalumab plus chemotherapy in first-line biliary tract cancer (Akeso and Summit Therapeutics)",
+        "tickers": [
+          "SMMT",
+          "9926.HK",
+          "AZN"
+        ],
+        "when": "",
+        "lines": [
+          "OS at a prespecified interim analysis: 14.9 vs 12.1 months, HR 0.75, 95% CI 0.61-0.92, one-sided p=0.0031; number of patients not reported.",
+          "18-month OS 44.0% vs 32.5%; median follow-up 14.3 months.",
+          "Akeso calls it the first Phase III biliary tract trial to beat the PD-L1-plus-chemotherapy standard (AstraZeneca's Imfinzi regimen) on OS, PFS and response rate.",
+          "Akeso had nearly 30 studies at ESMO 2026, including 12 ivonescimab presentations."
+        ],
+        "url": "https://www.prnewswire.com/news-releases/positive-overall-survival-results-from-the-phase-iii-harmoni-gi1-trial-of-ivonescimab-plus-chemotherapy-versus-durvalumab-plus-chemotherapy-in-first-line-biliary-tract-cancer-presented-at-the-esmo-2026-presidential-symposium-302918768.html"
+      },
+      {
+        "title": "VOLGA, SAFFRON and CLARITY-Gastric01: Imfinzi plus Padcev, Orpathys plus Tagrisso, and sonesitatug vedotin (AstraZeneca, Pfizer, HUTCHMED)",
+        "tickers": [
+          "AZN",
+          "PFE",
+          "HCM.L"
+        ],
+        "when": "",
+        "lines": [
+          "VOLGA, cisplatin-ineligible muscle-invasive bladder cancer: event-free survival HR 0.51, 95% CI 0.38-0.67, p<0.0001; 24-month OS 78% vs 69% (42% lower risk of death).",
+          "SAFFRON, savolitinib plus osimertinib vs platinum chemotherapy in MET-driven EGFR-mutated NSCLC: OS HR 0.68 (CI not reported in sources seen); median OS about 5 months longer; NEJM.",
+          "CLARITY-Gastric01, claudin 18.2-targeted ADC in gastric cancer: median OS doubled in third-line-or-later patients; HR not reported in sources seen.",
+          "AstraZeneca rose 1.0% to 12,946 pence on 26 October; HUTCHMED fell 0.7% to 214.50 pence."
+        ],
+        "url": "https://www.marketscreener.com/news/astrazeneca-highlights-advances-across-cancer-portfolio-at-esmo-2026-ce785cdcd88ff32d"
+      },
+      {
+        "title": "Late-breaking breast, endometrial and kidney data: Kisqali (ribociclib), sacituzumab tirumotecan, Keytruda combinations (Novartis, Merck with Kelun-Biotech)",
+        "tickers": [
+          "NVS",
+          "MRK",
+          "6990.HK"
+        ],
+        "when": "",
+        "lines": [
+          "NATALEE, adjuvant Kisqali in early breast cancer: 6-year OS HR 0.809, 95% CI 0.661-0.989, nominal one-sided p=0.019; absolute OS gain 2.1% at 6 years.",
+          "TroFuse-005, sacituzumab tirumotecan (sac-TMT, a TROP2-targeted ADC) in previously treated endometrial cancer: 32% lower risk of death; CI not reported in sources seen.",
+          "LITESPARK-012: adding belzutifan or quavonlimab to Keytruda plus lenvatinib did not improve survival in advanced kidney cancer; figures not reported.",
+          "Late-breaking breast trial of Keytruda plus chemotherapy (trial name not given in source): PFS HR 0.74, 95% CI 0.58-0.95, but OS 21.0 vs 22.2 months, not significant."
+        ],
+        "url": "https://www.targetedonc.com/view/esmo-2026-breast-cancer-late-breaking-adcs-ribociclib"
+      },
+      {
+        "title": "Small and mid-cap movers: vopimetostat plus daraxonrasib in pancreatic cancer, and XmAb819 in kidney cancer (Tango Therapeutics, Revolution Medicines, Xencor)",
+        "tickers": [
+          "TNGX",
+          "RVMD",
+          "XNCR"
+        ],
+        "when": "",
+        "lines": [
+          "Tango fell nearly 18% to $22.91 after updated Phase I/II data showed a lower response rate than reported in June; the new rate was not reported in sources seen.",
+          "BioPharma Dive put Tango's decline at about 20% across the conference.",
+          "Revolution Medicines' daraxonrasib, approved in late August 2026 for previously treated metastatic pancreatic cancer, showed survival benefit across subgroups at ESMO; figures not reported.",
+          "Xencor's XmAb819 produced a 46% response rate at the highest dose in heavily pretreated kidney cancer."
+        ],
+        "url": "https://www.biopharmadive.com/news/biotech-charts-esmo-2026-winners-losers/873281/"
+      }
+    ],
+    "expert_minds": [
+      "Antibody-drug conjugates dominated: 23 of 91 late-breakers and 4 of 12 Presidential slots, mostly from Chinese developers, often without target testing (APO APE News count).",
+      "Cancer vaccines took center stage, but BMO said Merck's share drop reflected inflated expectations; oncologist Ahmet Dirican said Phase III validation and broader access remain critical.",
+      "Development is moving into earlier, biomarker- or circulating tumor DNA-selected settings, and single-region Phase III trials leave questions open (Tanja Obradovic); liquid biopsy and access came up too (Herbert Loong).",
+      "Treating less was tested: in MOIO, 12-weekly immunotherapy dosing roughly doubled the risk of death (OS HR about 2.0), while KEYNOTE-C93 backed chemotherapy-free first-line Keytruda (Targeted Oncology)."
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "personalized mRNA cancer vaccines",
+      "next-generation KRAS G12C inhibitors",
+      "PD-1/VEGF bispecific antibodies",
+      "bispecific T-cell engagers in small cell lung cancer",
+      "antibody-drug conjugate proliferation",
+      "claudin 18.2 ADCs in gastric cancer",
+      "TROP2 ADCs in endometrial and breast cancer",
+      "perioperative immunotherapy and ADC in bladder cancer",
+      "MET-driven osimertinib resistance",
+      "immunotherapy de-escalation",
+      "ctDNA and biomarker-selected early-stage trials",
+      "China-originated Phase III data",
+      "adjuvant CDK4/6 inhibitor overall survival",
+      "RAS inhibitors in pancreatic cancer"
+    ],
+    "sources": [
+      {
+        "label": "BioSpace: Merck, Moderna shares fall as cancer vaccine disappoints",
+        "url": "https://www.biospace.com/drug-development/esmo-2026-merck-moderna-shares-fall-as-cancer-vaccine-disappoints-after-data-leak"
+      },
+      {
+        "label": "Merck press release: INTerpath-001 detailed results",
+        "url": "https://www.merck.com/news/merck-and-moderna-will-present-results-from-landmark-phase-3-interpath-001-trial-for-intismeran-autogene-plus-keytruda-pembrolizumab-at-esmo-2026-presidential-symposium/"
+      },
+      {
+        "label": "Dr Ozdogan: INTerpath-001 OS HR and event counts",
+        "url": "https://www.drozdogan.com/en/personalized-mrna-therapy-cut-melanoma-recurrence-by-42-interpath-001-results-at-esmo-2026/"
+      },
+      {
+        "label": "OncLive: INTerpath-001 piecewise analysis",
+        "url": "https://www.onclive.com/view/dr-long-on-interpath-001-data-for-intismeran-autogene-plus-pembrolizumab-in-resected-melanoma"
+      },
+      {
+        "label": "Oncology Nursing News: Krascendo 1 results",
+        "url": "https://www.oncnursingnews.com/view/esmo-2026-key-kras-inhibitor-takeaways-for-oncology-nurses"
+      },
+      {
+        "label": "MD Anderson newsroom: Krascendo 1",
+        "url": "https://www.mdanderson.org/newsroom/research-newsroom/esmo-2026--new-targeted-therapy-improved-survival-for-patients-with-KRAS-mutated-lung-cancer.h00-159859290.html"
+      },
+      {
+        "label": "Amgen ESMO 2026 investor update: DeLLphi-305",
+        "url": "https://investors.amgen.com/static-files/b4ad55cd-2ca8-4082-9485-2141bd493d3d"
+      },
+      {
+        "label": "Dana-Farber newsroom: DeLLphi-305",
+        "url": "https://www.dana-farber.org/newsroom/news-releases/2026/immunotherapy-combo-extends-survival-for-patients-with-aggressive-small-cell-lung-cancer-based-on-trial-results-presented-by-dana-farber-at-esmo-congress-2026"
+      }
+    ],
+    "caveat": "The web tool cap cut research short, so figures come from search snippets, not full articles; ESMO 2025 coverage was unavailable, so no year-over-year comparison is made; SAFFRON, TroFuse-005 and CLARITY-Gastric01 confidence intervals, Moderna's exact decline and Tango's response rate were not found."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 42,
+    "output_tokens": 18018,
+    "cache_read_input_tokens": 480326,
+    "cache_creation_input_tokens": 66219
+  },
+  "posted_ts": "1794939830.266829",
+  "posted_on": "2026-11-17"
+}

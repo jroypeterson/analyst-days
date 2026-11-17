@@ -1,0 +1,174 @@
+{
+  "conference": "AMP 2026",
+  "series": "amp",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Caris Life Sciences presented RNA sequencing of about 698,000 tumors, finding new drug-targetable gene fusions; no effect sizes were reported.",
+      "With FDA oversight of lab-developed tests struck down in March 2025, the fight is now over Medicare lab payment rates and modernized lab rules.",
+      "AI dominated the program; one plenary AI model classified brain tumors with 97% accuracy, beating all eight neuropathologists.",
+      "Cheap blood-based cancer testing, framed as a possible $100 liquid biopsy, was a leading theme; few companies announced dollar-figure news."
+    ],
+    "items": [
+      {
+        "title": "Whole transcriptome sequencing (WTS) of tumors for gene fusions, Caris Life Sciences",
+        "tickers": [
+          "CAI"
+        ],
+        "when": "",
+        "lines": [
+          "Caris presented two studies; one analyzed whole-transcriptome RNA (ribonucleic acid) sequencing across 698,406 solid tumors profiled from 2019 to 2026.",
+          "It found new actionable gene fusions with outcomes said to be comparable to known partners; hazard ratios and p-values were not reported.",
+          "Older targeted tests risked missing new fusions, especially in sarcomas and central nervous system tumors; figures not reported.",
+          "Investor read: real-world data from about 700,000 transcriptomes supports Caris pitching its data to drug developers; revenue figures not reported."
+        ],
+        "url": "https://www.insideprecisionmedicine.com/topics/molecular-dx/amp-2026-700000-whole-tumor-transcriptomes-reveal-gene-fusion-targets/"
+      },
+      {
+        "title": "Lab regulation and Medicare payment policy, Association for Molecular Pathology (AMP) advocacy",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "The FDA (Food and Drug Administration) rule on laboratory-developed tests (LDTs) was vacated nationwide on March 31, 2025, in AMP v. FDA; FDA did not appeal.",
+          "AMP members lobbied more than 30 congressional offices for the RESULTS Act, which would reform how Medicare sets Clinical Laboratory Fee Schedule (CLFS) rates.",
+          "CMS (Centers for Medicare and Medicaid Services) issued a July 2026 Request for Information on modernizing Clinical Laboratory Improvement Amendments (CLIA) rules; AMP responded. Proposed rule dates not reported.",
+          "No new fee-schedule rate cuts or dollar figures were reported from the meeting itself; figures not reported."
+        ],
+        "url": "https://www.amp.org/about/newsroom/press-releases/"
+      },
+      {
+        "title": "Artificial intelligence (AI) in molecular diagnostics, AMP press program (ALMA Genomics, private; academic groups)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "ALMA 3, an AI model trained on over 110,000 samples, detected blood cancers with 99.5% sensitivity and 90.9% positive predictive value across 81 subtypes.",
+          "University of Michigan's TPO-Agent (Turnkey Precision Oncology): about 95% of AI claims backed by cited evidence, vs 65% for a standard AI approach; 50 alterations, 10 patients.",
+          "Memorial Sloan Kettering (MSK): AI slide triage would have deferred rapid EGFR (epidermal growth factor receptor) testing in 26 of 80 lung cancers (33%), missing no EGFR-positive cases.",
+          "Mayo Clinic plenary: AI brain-tumor classification reached 97% accuracy, beating all 8 neuropathologists it was compared with."
+        ],
+        "url": "https://www.amp.org/about/newsroom/press-releases/2026/amp-2026-ai-tipsheet/"
+      },
+      {
+        "title": "Fragmentomics and the low-cost liquid biopsy (blood test for tumor DNA)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "Trade press called fragmentomics one of the buzziest terms at AMP 2026 and asked whether a $100 liquid biopsy has arrived.",
+          "McGill University data on esophageal adenocarcinoma: plasma separated cancer from non-cancer, and urine and vaginal swabs graded precancer; figures not reported.",
+          "Driver is ever-cheaper sequencing; which companies win the $100 test was not settled; figures not reported."
+        ],
+        "url": "https://www.insideprecisionmedicine.com/topics/molecular-dx/amp-2026-has-the-100-liquid-biopsy-arrived/"
+      },
+      {
+        "title": "Booth showcase: MiSeq i100, TruSight Oncology Comprehensive, Pillar oncoReveal, BioInsight (Illumina)",
+        "tickers": [
+          "ILMN"
+        ],
+        "when": "",
+        "lines": [
+          "Illumina featured MiSeq i100 sequencer and an in vitro diagnostic (IVD) corner with FDA-approved TruSight Oncology Comprehensive and Pillar oncoReveal; pricing and placements not reported.",
+          "Workshops on November 11 covered whole-genome sequencing, AI-assisted informatics and epigenomic profiling; figures not reported."
+        ],
+        "url": "https://www.illumina.com/events/conferences/2026/amp-2026.html"
+      },
+      {
+        "title": "Tools vendors: Thermo Fisher, Roche, Danaher (IDT), Bionano, Oxford Nanopore",
+        "tickers": [
+          "TMO",
+          "RHHBY",
+          "DHR",
+          "BNGO",
+          "ONT"
+        ],
+        "when": "",
+        "lines": [
+          "Thermo Fisher (booth 709) workshop on alternative analytes when tumor tissue is limited for next-generation sequencing (NGS); figures not reported.",
+          "Volta Labs (private) showed AXELIOS 1 library prep automated on Callisto in collaboration with Roche; trade press also headlined a Roche mesothelioma test launch; figures not reported.",
+          "Danaher's Integrated DNA Technologies (booth 1014) showed blood-cancer NGS workflows; Bionano (booth 825) showed optical genome mapping; figures not reported.",
+          "Oxford Nanopore hosted oncology and rare-disease workshops; figures not reported."
+        ],
+        "url": "https://www.thermofisher.com/us/en/home/about-us/events/clinical/amp.html"
+      },
+      {
+        "title": "Rapid, decentralized testing: VedaBio CRISPR platform and Fapon enzymes (both private)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "VedaBio showed proof-of-concept sample-to-answer times under 10 minutes using CRISPR (clustered regularly interspaced short palindromic repeats) detection that skips the amplification step.",
+          "Fapon's ProPrime II Taq enzyme runs four-target quantitative PCR (qPCR, quantitative polymerase chain reaction) in under 20 minutes; it works with 5% whole blood present."
+        ],
+        "url": "https://www.biospace.com/press-releases/vedabio-demonstrates-under-10-minute-molecular-detection-with-target-amplification-free-crispr-technology-at-amp-2026"
+      }
+    ],
+    "expert_minds": [
+      "AI performance vs human expertise: plenaries by Kenneth Aldape (Mayo Clinic) and Benjamin Solomon (NIH), per Inside Precision Medicine.",
+      "AI, regulation and labor shortages as threats to the field, per an Inside Precision Medicine headline about the AMP president; article not opened.",
+      "Fragmentomics and cheap multi-omic liquid biopsy, per Inside Precision Medicine wrap-up citing Hanlee Ji and Julia Burnier.",
+      "Payment reform (RESULTS Act) and CLIA modernization after the LDT court win, per AMP newsroom and committee reports."
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "AI diagnostics",
+      "DNA methylation classifiers",
+      "fragmentomics",
+      "low-cost liquid biopsy",
+      "whole transcriptome sequencing",
+      "gene fusions",
+      "RESULTS Act",
+      "CLIA modernization",
+      "post-LDT-rule regulation",
+      "lab labor shortages",
+      "decentralized rapid molecular testing",
+      "CRISPR diagnostics",
+      "pediatric genomic testing",
+      "optical genome mapping"
+    ],
+    "sources": [
+      {
+        "label": "AMP newsroom press releases list",
+        "url": "https://www.amp.org/about/newsroom/press-releases/"
+      },
+      {
+        "label": "AMP 2026 AI press release",
+        "url": "https://www.amp.org/about/newsroom/press-releases/2026/amp-2026-ai-tipsheet/"
+      },
+      {
+        "label": "AMP 2026 committee reports (record abstracts, CLIA RFI)",
+        "url": "https://www.amp.org/AMP/assets/File/committees/reports/2026_Annual_Committee_and_Subdivision_Reports.pdf?pass=73"
+      },
+      {
+        "label": "AMP press-pass notice (over 200 exhibitors, over 500 posters)",
+        "url": "https://www.eurekalert.org/news-releases/1143734"
+      },
+      {
+        "label": "Inside Precision Medicine: Caris 700,000 transcriptomes",
+        "url": "https://www.insideprecisionmedicine.com/topics/molecular-dx/amp-2026-700000-whole-tumor-transcriptomes-reveal-gene-fusion-targets/"
+      },
+      {
+        "label": "Inside Precision Medicine: $100 liquid biopsy",
+        "url": "https://www.insideprecisionmedicine.com/topics/molecular-dx/amp-2026-has-the-100-liquid-biopsy-arrived/"
+      },
+      {
+        "label": "Inside Precision Medicine: AI plenaries",
+        "url": "https://www.insideprecisionmedicine.com/topics/molecular-dx/amp-2026-is-human-expertise-limiting-ai-diagnostics/"
+      },
+      {
+        "label": "Illumina AMP 2026 page",
+        "url": "https://www.illumina.com/events/conferences/2026/amp-2026.html"
+      }
+    ],
+    "caveat": "Search limits blocked the full trade-press articles and the AMP president interview, and no meeting-specific payment rates, deals or labor figures were found; tickers come from general knowledge, not the sources."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 38,
+    "output_tokens": 10817,
+    "cache_read_input_tokens": 376204,
+    "cache_creation_input_tokens": 49410
+  },
+  "posted_ts": "1794940443.933669",
+  "posted_on": "2026-11-17"
+}
