@@ -232,10 +232,10 @@ def test_digest_survives_null_sector(db):
     assert "Unclassified (1)" in text
 
 
-def test_unset_webhook_seeds_anyway_and_degrades_to_a_warning(tmp_path, monkeypatch):
-    """The webhook-missing branch, which no test reached until it crashed live.
+def test_unset_bot_token_seeds_anyway_and_degrades_to_a_warning(tmp_path, monkeypatch):
+    """The credentials-missing branch, which no test reached until it crashed live.
 
-    The seed must still run — it is the half that cannot be skipped, and it is
+    The seed must still run - it is the half that cannot be skipped, and it is
     the only path that rebuilds this table. The missing post is recorded as a
     heartbeat warning (=> `partial`) rather than raising, so one unprovisioned
     secret does not red-line the whole weekly cron.
@@ -243,16 +243,44 @@ def test_unset_webhook_seeds_anyway_and_degrades_to_a_warning(tmp_path, monkeypa
     import argparse
 
     from src import cli as cli_mod
+    from src.outputs import slack_bot
 
-    monkeypatch.delenv("SLACK_WEBHOOK_CONFERENCES", raising=False)
+    monkeypatch.delenv("SLACK_BOT_TOKEN", raising=False)
+
+    def _never(*a, **k):
+        raise AssertionError("posted to Slack with no token configured")
+
+    monkeypatch.setattr(slack_bot, "post", _never)
     args = argparse.Namespace(db=str(tmp_path / "events.db"), dry_run=False)
 
     assert cli_mod.cmd_conferences_digest(args) == 0
     conn = init_db(tmp_path / "events.db")
     assert conn.execute("SELECT COUNT(*) FROM conferences").fetchone()[0] > 0
     conn.close()
-    # ...and the skip is carried where a reader will see it.
-    assert "SLACK_WEBHOOK_CONFERENCES" in args.health_conferences_warning
+    # ...and the skip is carried where a reader will see it, naming BOTH channels.
+    assert "SLACK_BOT_TOKEN" in args.health_conferences_warning
+    assert "#conferences-industry" in args.health_conferences_warning
+    assert "#conferences-wall-st" in args.health_conferences_warning
+
+
+def test_the_look_ahead_goes_to_both_conference_channels(tmp_path, monkeypatch):
+    """Industry and Wall Street are separate channels - the split is the point."""
+    import argparse
+
+    from src import cli as cli_mod
+    from src.outputs import slack_bot
+
+    monkeypatch.setenv("SLACK_BOT_TOKEN", "xoxb-test")
+    monkeypatch.setenv(slack_bot.INDUSTRY_CHANNEL_ENV, "C_IND")
+    monkeypatch.setenv(slack_bot.WALLST_CHANNEL_ENV, "C_WALL")
+    seen = []
+    monkeypatch.setattr(slack_bot, "post",
+                        lambda env, text, fallback: seen.append((env, text)) or "1.0")
+    args = argparse.Namespace(db=str(tmp_path / "events.db"), dry_run=False)
+
+    assert cli_mod.cmd_conferences_digest(args) == 0
+    assert [e for e, _ in seen] == [slack_bot.INDUSTRY_CHANNEL_ENV, slack_bot.WALLST_CHANNEL_ENV]
+    assert not getattr(args, "health_conferences_warning", "")
 
 
 def test_a_skipped_conference_post_makes_the_weekly_heartbeat_partial(monkeypatch):
@@ -268,7 +296,7 @@ def test_a_skipped_conference_post_makes_the_weekly_heartbeat_partial(monkeypatc
         dry_run=False, db="unused.db", no_slack=True,
         health_discover={}, health_remind={}, health_digest={},
         health_phase_errors=[], health_phase_rcs={},
-        health_conferences_warning="SLACK_WEBHOOK_CONFERENCES not set - skipped",
+        health_conferences_warning="SLACK_BOT_TOKEN not set - skipped",
     )
     cli_mod._post_weekly_health(args, __import__("datetime").datetime.now(
         __import__("datetime").timezone.utc))
@@ -276,7 +304,7 @@ def test_a_skipped_conference_post_makes_the_weekly_heartbeat_partial(monkeypatc
     assert posted, "no heartbeat posted"
     hb = posted[0]
     assert hb.status == "partial"
-    assert any("SLACK_WEBHOOK_CONFERENCES" in w for w in hb.warnings)
+    assert any("SLACK_BOT_TOKEN" in w for w in hb.warnings)
 
 
 # The page generator is invoked with cwd=REPO and every path it is given is
@@ -334,15 +362,3 @@ def test_published_page_filters_are_wired_to_the_data(tmp_path):
         assert "data-count" in block and '<p class="empty"' in block
     for block in re.findall(r'<section class="year">.*?</section>', html, re.S):
         assert "data-year-count" in block
-
-
-def test_conferences_digest_posts_to_its_own_webhook(db, monkeypatch):
-    """#conferences, never #analyst-days — the channel split is the point."""
-    seen = {}
-
-    def fake_post(payload, env_var=slack_out.WEBHOOK_ENV):
-        seen["env"] = env_var
-
-    monkeypatch.setattr(slack_out, "_post", fake_post)
-    slack_out.post_conferences_digest(db, "2026-08-12")
-    assert seen["env"] == "SLACK_WEBHOOK_CONFERENCES"

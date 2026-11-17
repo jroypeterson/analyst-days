@@ -21,11 +21,10 @@ import requests
 from src.state.events_repo import PUSHABLE_EVENT_TYPES
 
 WEBHOOK_ENV = "SLACK_WEBHOOK_ANALYST_DAYS"
-# The conference calendar posts to its OWN channel. It answers a different
-# question from everything else here (which meetings matter, not which of our
-# companies is doing something), and mixing it into #analyst-days is what kept
-# it invisible. Channel-bound webhook, same as above.
-CONFERENCES_WEBHOOK_ENV = "SLACK_WEBHOOK_CONFERENCES"
+# The conference channels are posted with the bot token, not a webhook: see
+# src/outputs/slack_bot.py and src/conference_calendar.py. `build_conferences_blocks`
+# below is the older single-channel table; it is kept for its rollover and
+# dateless-backlog logic, which the tests pin.
 
 # Transient-network resilience: retry the Slack POST on momentary DNS/socket blips.
 _RETRY_BACKOFF = (5, 15, 30)  # seconds to wait BEFORE retry attempts 2..N
@@ -717,17 +716,6 @@ def build_conferences_blocks(conn, today_iso: str) -> tuple[list[dict], int]:
                 "with the verification date in the row's notes._",
     }]})
     return blocks, len(upcoming)
-
-
-def post_conferences_digest(conn, today_iso: Optional[str] = None) -> int:
-    """Post the conference calendar to #conferences. Returns upcoming count."""
-    today_iso = today_iso or date.today().isoformat()
-    blocks, count = build_conferences_blocks(conn, today_iso)
-    _post(
-        {"text": f"Conference calendar — {count} upcoming", "blocks": blocks},
-        env_var=CONFERENCES_WEBHOOK_ENV,
-    )
-    return count
 
 
 # ---------------------------------------------------------------------------

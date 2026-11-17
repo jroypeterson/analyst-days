@@ -1,0 +1,624 @@
+{
+  "as_of": "2026-11-17",
+  "method_note": "Dates taken only from pages fetched/searched on 2026-11-17. 'next' is filled only when backed by the bank's own page/calendar, by 2+ company releases, or by 3 agreeing independent calendars (flagged). Dates found only on ONE third-party IR-agency calendar (rxir.com) are NOT placed in date fields; they are recorded in `note` as 'UNVERIFIED CANDIDATE'. The session's web-search budget ran out before those candidates could be cross-checked.",
+  "series": [
+    {
+      "slug": "jefferies-london",
+      "full_name": "Jefferies Global Healthcare Conference in London",
+      "bank": "Jefferies",
+      "focus": "All healthcare (biopharma-heavy, global/European)",
+      "standing": "Europe's largest healthcare investor conference; widely called the 'J.P. Morgan of Europe'",
+      "attendance": "~4,500 attendees, ~950 companies, 50 countries (2025 edition, per press coverage)",
+      "attendance_source": null,
+      "url": "https://www.jefferies.com/about/conferences-events/",
+      "next": null,
+      "last": {
+        "name": "2026 Jefferies Global Healthcare Conference in London",
+        "start": "2026-11-16",
+        "end": "2026-11-19",
+        "location": "London, UK (The Waldorf Hilton)",
+        "source": "https://www.jefferies.com/wp-content/uploads/sites/4/2026/11/11_10_26_Jefferies_2026_Conference_Summit_Calendar.pdf ; https://forbion.com/news-insights/events/jefferies-global-healthcare-conference-2026/"
+      },
+      "note": "The 2026 instance is IN PROGRESS today (started 2026-11-16, ends 2026-11-19), so it does not qualify as 'next starting on or after 2026-11-17' and is recorded as 'last'. Cellectis lists Nov 17-19 (its own participation window); Jefferies' own calendar says Nov 16-19. Prior instance: 2025-11-17 to 2025-11-20, Waldorf Hilton. The Nov 2027 London date is not in Jefferies' 2026-2027 calendar. Attendance figure came from a search summary of 2025 coverage; originating page not pinned."
+    },
+    {
+      "slug": "stifel-hc",
+      "full_name": "Stifel Healthcare Conference",
+      "bank": "Stifel",
+      "focus": "All healthcare (biotech and medtech heavy)",
+      "standing": "Major November New York healthcare conference; a core stop in the mid-November cluster",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.cellectis.com/en/investors/events-and-webcasts/stifel-nyc-healthcare-conference/",
+      "next": null,
+      "last": {
+        "name": "Stifel 2026 Healthcare Conference",
+        "start": "2026-11-10",
+        "end": "2026-11-12",
+        "location": "New York, NY",
+        "source": "https://www.cellectis.com/en/investors/events-and-webcasts/stifel-nyc-healthcare-conference/ ; https://finviz.com/news/409257/outset-medical-to-participate-in-the-2026-stifel-healthcare-conference ; https://finviz.com/news/418975/profound-medical-to-participate-in-the-stifel-2026-healthcare-conference"
+      },
+      "note": "2027 dates not found. 2026 span confirmed by company releases with sessions on Nov 10 (Outset), Nov 11 (REGENXBIO, Treace, Celcuity) and Nov 12 (Profound, Pulse). 2025 venue was Lotte New York Palace; 2026 venue not confirmed."
+    },
+    {
+      "slug": "ubs-hc",
+      "full_name": "UBS Global Healthcare Conference",
+      "bank": "UBS",
+      "focus": "All healthcare",
+      "standing": "Large November multi-subsector healthcare conference (moved to Palm Beach Gardens)",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://ubs.com/globalhealthcare",
+      "next": null,
+      "last": {
+        "name": "2026 UBS Global Healthcare Conference",
+        "start": "2026-11-08",
+        "end": "2026-11-11",
+        "location": "Palm Beach Gardens, FL (PGA National Resort)",
+        "source": "https://ubs.com/globalhealthcare ; https://finviz.com/news/414295/neogen-to-participate-in-2026-ubs-global-healthcare-conference"
+      },
+      "note": "Sunday Nov 8 was golf/welcome reception; business sessions ran Nov 9-11. UNVERIFIED CANDIDATE for next (single IR-agency calendar, https://rxir.com/conferences/): 2027-11-07 to 2027-11-10, Palm Beach Gardens, FL. UBS's own page shows no 2027 dates."
+    },
+    {
+      "slug": "wolfe-hc",
+      "full_name": "Wolfe Research Healthcare Conference",
+      "bank": "Wolfe Research",
+      "focus": "All healthcare (services/managed care, pharma, medtech)",
+      "standing": "Mid-size November New York healthcare conference from a research-only broker",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.globenewswire.com/news-release/2026/11/03/3394796/0/en/mobia-medical-to-participate-in-the-8th-annual-wolfe-research-healthcare-conference.html",
+      "next": null,
+      "last": {
+        "name": "8th Annual Wolfe Research Healthcare Conference",
+        "start": "2026-11-10",
+        "end": null,
+        "location": "New York, NY",
+        "source": "https://www.globenewswire.com/news-release/2026/11/03/3394796/0/en/mobia-medical-to-participate-in-the-8th-annual-wolfe-research-healthcare-conference.html ; https://investors.davita.com/2026-11-03-davita-inc-to-participate-in-upcoming-investor-conferences/ ; https://www.nasdaq.com/press-release/mirum-pharmaceuticals-participate-upcoming-investor-conferences-2026-10-21"
+      },
+      "note": "Three company releases (Mobia, DaVita, Mirum) all place their sessions on 2026-11-10 in New York; the full span of the 2026 event was not found, so `end` is null (the 7th annual ran 2025-11-17 to 2025-11-19). No Wolfe-hosted public page found. 2027 dates not found."
+    },
+    {
+      "slug": "stephens-nashville",
+      "full_name": "Stephens Annual Investment Conference",
+      "bank": "Stephens",
+      "focus": "Generalist (healthcare services is one of several tracks)",
+      "standing": "Generalist mid-cap conference in Nashville; relevant for healthcare services names, not a core healthcare event",
+      "attendance": "Nearly 250 presenting companies (2025)",
+      "attendance_source": "https://www.stephens.com/events/stephens-annual-investment-conference-2025",
+      "url": "https://www.stephens.com/news/stephens-announces-28th-annual-investment-conference",
+      "next": {
+        "name": "Stephens 28th Annual Investment Conference (NASH2026)",
+        "start": "2026-11-17",
+        "end": "2026-11-19",
+        "location": "Nashville, TN (Grand Hyatt Nashville)",
+        "source": "https://www.stephens.com/news/stephens-announces-28th-annual-investment-conference ; https://finviz.com/news/418629/triumph-to-present-at-the-stephens-annual-investment-conference-on-november-17-in-nashville-tennessee ; https://finviz.com/news/422769/cal-maine-foods-to-participate-in-2026-stephens-annual-investment-conference"
+      },
+      "last": {
+        "name": "Stephens 27th Annual Investment Conference",
+        "start": "2025-11-18",
+        "end": "2025-11-20",
+        "location": "Nashville, TN (Grand Hyatt Nashville)",
+        "source": "https://www.businesswire.com/news/home/20251022249796/en/Stephens-Announces-27th-Annual-Investment-Conference-in-Nashville"
+      },
+      "note": "Starts today (2026-11-17). Added incidentally. The Stephens page itself returned HTTP 403 on direct fetch; dates are from the search result for that page plus company releases."
+    },
+    {
+      "slug": "evercore-hconx",
+      "full_name": "Evercore Healthcare Conference (formerly Evercore ISI HealthCONx)",
+      "bank": "Evercore ISI",
+      "focus": "All healthcare",
+      "standing": "One of the three overlapping early-December healthcare conferences (with Piper Sandler and Citi)",
+      "attendance": "500+ industry experts and corporate leaders from 200+ healthcare companies (2025)",
+      "attendance_source": "https://www.businesswire.com/news/home/20251125034468/en/Evercore-Hosts-8th-Annual-Healthcare-Conference-Dec.-2-4-2025/",
+      "url": "https://investors.evercore.com/node/23261",
+      "next": {
+        "name": "9th Annual Evercore Healthcare Conference",
+        "start": "2026-11-30",
+        "end": "2026-12-02",
+        "location": "Coral Gables (Miami), FL",
+        "source": "https://investors.enterabio.com/events/event-details/evercore-isi-9th-annual-healthcare-conference ; https://www.globenewswire.com/news-release/2026/11/11/3400649/0/en/recursion-to-participate-in-upcoming-investor-conferences.html ; https://www.globenewswire.com/news-release/2026/11/16/3404086/0/en/carlsmed-to-participate-in-upcoming-investor-conferences.html ; https://gilmartinir.com/gilmartin-group-resources/conference-calendar/ ; https://rxir.com/conferences/"
+      },
+      "last": {
+        "name": "8th Annual Evercore Healthcare Conference",
+        "start": "2025-12-02",
+        "end": "2025-12-04",
+        "location": "Coral Gables, FL (Loews Coral Gables Hotel)",
+        "source": "https://www.businesswire.com/news/home/20251125034468/en/Evercore-Hosts-8th-Annual-Healthcare-Conference-Dec.-2-4-2025/"
+      },
+      "note": "No Evercore press release for the 9th edition was found; Nov 30-Dec 2 span rests on two IR-agency calendars, a company IR event page, and company releases with sessions on Nov 30 (Recursion, Carlsmed), Dec 1 (Agilent, Quest, Waters, Scholar Rock) and Dec 2 (Carlsmed). Location given as 'Miami' by most releases and 'Coral Gables' by Agilent and Inhibikase; 2026 hotel not confirmed. The 'HealthCONx' brand was dropped from the 2025 edition onward. UNVERIFIED CANDIDATE for 2027 (rxir.com only): 2027-11-29 to 2027-12-01, Miami, FL."
+    },
+    {
+      "slug": "piper-hc",
+      "full_name": "Piper Sandler Annual Healthcare Conference",
+      "bank": "Piper Sandler",
+      "focus": "All healthcare (strong medtech and biotech)",
+      "standing": "One of the largest year-end healthcare conferences; the New York anchor of early-December week",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.pipersandler.com/conferences-and-events?sectors=518",
+      "next": {
+        "name": "Piper Sandler 38th Annual Healthcare Conference",
+        "start": "2026-12-01",
+        "end": "2026-12-03",
+        "location": "New York, NY",
+        "source": "https://www.pipersandler.com/conferences-and-events?sectors=518"
+      },
+      "last": {
+        "name": "Piper Sandler 37th Annual Healthcare Conference",
+        "start": "2025-12-02",
+        "end": "2025-12-04",
+        "location": "New York, NY (Lotte New York Palace Hotel)",
+        "source": "https://www.barchart.com/story/news/36192699/transmedics-to-participate-in-the-piper-sandler-37th-annual-healthcare-conference ; https://designtx.gcs-web.com/events/event-details/piper-sandler-37th-annual-healthcare-conference"
+      },
+      "note": "Next dates from Piper Sandler's own events page. Invitation only. 2026 venue not stated on the bank page."
+    },
+    {
+      "slug": "citi-hc",
+      "full_name": "Citi Global Healthcare Conference",
+      "bank": "Citi",
+      "focus": "All healthcare (large-cap pharma/biotech heavy)",
+      "standing": "Large-cap-focused early-December conference; overlaps Piper Sandler and Evercore",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.citigroup.com/global/insights/global-healthcare-the-times-they-are-a-changin",
+      "next": {
+        "name": "Citi's 2026 Global Healthcare Conference",
+        "start": "2026-12-01",
+        "end": "2026-12-03",
+        "location": "Miami, FL",
+        "source": "https://www.biospace.com/press-releases/pharmaessentia-to-participate-in-upcoming-jefferies-and-citi-healthcare-conferences ; https://www.biospace.com/press-releases/guardian-pharmacy-services-inc-to-participate-in-upcoming-citi-annual-global-healthcare-conference ; https://corporate.qiagen.com/English/investor-relations/events-and-presentations/events/2026/Citi-Global-Healthcare-Conference/default.aspx ; https://gilmartinir.com/gilmartin-group-resources/conference-calendar/"
+      },
+      "last": {
+        "name": "Citi's 2025 Global Healthcare Conference",
+        "start": "2025-12-02",
+        "end": "2025-12-04",
+        "location": "Miami, FL",
+        "source": "https://www.citigroup.com/global/insights/global-healthcare-the-times-they-are-a-changin ; https://www.barchart.com/story/news/36323703/bristol-myers-squibb-to-participate-in-citis-2025-global-healthcare-conference"
+      },
+      "note": "No Citi-hosted page for 2026 found. Dec 1-3 span stated in PharmaEssentia's release and two IR-agency calendars; company sessions found on Dec 1 (Guardian Pharmacy, Olema) and Dec 2 (Scholar Rock, Krystal, Qiagen, Stevanato); none found on Dec 3. The Citi article cited for 2025 is dated 2025-11-18 and says 'Miami Dec. 2-4' without a year."
+    },
+    {
+      "slug": "jpm-healthcare",
+      "full_name": "J.P. Morgan Healthcare Conference",
+      "bank": "J.P. Morgan",
+      "focus": "All healthcare",
+      "standing": "The largest and most important healthcare investor conference of the year",
+      "attendance": "525 companies and 9,000+ attendees (2026 edition, per third-party conference report)",
+      "attendance_source": "https://cckb.closeconcerns.com/r/b32ca607",
+      "url": "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
+      "next": {
+        "name": "45th Annual J.P. Morgan Healthcare Conference",
+        "start": "2027-01-11",
+        "end": "2027-01-14",
+        "location": "San Francisco, CA (Westin St. Francis)",
+        "source": "https://bassberry.com/events/bbs-connect-at-45th-annual-j-p-morgan-healthcare-conference/ ; https://www.genomics.com/events/2027-jp-morgan-healthcare-conference ; https://foleyhoag.com/healthcare-week-2027/ ; https://www.biopharmadive.com/news/top-biotech-pharma-medical-conferences-2027/832075/"
+      },
+      "last": {
+        "name": "44th Annual J.P. Morgan Healthcare Conference",
+        "start": "2026-01-12",
+        "end": "2026-01-15",
+        "location": "San Francisco, CA (Westin St. Francis)",
+        "source": "https://inizio.com/events/jp-morgan-healthcare-conference ; https://ir.zymeworks.com/events/event-details/44th-annual-jp-morgan-healthcare-conference"
+      },
+      "note": "Jan 11-14, 2027 confirmed by several independent pages; J.P. Morgan's own page was not fetched (the `url` is the standard JPM page, not verified this session). One IR-agency calendar (rxir.com) lists Jan 10-14 and one page (vdura) calls the dates projected; the Jan 11-14 sources outnumber and agree."
+    },
+    {
+      "slug": "guggenheim-biotech",
+      "full_name": "Guggenheim Securities Emerging Outlook: Biotech Summit",
+      "bank": "Guggenheim Securities",
+      "focus": "Biotech (small/mid-cap)",
+      "standing": "Well-attended February small/mid-cap biotech summit; first biotech-specific event after J.P. Morgan",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://investor.praxismedicines.com/events/event-details/guggenheim-emerging-outlook-biotech-summit-2026",
+      "next": null,
+      "last": {
+        "name": "Guggenheim Securities Emerging Outlook: Biotech Summit 2026",
+        "start": "2026-02-11",
+        "end": "2026-02-12",
+        "location": "New York, NY",
+        "source": "https://investor.praxismedicines.com/events/event-details/guggenheim-emerging-outlook-biotech-summit-2026 ; https://apogeetherapeutics.gcs-web.com/events/event-details/guggenheim-emerging-outlook-biotech-summit"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-02-09 to 2027-02-11, New York, NY. A search summary of the same calendar read it as Feb 16-17 Miami (that line belongs to the BIO CEO & Investor Conference), so the reading is ambiguous as well as single-sourced; left null. 2026 span is from company IR pages listing Feb 11 and Feb 12; whether a third day existed was not checked."
+    },
+    {
+      "slug": "oppenheimer-hc",
+      "full_name": "Oppenheimer Annual Healthcare Life Sciences Conference",
+      "bank": "Oppenheimer",
+      "focus": "All healthcare / life sciences (small and mid-cap)",
+      "standing": "Mid-tier February conference for small/mid-cap healthcare; virtual in 2026",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.barchart.com/story/news/300497/cardiff-oncology-to-present-at-the-oppenheimer-36th-annual-healthcare-life-sciences-conference",
+      "next": null,
+      "last": {
+        "name": "Oppenheimer 36th Annual Healthcare Life Sciences Conference",
+        "start": "2026-02-25",
+        "end": "2026-02-26",
+        "location": "Virtual",
+        "source": "https://www.barchart.com/story/news/300497/cardiff-oncology-to-present-at-the-oppenheimer-36th-annual-healthcare-life-sciences-conference ; https://www.barchart.com/story/news/315136/bioage-labs-to-present-at-oppenheimer-36th-annual-healthcare-life-sciences-conference"
+      },
+      "note": "2027 dates not found on any page, including the IR-agency calendars checked."
+    },
+    {
+      "slug": "td-cowen-hc",
+      "full_name": "TD Cowen Annual Health Care Conference",
+      "bank": "TD Cowen",
+      "focus": "All healthcare",
+      "standing": "One of the 3-4 largest healthcare investor conferences of the year; the March anchor in Boston",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.tdsecurities.com/ca/en/health-care-conference",
+      "next": {
+        "name": "TD Cowen 47th Annual Health Care Conference",
+        "start": "2027-03-01",
+        "end": "2027-03-03",
+        "location": "Boston, MA",
+        "source": "https://rxir.com/conferences/ ; https://gilmartinir.com/gilmartin-group-resources/conference-calendar/ ; https://www.life-sciences-usa.com/product/cowen-health-care-conference-company-llc-bank-group-2001-34024.html"
+      },
+      "last": {
+        "name": "TD Cowen 46th Annual Health Care Conference",
+        "start": "2026-03-02",
+        "end": "2026-03-04",
+        "location": "Boston, MA (Boston Marriott Copley Place)",
+        "source": "https://www.biospace.com/press-releases/boston-scientific-to-participate-in-td-cowens-46th-annual-health-care-conference ; https://www.rttnews.com/3626420/td-cowen-conference-atai-bcrx-bmrn-and-more-to-present-key-updates.aspx ; https://ir.tonixpharma.com/news-events/ir-events/detail/4531/td-cowen-46th-annual-healthcare-conference"
+      },
+      "note": "WEAKER THAN THE OTHER 'next' ENTRIES: 2027 dates rest on three agreeing third-party calendars (two IR agencies, one events portal), not on a TD Cowen page or company releases. Gilmartin mislabels it '46th'. Treat as provisional until a company release confirms."
+    },
+    {
+      "slug": "leerink-hc",
+      "full_name": "Leerink Partners Global Healthcare Conference",
+      "bank": "Leerink Partners",
+      "focus": "All healthcare (biopharma-heavy)",
+      "standing": "Major March biopharma-focused conference in Miami; overlaps Barclays",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://chemxplore.com/events/2026-leerink-partners-global-healthcare-conference",
+      "next": null,
+      "last": {
+        "name": "Leerink Partners 2026 Global Healthcare Conference",
+        "start": "2026-03-08",
+        "end": "2026-03-11",
+        "location": "Miami Beach, FL (W South Beach)",
+        "source": "https://chemxplore.com/events/2026-leerink-partners-global-healthcare-conference ; https://www.barchart.com/story/news/416965/quest-diagnostics-to-speak-at-the-leerink-2026-global-healthcare-conference ; https://www.barchart.com/story/news/529880/pepgen-to-participate-in-the-leerink-global-healthcare-conference"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-03-07 to 2027-03-10, Miami, FL, listed there as 'Leerink Partners Global Biopharma Conference' (the name has alternated between 'Global Healthcare' and 'Global Biopharma'). 2026 span from one events listing; company sessions confirmed on Mar 9, 10 and 11."
+    },
+    {
+      "slug": "barclays-hc",
+      "full_name": "Barclays Annual Global Healthcare Conference",
+      "bank": "Barclays",
+      "focus": "All healthcare",
+      "standing": "Large March multi-subsector conference in Miami; one of the main spring events",
+      "attendance": "More than 1,200 leaders, investors and experts (2026)",
+      "attendance_source": "https://www.ib.barclays/news-and-events/global-healthcare-conference.html",
+      "url": "https://www.ib.barclays/news-and-events/global-healthcare-conference.html",
+      "next": null,
+      "last": {
+        "name": "Barclays 28th Annual Global Healthcare Conference",
+        "start": "2026-03-10",
+        "end": "2026-03-12",
+        "location": "Miami, FL",
+        "source": "https://www.cellectis.com/en/investors/events-and-webcasts/barclays-28th-annual-global-healthcare-conference ; https://ir.fortrea.com/events/event-details/barclays-28th-annual-global-healthcare-conference ; https://www.barchart.com/story/news/277128/medline-announces-participation-in-the-barclays-28th-annual-global-healthcare-conference"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): Barclays 29th Annual Global Healthcare Conference, 2027-03-08 to 2027-03-10, Miami, FL. A targeted search found no second source. Barclays' own page shows no 2027 dates."
+    },
+    {
+      "slug": "raymond-james",
+      "full_name": "Raymond James Annual Institutional Investors Conference",
+      "bank": "Raymond James",
+      "focus": "Generalist (healthcare is one of several tracks)",
+      "standing": "Large generalist conference; a secondary venue for small/mid-cap healthcare names",
+      "attendance": "~300 presenting companies (2026); ~2,000 in-person attendees (2025), per a company release",
+      "attendance_source": "https://www.barchart.com/story/news/279514/hawkins-inc-to-participate-in-raymond-james-associates-annual-institutional-investor-conference",
+      "url": "https://www.raymondjames.com/corporations-and-institutions/global-equities-and-investment-banking/conferences-and-events",
+      "next": null,
+      "last": {
+        "name": "Raymond James 47th Annual Institutional Investors Conference",
+        "start": "2026-03-02",
+        "end": "2026-03-04",
+        "location": "Orlando, FL (JW Marriott Grande Lakes)",
+        "source": "https://www.raymondjames.com/news-and-media/press-releases/2026/02/24/raymond-james-to-present-at-raymond-james-institutional-investors-conference ; https://skywardinsurance.gcs-web.com/events/event-details/raymond-james-47th-annual-institutional-investors-conference"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-03-07 to 2027-03-10, Orlando, FL. One 2026 company release gave the span as Mar 1-4 (Sunday arrival); presentations ran Mar 2-4. Raymond James' conferences page timed out on fetch."
+    },
+    {
+      "slug": "keybanc-hc",
+      "full_name": "KeyBanc Capital Markets Healthcare Forum",
+      "bank": "KeyBanc Capital Markets",
+      "focus": "All healthcare (services, medtech, tools)",
+      "standing": "Smaller virtual March forum; useful for services and medtech mid-caps",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.barchart.com/story/news/673681/lifecore-biomedical-to-participate-in-6th-annual-keybanc-capital-markets-healthcare-virtual-forum",
+      "next": null,
+      "last": {
+        "name": "2026 KeyBanc Capital Markets Healthcare Forum (6th annual)",
+        "start": "2026-03-17",
+        "end": "2026-03-18",
+        "location": "Virtual",
+        "source": "https://www.barchart.com/story/news/673681/lifecore-biomedical-to-participate-in-6th-annual-keybanc-capital-markets-healthcare-virtual-forum ; https://www.barchart.com/story/news/697127/solventum-to-participate-in-the-2026-keybanc-healthcare-forum ; https://ir.recursion.com/events/event-details/keybanc-2026-healthcare-forum"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-03-16 to 2027-03-17, virtual."
+    },
+    {
+      "slug": "canaccord-msk",
+      "full_name": "Canaccord Genuity Musculoskeletal Conference",
+      "bank": "Canaccord Genuity",
+      "focus": "Medtech (orthopedics/musculoskeletal)",
+      "standing": "Niche one-day orthopedics conference held alongside the AAOS annual meeting",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.canaccordgenuity.com/capital-markets/events-and-conferences/2026-musculoskeletal-conference",
+      "next": null,
+      "last": {
+        "name": "2026 CG Musculoskeletal Conference",
+        "start": "2026-03-02",
+        "end": "2026-03-02",
+        "location": "New Orleans, LA (and virtual)",
+        "source": "https://www.canaccordgenuity.com/capital-markets/events-and-conferences/2026-musculoskeletal-conference ; https://www.barchart.com/story/news/412699/xtant-medical-to-participate-in-the-canaccord-genuity-2026-musculoskeletal-conference"
+      },
+      "note": "Added incidentally. One release (Shoulder Innovations) gives a Mar 3, 2026 slot, conflicting with the Mar 2 single-day listing on Canaccord's page; bank page used. No 2027 instance on Canaccord's events page."
+    },
+    {
+      "slug": "needham-hc",
+      "full_name": "Needham Virtual Healthcare Conference",
+      "bank": "Needham & Company",
+      "focus": "All healthcare (small/mid-cap biotech, medtech, diagnostics, digital health)",
+      "standing": "Mid-tier virtual April conference for small/mid-cap healthcare",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.needhamco.com/conferences/26th-annual-needham-virtual-healthcare-conference",
+      "next": null,
+      "last": {
+        "name": "25th Annual Needham Virtual Healthcare Conference",
+        "start": "2026-04-13",
+        "end": "2026-04-16",
+        "location": "Virtual",
+        "source": "https://www.needhamco.com/conferences/26th-annual-needham-virtual-healthcare-conference"
+      },
+      "note": "The Needham URL slug says '26th' but the page content (fetched 2026-11-17) still describes the 25th, April 13-16, 2026. 2027 dates not found."
+    },
+    {
+      "slug": "bofa-hc",
+      "full_name": "BofA Securities Health Care Conference",
+      "bank": "BofA Securities",
+      "focus": "All healthcare",
+      "standing": "One of the 3-4 largest healthcare investor conferences of the year; the May anchor in Las Vegas",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://investors.solventum.com/news-events/press-releases/detail/147",
+      "next": null,
+      "last": {
+        "name": "BofA Securities 2026 Health Care Conference",
+        "start": "2026-05-12",
+        "end": null,
+        "location": "Las Vegas, NV",
+        "source": "https://www.barchart.com/story/news/1555953/edwards-lifesciences-to-present-at-the-bofa-securities-2026-health-care-conference ; https://investors.solventum.com/news-events/press-releases/detail/147 ; https://haemonetics.gcs-web.com/events/event-details/bank-america-2026-healthcare-conference-las-vegas-nevada"
+      },
+      "note": "Company releases confirm sessions on May 12 and May 13, 2026. One aggregator (catacal) gives the span as May 12-14, 2026, not corroborated, so `end` is null. 2026 hotel not confirmed (Encore at Wynn in 2024 and 2025). UNVERIFIED CANDIDATE for next (rxir.com only): 2027-05-11 to 2027-05-13, Las Vegas, NV."
+    },
+    {
+      "slug": "rbc-hc",
+      "full_name": "RBC Capital Markets Global Healthcare Conference",
+      "bank": "RBC Capital Markets",
+      "focus": "All healthcare",
+      "standing": "Mid-to-large May New York conference, a week after BofA",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.biospace.com/press-releases/johnson-johnson-to-participate-in-the-2026-rbc-capital-markets-global-healthcare-conference",
+      "next": null,
+      "last": {
+        "name": "2026 RBC Capital Markets Global Healthcare Conference",
+        "start": "2026-05-19",
+        "end": "2026-05-20",
+        "location": "New York, NY (InterContinental New York Barclay)",
+        "source": "https://www.barchart.com/story/news/1930192/rigel-to-present-at-the-2026-rbc-capital-markets-global-healthcare-conference ; https://www.barchart.com/story/news/1913839/wave-life-sciences-to-present-at-2026-rbc-capital-markets-global-healthcare-conference ; https://www.barchart.com/story/news/1870166/knight-to-present-at-the-2026-rbc-capital-markets-global-healthcare-conference-in-new-york-city"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-05-18 to 2027-05-19, New York, NY. Venue from a single company release (Knight Therapeutics)."
+    },
+    {
+      "slug": "goldman-hc",
+      "full_name": "Goldman Sachs Annual Global Healthcare Conference",
+      "bank": "Goldman Sachs",
+      "focus": "All healthcare",
+      "standing": "One of the 3-4 largest healthcare investor conferences of the year; the June anchor",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://chemxplore.com/events/47th-goldman-sachs-global-healthcare-conference",
+      "next": null,
+      "last": {
+        "name": "Goldman Sachs 47th Annual Global Healthcare Conference",
+        "start": "2026-06-08",
+        "end": "2026-06-10",
+        "location": "Miami Beach, FL (Loews Miami Beach Hotel)",
+        "source": "https://www.chartmill.com/news/external/33792/gnwcq-2026-6-4-praxis-precision-medicines-to-participate-in-goldmans-sachs-47th-annual-global-healthcare-conference ; https://www.barchart.com/story/news/2290359/ardent-health-to-participate-in-the-goldman-sachs-47th-annual-global-healthcare-conference ; https://haemonetics.gcs-web.com/events/event-details/goldman-sachs-47th-annual-global-healthcare-conference-miami-beach-florida"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): 2027-06-14 to 2027-06-16, Dana Point, CA. That is a location change from Miami Beach and is single-sourced, so treat with extra caution. 2026 sessions confirmed by company releases on Jun 8, 9 and 10."
+    },
+    {
+      "slug": "jefferies-nyc",
+      "full_name": "Jefferies Global Healthcare Conference in New York",
+      "bank": "Jefferies",
+      "focus": "All healthcare (biotech-heavy)",
+      "standing": "One of the largest healthcare conferences of the year by company count; the early-June New York anchor",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.jefferies.com/about/conferences-events/",
+      "next": {
+        "name": "2027 Jefferies Global Healthcare Conference in New York",
+        "start": "2027-06-08",
+        "end": "2027-06-10",
+        "location": "New York, NY",
+        "source": "https://www.jefferies.com/wp-content/uploads/sites/4/2026/11/11_10_26_Jefferies_2026_Conference_Summit_Calendar.pdf ; https://rxir.com/conferences/"
+      },
+      "last": {
+        "name": "2026 Jefferies Global Healthcare Conference in New York",
+        "start": "2026-06-02",
+        "end": "2026-06-04",
+        "location": "New York, NY (Marriott Marquis)",
+        "source": "https://www.jefferies.com/wp-content/uploads/sites/4/2026/11/11_10_26_Jefferies_2026_Conference_Summit_Calendar.pdf ; https://www.biospace.com/press-releases/nektar-therapeutics-to-participate-in-the-2026-jefferies-global-healthcare-conference-in-new-york"
+      },
+      "note": "Both instances read directly from Jefferies' own 2026-2027 Conference & Summit Calendar PDF (dated 2026-11-10). 2027 venue not stated."
+    },
+    {
+      "slug": "william-blair",
+      "full_name": "William Blair Annual Growth Stock Conference",
+      "bank": "William Blair",
+      "focus": "Generalist growth (healthcare is a large track)",
+      "standing": "Premier generalist growth conference; important for healthcare growth and medtech names but not healthcare-only",
+      "attendance": "274 presenting companies (251 public, 23 private) in 2026",
+      "attendance_source": "https://www.williamblair.com/-/media/downloads/pwm/2026/williamblair_economics-weekly-20260608.pdf",
+      "url": "https://www.williamblair.com/Insights/Macro-Highlights-From-William-Blairs-46th-Annual-Growth-Stock-Conference",
+      "next": null,
+      "last": {
+        "name": "William Blair 46th Annual Growth Stock Conference",
+        "start": "2026-06-02",
+        "end": "2026-06-04",
+        "location": "Chicago, IL (Loews Chicago Hotel)",
+        "source": "https://www.hospitalityupgrade.com/news/agilysys-to-participate-in-the-william-blair-46th-annual-growth-stock-conference ; https://www.barchart.com/story/news/2149102/twist-bioscience-to-present-at-william-blair-46th-annual-growth-stock-conference ; https://www.williamblair.com/-/media/downloads/pwm/2026/williamblair_economics-weekly-20260608.pdf"
+      },
+      "note": "2027 dates not found. One aggregator listed June 2-3; company releases and William Blair's own recap ('three-day event') support June 2-4."
+    },
+    {
+      "slug": "truist-medtech",
+      "full_name": "Truist Securities MedTech Conference",
+      "bank": "Truist Securities",
+      "focus": "Medtech",
+      "standing": "One-day medtech-only conference in Boston; niche but well attended by small/mid-cap device companies",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://haemonetics.gcs-web.com/events/event-details/truist-securities-2026-medtech-conference-boston-massachusetts",
+      "next": null,
+      "last": {
+        "name": "Truist Securities 2026 MedTech Conference",
+        "start": "2026-06-16",
+        "end": "2026-06-16",
+        "location": "Boston, MA (Boston Harbor Hotel)",
+        "source": "https://www.barchart.com/story/news/2312461/si-bone-to-present-at-truist-securities-2026-medtech-conference-on-june-16-2026 ; https://www.barchart.com/story/news/2408251/artivion-to-participate-in-the-2026-truist-securities-medtech-conference ; https://www.barchart.com/story/news/2377401/vericel-to-present-at-the-2026-truist-securities-medtech-conference-on-tuesday-june-16-2026"
+      },
+      "note": "Added incidentally. 2027 dates not found. Venue from a single release (Artivion)."
+    },
+    {
+      "slug": "canaccord-growth",
+      "full_name": "Canaccord Genuity Annual Growth Conference",
+      "bank": "Canaccord Genuity",
+      "focus": "Generalist growth (healthcare/medtech and tech are the main tracks)",
+      "standing": "The main August conference; one of few investor events in the summer lull",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.canaccordgenuity.com/capital-markets/about-us/events",
+      "next": {
+        "name": "CG 47th Annual Growth Conference",
+        "start": "2027-08-10",
+        "end": "2027-08-12",
+        "location": "Boston, MA",
+        "source": "https://www.canaccordgenuity.com/capital-markets/about-us/events"
+      },
+      "last": {
+        "name": "Canaccord Genuity 46th Annual Growth Conference",
+        "start": "2026-08-11",
+        "end": "2026-08-13",
+        "location": "Boston, MA (InterContinental Boston)",
+        "source": "https://www.canaccordgenuity.com/fr/marche-des-capitaux/events-and-conferences/46th-annual-growth-conference ; https://ir.quanterix.com/node/14131 ; https://www.barchart.com/story/news/3510076/transmedics-to-present-at-the-canaccord-genuity-46th-annual-growth-conference"
+      },
+      "note": "Next dates from Canaccord's own events page. Canaccord's page also lists a '2027 Biotech Private Company Symposium', 2027-04-06, virtual."
+    },
+    {
+      "slug": "ms-hc",
+      "full_name": "Morgan Stanley Annual Global Healthcare Conference",
+      "bank": "Morgan Stanley",
+      "focus": "All healthcare",
+      "standing": "One of the 3-4 largest healthcare investor conferences of the year; the September anchor in New York",
+      "attendance": "~3,000 investors and executives (2026, per a third-party recap)",
+      "attendance_source": "https://www.healthcare.digital/single-post/10-key-points-from-morgan-stanley-s-24th-annual-global-healthcare-conference",
+      "url": "https://www.morganstanley.com/insights/articles/healthcare-industry-trends-global-healthcare-conference-2026",
+      "next": null,
+      "last": {
+        "name": "Morgan Stanley 24th Annual Global Healthcare Conference",
+        "start": "2026-09-14",
+        "end": "2026-09-16",
+        "location": "New York, NY",
+        "source": "https://forbion.com/news-insights/events/morgan-stanley-24th-annual-global-healthcare-conference/ ; https://secure.businesswire.com/news/home/20260810189263/en/Johnson-Johnson-to-Participate-in-the-Morgan-Stanley-24th-Annual-Global-Healthcare-Conference ; https://finviz.com/news/390418/amgen-to-present-at-the-morgan-stanley-24th-annual-global-healthcare-conference"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): Morgan Stanley 25th Annual Global Healthcare Conference, 2027-09-13 to 2027-09-15, New York, NY. Attendance figure is from a third-party blog recap, not Morgan Stanley."
+    },
+    {
+      "slug": "wells-hc",
+      "full_name": "Wells Fargo Annual Healthcare Conference",
+      "bank": "Wells Fargo",
+      "focus": "All healthcare (strong medtech and services)",
+      "standing": "Large early-September conference in Boston; kicks off the fall conference season",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://www.wellsfargo.com/cib/insights/events/healthcare-conference",
+      "next": null,
+      "last": {
+        "name": "Wells Fargo 21st Annual Healthcare Conference (2026 Healthcare Conference)",
+        "start": "2026-09-08",
+        "end": "2026-09-10",
+        "location": "Boston, MA (Encore Boston Harbor, Everett)",
+        "source": "https://www.wellsfargo.com/cib/insights/events/healthcare-conference ; https://www.barchart.com/story/news/4236140/stryker-to-participate-in-the-2026-wells-fargo-healthcare-conference"
+      },
+      "note": "UNVERIFIED CANDIDATE for next (rxir.com only): Wells Fargo 22nd Annual Healthcare Conference, 2027-09-07 to 2027-09-09, Boston, MA. Wells Fargo's own page still shows only the 2026 dates."
+    },
+    {
+      "slug": "baird-hc",
+      "full_name": "Baird Global Healthcare Conference",
+      "bank": "Baird",
+      "focus": "All healthcare (medtech, tools, services, distribution)",
+      "standing": "Mid-size September New York conference; one in-person day plus a virtual private-company track",
+      "attendance": "Nearly 100 public and privately held companies (2026)",
+      "attendance_source": "https://www.rwbaird.com/corporations-and-institutions/investment-banking/insights/2026/06/bairds-healthcare-team-delivers-record-first-half-2026/",
+      "url": "https://www.rwbaird.com/corporations-and-institutions/investment-banking/insights/2026/06/bairds-healthcare-team-delivers-record-first-half-2026/",
+      "next": null,
+      "last": {
+        "name": "Baird 2026 Global Healthcare Conference",
+        "start": "2026-09-15",
+        "end": "2026-09-15",
+        "location": "New York, NY (InterContinental New York Barclay)",
+        "source": "https://www.rwbaird.com/corporations-and-institutions/investment-banking/insights/2026/06/bairds-healthcare-team-delivers-record-first-half-2026/ ; https://www.barchart.com/story/news/4022834/quest-diagnostics-to-speak-at-the-baird-2026-global-healthcare-conference ; https://finviz.com/news/382741/procept-biorobotics-to-attend-the-baird-2026-global-healthcare-conference-on-september-15-2026"
+      },
+      "note": "Dates given are the in-person day. Baird's page also lists a virtual private-company track on 2026-09-09 and 2026-09-10. One aggregator listed Sep 15-16; Baird's own page says Sep 15 only. 2027 dates not found."
+    },
+    {
+      "slug": "cantor-hc",
+      "full_name": "Cantor Global Healthcare Conference",
+      "bank": "Cantor Fitzgerald",
+      "focus": "All healthcare (small/mid-cap biotech heavy)",
+      "standing": "Mid-size September New York conference with a large small-cap biotech roster",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://investors.leonabio.com/events/event-details/cantor-global-healthcare-conference-2026",
+      "next": null,
+      "last": {
+        "name": "Cantor Global Healthcare Conference 2026",
+        "start": "2026-09-09",
+        "end": "2026-09-11",
+        "location": "New York, NY",
+        "source": "https://www.1stoncology.com/blog/?p=113258 ; https://www.1stoncology.com/blog/?p=113265 ; https://www.1stoncology.com/blog/?p=113313"
+      },
+      "note": "Span stated in two company releases (Tonix, Beyond Air); sessions found on Sep 9, 10 and 11. One release names the Waldorf Astoria New York as venue, not corroborated. 2027 dates not found."
+    },
+    {
+      "slug": "hcw",
+      "full_name": "H.C. Wainwright Annual Global Investment Conference",
+      "bank": "H.C. Wainwright",
+      "focus": "Generalist small/micro-cap (majority biotech/healthcare)",
+      "standing": "Very large by company count, dominated by micro/small-cap biotech; low institutional signal relative to size",
+      "attendance": null,
+      "attendance_source": null,
+      "url": "https://finviz.com/news/389470/genprex-to-present-at-the-hc-wainwright-28th-annual-global-investment-conference",
+      "next": null,
+      "last": {
+        "name": "H.C. Wainwright 28th Annual Global Investment Conference",
+        "start": "2026-09-14",
+        "end": "2026-09-16",
+        "location": "New York, NY (Lotte New York Palace Hotel)",
+        "source": "https://finviz.com/news/389470/genprex-to-present-at-the-hc-wainwright-28th-annual-global-investment-conference ; https://finviz.com/news/390832/widepoint-to-present-at-the-hc-wainwright-28th-annual-global-investment-conference-on-tuesday-september-15-2026-at-2-30pmet ; https://finviz.com/news/391670/ernexa-therapeutics-to-present-at-the-hc-wainwright-28th-annual-global-investment-conference"
+      },
+      "note": "2027 dates not found."
+    }
+  ]
+}

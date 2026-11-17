@@ -1,0 +1,185 @@
+{
+  "conference": "AASLD Liver Meeting 2026",
+  "series": "aasld",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Hepatitis delta virus (HDV) became a competitive market: Vir Biotechnology's (VIR) monthly elebsiran plus tobevibart met its Phase 3 ECLIPSE 1 primary endpoint (44% vs 0%, p<0.0001, n=124) and VIR shares rose 13% to 22% on Nov 9, 2026, while Mirum's (MIRM) brelovitug met the AZURE-1 Phase 3 endpoint, both targeting a market Gilead (GILD) opened with Hepcludex in May 2026.",
+      "Chronic hepatitis B virus (HBV) functional cure moved into practice: GSK's (GSK) Hibsago (bepirovirsen), FDA-approved Oct 20, 2026, showed 91% durability of functional cure 48 weeks off all therapy, but only 19% of treated patients achieve it.",
+      "Metabolic dysfunction-associated steatohepatitis (MASH) debate shifted to real-world persistence and payer cost: Madrigal's (MDGL) Rezdiffra showed 62.2% to 72.4% 12-month persistence while a model found only 24 of 100 Wegovy (NVO) patients persisted to 72 weeks, with pipeline data from Merck (MRK), GSK and Altimmune (ALT).",
+      "In primary biliary cholangitis (PBC), Phase 3 data for Ipsen's (IPN.PA) Iqirvo and Gilead's (GILD) Livdelzi backed alkaline phosphatase (ALP) normalization as the new treatment target as a new AASLD and American Gastroenterological Association (AGA) guideline put peroxisome proliferator-activated receptor (PPAR) agonists second-line."
+    ],
+    "items": [
+      {
+        "title": "ECLIPSE 1 Phase 3 in chronic hepatitis delta, elebsiran plus tobevibart (Vir Biotechnology)",
+        "tickers": [
+          "VIR",
+          "GILD"
+        ],
+        "when": "",
+        "lines": [
+          "Primary endpoint undetectable HDV RNA plus alanine aminotransferase (ALT) normalization at week 48: 44.1% vs 0% delayed treatment at week 12, difference 44.1 percentage points, 95% CI 32.6-55.0, p<0.0001, n=124 randomized 2:1",
+          "Undetectable HDV RNA in 79.2% of treated patients; 85% with cirrhosis (n=46) vs 73% without (n=37); no discontinuations, flu-like symptoms in 43.4%",
+          "VIR shares rose nearly 13% in early trading and 22% per Yahoo Finance on Nov 9, 2026",
+          "US FDA submission planned mid-2027; ECLIPSE 3 is head-to-head vs Gilead's daily Hepcludex (bulevirtide), accelerated approval May 22, 2026"
+        ],
+        "url": "https://www.ajmc.com/view/the-liver-meeting-2026-highlights-hepatitis-delta-pbc-targets-mash-costs"
+      },
+      {
+        "title": "Hibsago (bepirovirsen) B-Well 1 and 2 end-of-study results in chronic hepatitis B, plus PBGENE-HBV gene editing (GSK; Precision BioSciences)",
+        "tickers": [
+          "GSK",
+          "DTIL"
+        ],
+        "when": "",
+        "lines": [
+          "Functional cure (hepatitis B surface antigen (HBsAg) loss plus undetectable HBV DNA for 24 weeks off therapy) at week 72: 19% (233/1220) vs 0% (0/614) placebo; 26% (200/768) if baseline HBsAg 1000 IU/mL or less",
+          "Durability to week 96, 48 weeks after stopping all treatment: 91% pooled (114/127 B-Well 1, 97/105 B-Well 2)",
+          "Response by baseline HBsAg: 40% at week 72 if below 200 IU/mL vs 4% at 2500-3000 IU/mL; approved Oct 20, 2026 with boxed warning for hepatic reactions and thrombocytopenia; list price not yet disclosed",
+          "Precision BioSciences PBGENE-HBV (ELIMINATE-B): undetectable pregenomic RNA (pgRNA) in 10 of 11 patients, average durability 5 months, follow-up ongoing"
+        ],
+        "url": "https://www.hcplive.com/view/bepirovirsen-functional-cure-durable-through-week-96-in-chronic-hepatitis-b"
+      },
+      {
+        "title": "AZURE-1 Phase 3 in chronic hepatitis delta, brelovitug (Mirum Pharmaceuticals)",
+        "tickers": [
+          "MIRM"
+        ],
+        "when": "",
+        "lines": [
+          "Primary endpoint virologic response plus ALT normalization at week 24: 56% (33/59) weekly 300 mg and 45% (29/65) every-4-week 900 mg vs 0% (0/29) delayed treatment, p<0.001 for both, n=153",
+          "Undetectable HDV RNA at week 24 in 17% of each brelovitug arm; virologic response defined as undetectable or at least 2 log10 IU/mL drop",
+          "No discontinuations for adverse events",
+          "Biologics license application (BLA) expected first half 2027, pending second Phase 3 AZURE-4 readout expected fourth quarter 2026; stock reaction figures not reported"
+        ],
+        "url": "https://www.ajmc.com/view/the-liver-meeting-2026-highlights-hepatitis-delta-pbc-targets-mash-costs"
+      },
+      {
+        "title": "PBC Phase 3 ELSPIRE and IDEAL, Iqirvo elafibranor (Ipsen) and Livdelzi seladelpar (Gilead Sciences)",
+        "tickers": [
+          "IPN.PA",
+          "GILD"
+        ],
+        "when": "",
+        "lines": [
+          "ELSPIRE: ALP normalization at week 52 in 85.3% on elafibranor vs 23.3% placebo, p<0.001, in patients with ALP below 1.67 times upper limit of normal (ULN); published in HEPATOLOGY",
+          "IDEAL: composite ALP normalization at month 12 in 75.4% on seladelpar vs 16.1% placebo, p<0.001",
+          "Neither trial measured long-term clinical outcomes; both drugs hold accelerated approval",
+          "AASLD and AGA guideline issued Oct 22, 2026 suggests PPAR agonists second-line after ursodeoxycholic acid"
+        ],
+        "url": "https://www.ajmc.com/view/the-liver-meeting-2026-highlights-hepatitis-delta-pbc-targets-mash-costs"
+      },
+      {
+        "title": "MASH pipeline: efinopegdutide Phase 2b (Merck) and efimosfermin Phase 2 in cirrhosis (GSK)",
+        "tickers": [
+          "MRK",
+          "GSK"
+        ],
+        "when": "",
+        "lines": [
+          "Efinopegdutide, a glucagon-like peptide-1 (GLP-1) and glucagon co-agonist, Phase 2b, n=381 with F2-F3 fibrosis: MASH resolution without fibrosis worsening at 52 weeks in 56% to 63% across 3 doses vs 13% placebo and 53% open-label semaglutide 2.4 mg; published in The Lancet; confidence intervals not reported",
+          "Efimosfermin, a once-monthly fibroblast growth factor 21 (FGF21) analog: open-label cohort n=39 (24 F2-F3, 15 compensated cirrhosis F4) showed decreases in liver stiffness, enhanced liver fibrosis (ELF) score and PRO-C3 through 52 weeks; effect sizes not reported",
+          "No treatment-related serious adverse events with efimosfermin; GSK is advancing it in Phase 3 including compensated cirrhosis"
+        ],
+        "url": "https://www.hcplive.com/view/once-monthly-efimosfermin-improves-fibrosis-markers-in-phase-2-mash-study"
+      },
+      {
+        "title": "RECLAIM Phase 2 in alcohol use disorder (AUD), pemvidutide (Altimmune)",
+        "tickers": [
+          "ALT"
+        ],
+        "when": "",
+        "lines": [
+          "Primary endpoint heavy drinking days per week at week 24: -4.20 days with pemvidutide vs -2.75 days placebo, difference -1.45 days, p=0.0014; sensitivity analysis p=0.008",
+          "Drinks per drinking day -4.9 vs -3.8 placebo",
+          "48-week IMPACT Phase 2b MASH data (n=212, F2-F3) published in The Lancet Gastroenterology and Hepatology; Phase 3 PERFORMA in MASH started July 2026",
+          "Stock reaction figures not reported"
+        ],
+        "url": "https://www.globenewswire.com/news-release/2026/11/09/3398847/0/en/altimmune-presents-positive-late-breaking-pemvidutide-data-at-aasld-the-liver-meeting-2026-in-patients-with-alcohol-use-disorder.html"
+      },
+      {
+        "title": "MASH real-world persistence and payer cost, Rezdiffra resmetirom (Madrigal) and Wegovy semaglutide (Novo Nordisk)",
+        "tickers": [
+          "MDGL",
+          "NVO"
+        ],
+        "when": "",
+        "lines": [
+          "Resmetirom 12-month persistence 62.2% to 72.4% across separate pharmacy and claims analyses; Madrigal had 13 real-world abstracts",
+          "Markov model of 80,000 commercial plan members: 24 of every 100 semaglutide-eligible MASH patients stayed on treatment through 72 weeks, about $1.3 million excess medical and pharmacy cost per optimal-dose responder",
+          "Novo real-world data: body weight -10.5 lb with semaglutide 2.4 mg vs -1.5 lb non-initiators, p<0.001; HbA1c (glycated hemoglobin) -0.29 vs +0.03 percentage points, p<0.001"
+        ],
+        "url": "https://www.ajmc.com/view/the-liver-meeting-2026-highlights-hepatitis-delta-pbc-targets-mash-costs"
+      }
+    ],
+    "expert_minds": [
+      "Earlier detection beyond specialists: AASLD President Saul Karpen said detection cannot rest on hepatologists alone; first full-day frontline clinician program plus a Liver Network of Excellence pilot of about 5 institutions starting January 2027",
+      "Rule out advanced fibrosis with non-invasive tests: Jorn Schattenberg and Zobair Younossi, to AJMC, noting overlapping metabolic and viral liver disease",
+      "Crowding MASH pipeline: Younossi said there will be many more options than the 2 approved drugs; Schattenberg highlighted efinopegdutide, and Mohammad Alabbas pointed to GLP-1-based drugs and triple agonists such as retatrutide",
+      "HDV competition and HBV functional cure, plus persistence and cost as payer drivers, per AJMC's meeting wrap-up"
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "hepatitis delta Phase 3",
+      "HBV functional cure",
+      "bepirovirsen launch",
+      "MASH real-world persistence",
+      "MASH payer cost",
+      "GLP-1 and glucagon agonists",
+      "FGF21 in cirrhosis",
+      "PBC ALP normalization",
+      "PPAR agonist guideline",
+      "non-invasive fibrosis tests",
+      "RNA editing",
+      "alcohol use disorder and alcohol-associated liver disease",
+      "statins in cirrhosis",
+      "Liver Network of Excellence",
+      "frontline clinician education"
+    ],
+    "sources": [
+      {
+        "label": "AASLD late-breaking abstracts press release",
+        "url": "https://www.aasld.org/hepatitis-b-and-mash-lead-late-breaking-research-liver-meetingr-2026"
+      },
+      {
+        "label": "AASLD newsroom",
+        "url": "https://www.aasld.org/aasld-news"
+      },
+      {
+        "label": "AJMC meeting highlights wrap-up",
+        "url": "https://www.ajmc.com/view/the-liver-meeting-2026-highlights-hepatitis-delta-pbc-targets-mash-costs"
+      },
+      {
+        "label": "AJMC expert recap",
+        "url": "https://www.ajmc.com/view/aasld-2026-recap-earlier-detection-more-mash-therapies-ahead"
+      },
+      {
+        "label": "HCPLive bepirovirsen B-Well week 96",
+        "url": "https://www.hcplive.com/view/bepirovirsen-functional-cure-durable-through-week-96-in-chronic-hepatitis-b"
+      },
+      {
+        "label": "GSK AASLD 2026 press release",
+        "url": "https://us.gsk.com/en-us/media/press-releases/under-edit-gsk-showcases-progress-in-liver-portfolio-at-aasld-2026/"
+      },
+      {
+        "label": "Yahoo Finance on Vir share move",
+        "url": "https://finance.yahoo.com/healthcare/articles/vir-biotechnology-shares-rise-22-135600627.html"
+      },
+      {
+        "label": "GuruFocus on Vir share move",
+        "url": "https://www.gurufocus.com/news/9185415/vir-biotechnology-vir-shares-surge-nearly-13-on-positive-phase-3-hepatitis-delta-trial-results"
+      }
+    ],
+    "caveat": "Research stopped early when the search-tool limit was reached, so I did not open the Mirum, Merck, Ipsen, Gilead or Precision BioSciences releases directly; their figures come from AJMC, I found share-price moves only for VIR, and confidence intervals for efinopegdutide and effect sizes for efimosfermin were not found."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 14,
+  "usage": {
+    "input_tokens": 770918,
+    "output_tokens": 12717
+  },
+  "posted_ts": "1794938956.785319",
+  "posted_on": "2026-11-17"
+}

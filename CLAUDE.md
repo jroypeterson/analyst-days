@@ -8,6 +8,75 @@ Tracks upcoming Investor Days, Analyst Days, R&D Days, Capital Markets Days, and
 - **Google Calendar** = published event state. Dedicated "Other Investing" calendar in `floridabusinessman@gmail.com` (split off the legacy shared earnings calendar 2026-05-28; titles prefixed with event type). Auth via the shared earnings-agent service account.
 - **SQLite (`data/events.db`)** = workflow state + historical memory + source provenance.
 
+## Conference channels (2026-11-17) — read this before the older conference sections
+
+JP 2026-11-17: *"I want to know what topics are on the expert minds and if there are any new
+topics or topics that are no longer coming up ... let me know before hand for key medical
+conferences where something significant is happening ... afterwards for most conferences
+provide a 4 line at most summary ... I want a conferences-wall-st channel separate from the
+medical/clinical/Mainstreet insider one."*
+
+| Channel | What posts | From |
+|---|---|---|
+| `#conferences-industry` | pre-conference alert, post-conference summary, Monday look-ahead (6 weeks) | `conference-briefs.yml` (Mon + Thu), `monday.yml` |
+| `#conferences-wall-st` (the old `#conferences`, renamed) | Monday look-ahead (8 weeks) with presenters from JP's lists; a post-conference summary for JPM only | `monday.yml`, `conference-briefs.yml` |
+
+```
+python -m src.cli --conference-briefs [--dry-run] [--only "AHA 2026"] [--phase pre|post]
+python -m src.cli --conferences-digest [--dry-run]     # re-seed + both look-aheads
+python -m src.cli --conference-pins [--dry-run]        # pinned overview + inventory bookmark
+python scripts/build_conference_inventory.py           # the bookmarked page; re-publish to the SAME artifact URL
+```
+
+- **The list.** 108 series, 180 dated instances. The 39 original instances stay in
+  `CONFERENCES` in `src/seed_conferences.py`; everything added on 2026-11-17 and the
+  per-series facts live in `src/conference_circuit.json` (committed, source of truth, edited by
+  hand from now on). `scripts/build_conference_circuit.py` plus `docs/research_2026-11-17/`
+  record how it was built: three web-research passes, every date with its source URL.
+- **Per-series facts** (`SeriesMeta`): what the name stands for, organizer, who attends,
+  standing (the main meeting for its group, or 1 of N), attendance, category, and the phrases
+  that identify it in a company press release. Every post prints them, so
+  `test_every_series_has_meta_and_every_field_a_reader_prints` fails the build on a gap.
+  JP: *"I am not going to know what AHA stands for."*
+- **Which channel** is `channel_for`: `kind == Investor conference` goes to Wall Street,
+  everything else to industry. AdvaMed was re-typed from investor conference to trade show
+  for this reason: it is the device industry's own meeting, not a bank's.
+- **A series with no confirmed next date has facts and no upcoming instance.** The look-ahead
+  lists it under "Next date not published yet". On 2026-11-17 that was 21 of the 28 bank
+  series: banks publish dates late, and a single-source date was not accepted.
+- **Briefs: the model researches, code renders** (`src/conference_briefs.py`). Claude Opus 5.5
+  with web search returns JSON; the Slack layout JP approved is built in code. The prompt
+  requires the number a clinician or investor would judge a result by (effect size with CI or
+  p-value, n). An answer with zero web searches behind it is refused, and so is a brief with
+  no source URL.
+- **Brief state is committed files**, `exports/conference_briefs/<slug>.<phase>.json`, never
+  `events.db`: a lost DB artifact must not re-post or re-buy a year of summaries. The file is
+  written before the Slack post and stamped `posted_ts` after, so a failed post retries the
+  post only. Its `topics` list is next year's baseline for new vs. dropped topics; the first
+  year of a series has no stored baseline and the model is told to return nothing rather than
+  guess.
+- **Windows.** Pre-alert: 0 to 7 days before the start, scientific meetings only, posted only
+  if `significant`. Post summary: 2 to 21 days after the end. At most 5 briefs a run; the rest
+  are named in the heartbeat and picked up by the next run. A conference more than 21 days
+  past is not backfilled.
+- **Cost, measured 2026-11-17.** First run (AASLD): 770,918 input tokens, about USD 3.30,
+  with uncapped page fetches. After capping fetches (4 pages, 5,000 tokens each) and turning
+  on prompt caching (TCT): about USD 0.41. Do not raise the fetch caps without re-measuring.
+- **Presenters** (`conference_calendar.presenters`): a company is listed when its
+  `events.event_type='conference'` row falls inside the conference dates AND a stored source
+  excerpt names the conference as a whole word. Date overlap alone is wrong (Piper Sandler,
+  Citi and Evercore share one week) and a bare substring is wrong ("Citi" inside "Cities").
+  It is the scan set's own announcements, not the bank's attendee list (board #58, still open).
+- **Posting is the ClaudeBot token** (`src/outputs/slack_bot.py`), secrets `SLACK_BOT_TOKEN`,
+  `SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID`, `SLACK_CONFERENCES_WALLST_CHANNEL_ID`. The
+  `SLACK_WEBHOOK_CONFERENCES` webhook described further down was never created and is gone
+  from the code; the post was skipped every week from 2026-08-17 to 2026-11-17 (board #333).
+  Slack's read methods (`pins.list`, `bookmarks.list`) need form-encoded arguments, not JSON.
+- **Pins are bullets** (root `SLACK_STYLE.md` section 6). The bookmark in both channels is the
+  inventory page, https://claude.ai/artifact/SEkWwJ9WceuymgtfQdCiBF (private to JP).
+- **Not built:** the banks' own attendee lists; topic tracking from session programs rather
+  than press coverage; a calendar entry per conference.
+
 ## The conference calendar is CONFERENCE-anchored; `events` is COMPANY-anchored
 
 Two different questions, and only one of them the discovery pipeline can answer.
@@ -86,7 +155,9 @@ python -m src.cli --conferences-digest [--dry-run]     # re-seed + post
 ```
 
 Separate channel because it answers a different question (which meetings matter, not which
-of our companies is doing something). Needs `SLACK_WEBHOOK_CONFERENCES`.
+of our companies is doing something). **Superseded 2026-11-17:** there are now two channels
+posted with the bot token; see "Conference channels" above. The degrade-not-fail rule below
+still holds, keyed on `SLACK_BOT_TOKEN` and the two channel ids.
 
 **Unset webhook degrades, it does not fail.** The seed still runs (the half that cannot be
 skipped, and the only path that rebuilds this table), the post is skipped, and the reason
@@ -230,7 +301,9 @@ python -m src.cli --discover              # Pull EDGAR 8-Ks + Tavily; classify; 
 python -m src.cli --remind                # T-30 / T-7 / day-of pings for confirmed events
 python -m src.cli --monday-digest         # Monday "forward 30/7" digest → Slack + email
 python -m src.cli --friday-digest         # Friday "on the radar" digest → Slack (read-only)
-python -m src.cli --conferences-digest    # Re-seed the conference calendar + post it to #conferences
+python -m src.cli --conferences-digest    # Re-seed the conference calendar + post the look-ahead to both conference channels
+python -m src.cli --conference-briefs     # Research + post the pre-conference alerts and post-conference summaries that are due
+python -m src.cli --conference-pins       # Refresh the pinned overview + inventory bookmark in both conference channels
 python -m src.cli --weekly                # discover → remind → Monday digest → conference calendar (the Monday cron entry point)
 python -m src.cli --status                # Print upcoming events + DB stats
 python -m src.cli --slack-test            # Sanity ping to #analyst-days
@@ -454,6 +527,7 @@ not discovered.
 |---|---|---|---|
 | `monday.yml` | `13 12 * * 1` | Monday ~07:13 ET | `--weekly`: discover → remind → Monday "forward 30/7" digest (Slack + email); refresh + commit-back `exports/upcoming_events.json`; persist DB artifact |
 | `friday.yml` | `13 12 * * 5` | Friday ~07:13 ET | `--friday-digest` (read-only — no discovery); reads the DB artifact the Monday run persisted |
+| `conference-briefs.yml` | `43 14 * * 1,4` | Mon + Thu ~09:43 ET | `--conference-briefs`: conference alerts and summaries; no DB; commits `exports/conference_briefs/` back |
 
 Minute is off-`:00` deliberately (top-of-hour GH Actions crons get delayed/
 skipped). The `events.db` is gitignored and persisted between runs as the
@@ -529,7 +603,8 @@ No daily reminder cron. Reminders are checked once per week against current date
 | `PERPLEXITY_API_KEY` | Reused (deep_dd, portfolio_daily) | Backup web search for names the Mac's Codex cache does not cover |
 | `SLACK_WEBHOOK_ANALYST_DAYS` | New (earnings_agent Slack app, new webhook) | `#analyst-days` channel |
 | `SLACK_WEBHOOK_STATUS_REPORTS` | Reused (shared earnings-agent #status-reports webhook) | health/v1 heartbeat → `#status-reports` (set on the repo 2026-06-30) |
-| `SLACK_WEBHOOK_CONFERENCES` | **New — NOT YET CREATED** | `#conferences` conference calendar. Until it exists the weekly run still seeds the calendar, skips the post, and heartbeats `partial` with a named warning. Create an incoming webhook for `#conferences` on the earnings-agent Slack app, then `gh secret set`. |
+| `SLACK_BOT_TOKEN` | Reused (ClaudeBot, copied from `portfolio_daily/.env` 2026-11-17) | Posts, pins and bookmarks in the two conference channels |
+| `SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID`, `SLACK_CONFERENCES_WALLST_CHANNEL_ID` | New 2026-11-17 | Channel ids (secrets because the repo is public). Unset: the calendar is still seeded, the post is skipped, and the heartbeat is `partial` with a named warning. |
 | `GOOGLE_CALENDAR_ID` | Dedicated "Other Investing" calendar (floridabusinessman) | Separate from earnings since 2026-05-28 |
 | `GOOGLE_CREDENTIALS_JSON` | Reused (earnings_agent) | Service account JSON blob |
 | `TICKTICK_ACCESS_TOKEN` | Reused (earnings_agent) | TickTick API |
@@ -677,3 +752,4 @@ fleet-wide.
 ## Git workflow
 
 After making code changes, commit and push to GitHub (`origin master`). Follow the same "let's finish" pattern as Coverage Manager / earnings_agent / sigma-alert: save memory, update docs, run tests, commit, push.
+

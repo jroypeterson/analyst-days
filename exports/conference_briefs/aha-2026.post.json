@@ -1,0 +1,30 @@
+{
+  "conference": "AHA 2026",
+  "series": "aha",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "model": "interactive session (posted by hand as the format sample)",
+  "posted_ts": "1794935961.070749",
+  "posted_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Two big biomarker bets failed on outcomes: pelacarsen (Lp(a), Novartis) and ziltivekimab (IL-6, Novo) both hit their target and did not cut cardiovascular events.",
+      "Obesity drugs kept widening their reach: oral orforglipron cut sleep apnea severity; survodutide passed its cardiovascular safety test.",
+      "Gene editing moved from concept to lipid data: one-time CTX310 cut triglycerides about 63% in 10 patients.",
+      "AI was everywhere, but only on workflow: no AI trial showed fewer hard clinical events."
+    ],
+    "topics": [
+      "Lp(a) lowering and cardiovascular outcomes",
+      "IL-6 inflammation inhibition in cardiovascular disease",
+      "Oral GLP-1 drugs beyond weight loss (sleep apnea)",
+      "Glucagon/GLP-1 dual agonist cardiovascular safety",
+      "In-vivo gene editing for lipids (ANGPTL3)",
+      "AI-read echocardiography and AI ECG screening",
+      "Agentic AI in cardiology",
+      "Why large outcome trials fail (negative-trial sessions)",
+      "Multidisciplinary heart teams",
+      "Blood-pressure lowering after stroke",
+      "Cardiac arrest community response"
+    ]
+  }
+}

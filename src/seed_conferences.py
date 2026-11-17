@@ -33,6 +33,7 @@ Re-run after checking the unconfirmed rows, or annually as new dates publish.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from dataclasses import dataclass
@@ -255,7 +256,8 @@ CONFERENCES: list[Conference] = [
     C("AdvaMed MedTech Conference 2025", "AdvaMed 2025", "advamed",
       "2025-10-05", "2025-10-08", "San Diego, CA",
       "https://advamed.org/", "verified", "2026-08-12",
-      "The medtech industry's own investor-facing conference.", kind=INVESTOR),
+      "The medtech industry's own annual meeting: CEOs, regulators and suppliers.",
+      kind=TRADE_SHOW),
     C("TCT 2025 (Transcatheter Cardiovascular Therapeutics)", "TCT 2025", "tct",
       "2025-10-25", "2025-10-28", "San Francisco, CA",
       "https://www.crf.org/tct", "verified", "2026-08-12",
@@ -290,7 +292,8 @@ CONFERENCES: list[Conference] = [
     C("AdvaMed MedTech Conference 2026", "AdvaMed 2026", "advamed",
       "2026-10-18", "2026-10-21", "Boston, MA",
       "https://advamed.org/", "verified", "2026-08-12",
-      "The medtech industry's own investor-facing conference.", kind=INVESTOR),
+      "The medtech industry's own annual meeting: CEOs, regulators and suppliers.",
+      kind=TRADE_SHOW),
     C("TCT 2026 (Transcatheter Cardiovascular Therapeutics)", "TCT 2026", "tct",
       "2026-10-31", "2026-11-03", "San Diego, CA",
       "https://www.crf.org/tct", "verified", "2026-08-12",
@@ -301,6 +304,87 @@ CONFERENCES: list[Conference] = [
       "https://www.sabcs.org/", "verified", "2026-08-12",
       "Breast cancer — ADC and CDK4/6 readouts."),
 ]
+
+
+# ---------------------------------------------------------------------------------
+# THE WIDER CIRCUIT + PER-SERIES FACTS (2026-11-17)
+#
+# JP 2026-11-17: *"we need to note what speciality group the conferences are for since
+# I am not going to know what AHA stands for ... I also want some understanding of if
+# this is the big conference for this speciality or one of a number of them ... ideally
+# could say something like 5k attendees"*. Those are facts about a SERIES, not an
+# instance, so they live once per series in `conference_circuit.json` beside this file.
+#
+# The same file carries the instances added that day (physician-specialty meetings,
+# nursing-facility / lab / pharmacy / provider meetings, and the bank healthcare
+# conferences). It is committed and is as much the source of truth as the list above:
+# data, not a cache. Every date in it was web-verified by the same rule; a series whose
+# next date could not be confirmed has metadata and no instance.
+# ---------------------------------------------------------------------------------
+CIRCUIT_PATH = os.path.join(os.path.dirname(__file__), "conference_circuit.json")
+
+
+@dataclass(frozen=True)
+class SeriesMeta:
+    full_name: str               # the meeting's name spelled out, no year
+    organizer: str               # the society / bank, spelled out
+    audience: str                # who attends, in plain words
+    standing: str                # THE meeting for its group, or 1 of N (and which)
+    attendance: Optional[str]    # "~15,000 attendees", sourced; None when not found
+    category: str                # inventory grouping
+    match: tuple = ()            # phrases that identify it in a company press release
+    post_summary: Optional[bool] = None   # None = default by kind
+    pre_alert: Optional[bool] = None
+
+
+def _load_circuit() -> tuple[dict, list]:
+    with open(CIRCUIT_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    metas = {}
+    for slug_, m in data["series"].items():
+        metas[slug_] = SeriesMeta(
+            full_name=m["full_name"], organizer=m["organizer"], audience=m["audience"],
+            standing=m["standing"], attendance=m.get("attendance"),
+            category=m["category"], match=tuple(m.get("match") or ()),
+            post_summary=m.get("post_summary"), pre_alert=m.get("pre_alert"))
+    extra = [C(i["name"], i["short_name"], i["series"], i["start"], i["end"],
+               i.get("location"), i["url"], "verified", i["verified_on"], i["why"],
+               sector=i.get("sector", "Healthcare"), kind=i["kind"])
+             for i in data["instances"]]
+    return metas, extra
+
+
+SERIES_META, _EXTRA = _load_circuit()
+CONFERENCES.extend(_EXTRA)
+
+
+def meta_for(conf: Conference) -> SeriesMeta:
+    """Per-series facts. A series with no entry is a bug, not a blank: every reader
+    (briefs, pins, the inventory page) prints these, so `test_every_series_has_meta`
+    fails the build rather than letting a header render 'None'."""
+    return SERIES_META[conf.series]
+
+
+def channel_for(conf: Conference) -> str:
+    """'wallst' for bank/investor conferences, 'industry' for everything else.
+
+    JP 2026-11-17: *"I want a conferences-wall-st channel separate from the
+    medical/clinical/Mainstreet insider one."*"""
+    return "wallst" if conf.kind == INVESTOR else "industry"
+
+
+def wants_post_summary(conf: Conference) -> bool:
+    m = meta_for(conf)
+    if m.post_summary is not None:
+        return m.post_summary
+    return conf.kind != INVESTOR      # bank conferences: only where the series opts in
+
+
+def wants_pre_alert(conf: Conference) -> bool:
+    m = meta_for(conf)
+    if m.pre_alert is not None:
+        return m.pre_alert
+    return conf.kind == SCIENTIFIC    # "key medical conferences where something significant is happening"
 
 
 def rows_for_seed() -> list[tuple]:

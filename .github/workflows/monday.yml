@@ -114,6 +114,11 @@ jobs:
           SLACK_WEBHOOK_ANALYST_DAYS: ${{ secrets.SLACK_WEBHOOK_ANALYST_DAYS }}
           SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
           GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # Conference look-ahead: ClaudeBot token + the two channel ids (the repo is
+          # public, so the ids are secrets too).
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID: ${{ secrets.SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID }}
+          SLACK_CONFERENCES_WALLST_CHANNEL_ID: ${{ secrets.SLACK_CONFERENCES_WALLST_CHANNEL_ID }}
           GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
           GOOGLE_CREDENTIALS_PATH: credentials.json
           TICKTICK_ACCESS_TOKEN: ${{ secrets.TICKTICK_ACCESS_TOKEN }}

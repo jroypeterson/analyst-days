@@ -1,0 +1,133 @@
+name: analyst-days — conference briefs
+
+# Pre-conference alerts and post-conference summaries for #conferences-industry
+# (and JPM for #conferences-wall-st). See src/conference_briefs.py.
+#
+#   14:43 UTC Monday and Thursday ~= 9:43 AM ET (EST) / 10:43 AM ET (EDT).
+# Two runs a week bound the latency: a pre-alert window is 7 days, a summary is owed
+# 2 to 21 days after a meeting ends. Later than monday.yml (12:13 UTC) on purpose, so
+# the two commit-backs do not race on the same minute.
+#
+# This job does NOT use events.db: its state is the committed files under
+# exports/conference_briefs/, so a lost DB artifact can never re-post a summary.
+# Manual run: the workflow_dispatch button, or locally
+#   python -m src.cli --conference-briefs [--dry-run] [--only "AHA 2026"] [--phase post]
+
+on:
+  schedule:
+    - cron: "43 14 * * 1,4"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (list what is due; no research, no Slack, no commit)"
+        required: false
+        default: "false"
+        type: string
+      only:
+        description: "One conference short name, e.g. AHA 2026 (blank = everything due)"
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: analyst-days-conference-briefs
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  briefs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout analyst-days
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Research and post what is due
+        id: run_briefs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID: ${{ secrets.SLACK_CONFERENCES_INDUSTRY_CHANNEL_ID }}
+          SLACK_CONFERENCES_WALLST_CHANNEL_ID: ${{ secrets.SLACK_CONFERENCES_WALLST_CHANNEL_ID }}
+          SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
+          GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ONLY: ${{ github.event.inputs.only }}
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS="--dry-run"; fi
+          if [ -n "$ONLY" ]; then
+            python -m src.cli --conference-briefs $ARGS --only "$ONLY"
+          else
+            python -m src.cli --conference-briefs $ARGS
+          fi
+
+      # The brief files ARE the state (what has been posted) and next year's topic
+      # baseline. Commit them even when the run step failed part-way: a brief that
+      # was researched and posted must not be researched and posted again.
+      - name: Commit brief files
+        if: always() && github.ref == 'refs/heads/master' && github.event.inputs.dry_run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "analyst-days-ci"
+          git config user.email "analyst-days-ci@users.noreply.github.com"
+          if [ ! -d exports/conference_briefs ]; then echo "no brief files"; exit 0; fi
+          git add exports/conference_briefs
+          if git diff --cached --quiet; then echo "no new brief files"; exit 0; fi
+          git commit -m "ci: conference briefs"
+          git pull --rebase --quiet origin "${GITHUB_REF_NAME:-master}" || {
+            git rebase --abort || true
+            echo "::error::rebase onto origin failed - brief files NOT pushed"
+            exit 1
+          }
+          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:${GITHUB_REF_NAME:-master}"
+
+      - name: Health heartbeat fallback
+        if: always() && github.event.inputs.dry_run != 'true'
+        env:
+          SLACK_WEBHOOK_STATUS_REPORTS: ${{ secrets.SLACK_WEBHOOK_STATUS_REPORTS }}
+          GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_OUTCOME: ${{ steps.run_briefs.outcome }}
+        run: |
+          if [ -f .health/posted ]; then
+            echo "Heartbeat already posted - skipping fallback."; exit 0
+          fi
+          if [ -z "$SLACK_WEBHOOK_STATUS_REPORTS" ]; then
+            echo "No SLACK_WEBHOOK_STATUS_REPORTS - cannot post fallback heartbeat."; exit 1
+          fi
+          CYCLE="$(date -u +%Y-%m-%d) conference-briefs"
+          NOW="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          if [ -s .health/crash.txt ]; then
+            DETAIL="$(tail -n 20 .health/crash.txt | tail -c 2400)"
+          else
+            DETAIL="No .health/crash.txt: the run died before src/cli.py started (dependency install, import error, or a cancelled job). Check the first failing step in the GH Actions log."
+          fi
+          jq -nc --arg cycle "$CYCLE" --arg now "$NOW" --arg outcome "${RUN_OUTCOME:-unknown}" \
+                 --arg detail "$DETAIL" --arg run "$GH_RUN_URL" '
+            ( ":x: *analyst-days - error*  ·  health/v1\n"
+            + "cycle: " + $cycle + "  ·  attempt: 1\n"
+            + $now + " (workflow aborted)\n"
+            + "next expected: next Monday or Thursday (conference briefs)\n"
+            + "failing step: Research and post what is due (outcome: " + $outcome + ")\n\n"
+            + "*Error:*\n```\n" + $detail + "\n```\n\n"
+            + "<" + $run + "|GH Actions run>"
+            ) as $t
+            | {blocks: [{type: "section", text: {type: "mrkdwn", text: $t}}],
+               text: ("analyst-days - error (" + $cycle + ") - workflow aborted")}
+          ' > /tmp/fallback_heartbeat.json
+          curl -fsS -X POST "$SLACK_WEBHOOK_STATUS_REPORTS" \
+            -H 'Content-Type: application/json' \
+            --data @/tmp/fallback_heartbeat.json

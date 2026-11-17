@@ -629,8 +629,14 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--friday-digest", action="store_true",
                       help="Post Friday 'on the radar' digest to #analyst-days")
     mode.add_argument("--conferences-digest", action="store_true",
-                      help="Re-seed the conference calendar and post it to "
-                           "#conferences (conference-anchored, no tickers)")
+                      help="Re-seed the conference calendar and post the look-ahead "
+                           "to #conferences-industry and #conferences-wall-st")
+    mode.add_argument("--conference-briefs", action="store_true",
+                      help="Research + post the pre-conference alerts and "
+                           "post-conference summaries that are due")
+    mode.add_argument("--conference-pins", action="store_true",
+                      help="Refresh the pinned overview + inventory bookmark in both "
+                           "conference channels")
     mode.add_argument("--monday-digest", action="store_true",
                       help="Post Monday 'forward 30/7' digest to #analyst-days")
     mode.add_argument("--slack-test", action="store_true",
@@ -682,6 +688,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="EDGAR lookback window in days (default 14)")
     p.add_argument("--tavily-results", type=int, default=5,
                    help="Tavily max_results per ticker")
+    p.add_argument("--only", default=None,
+                   help="With --conference-briefs: one conference short name, e.g. \"AHA 2026\"")
+    p.add_argument("--phase", choices=("pre", "post"), default=None,
+                   help="With --conference-briefs: only this phase")
     p.add_argument("--tickers", nargs="*",
                    help="Restrict to these tickers (subset of the scan set)")
     p.add_argument("--limit", type=int, default=0,
@@ -742,16 +752,21 @@ def cmd_friday_digest(args: argparse.Namespace) -> int:
 
 
 def cmd_conferences_digest(args: argparse.Namespace) -> int:
-    """Post the conference calendar to #conferences.
+    """Re-seed the conference table, then post the Monday look-ahead to both
+    conference channels (#conferences-industry and #conferences-wall-st).
 
     Re-seeds first, always. `conferences` is a pure projection of the CONFERENCES
-    constant in src/seed_conferences.py, and unlike `events` it CANNOT rebuild
-    from discovery — nothing discovers it. Since events.db is gitignored and
-    lives between CI runs as an expiring GitHub Actions artifact, a lost artifact
-    would otherwise empty this calendar silently. The seed is an idempotent
-    upsert, so re-running it every time is free and keeps CI current with any
-    seeder edit.
+    list in src/seed_conferences.py, and unlike `events` it CANNOT rebuild from
+    discovery - nothing discovers it. Since events.db is gitignored and lives
+    between CI runs as an expiring GitHub Actions artifact, a lost artifact would
+    otherwise empty this table silently. The seed is an idempotent upsert.
+
+    Posts with the ClaudeBot token (src/outputs/slack_bot.py). Until 2026-11-17 this
+    used a channel webhook that was never created, so the post was skipped every
+    week for three months (board #333).
     """
+    from src import conference_calendar as cal
+    from src.outputs import slack_bot
     from src.seed_conferences import seed as seed_conferences
 
     added, updated = seed_conferences(args.db, dry_run=args.dry_run)
@@ -759,33 +774,81 @@ def cmd_conferences_digest(args: argparse.Namespace) -> int:
 
     conn = init_db(args.db)
     try:
-        today = date.today().isoformat()
-        if args.dry_run:
-            blocks, n = slack_out.build_conferences_blocks(conn, today)
-            print(f"[dry-run] would post conference calendar to #conferences "
-                  f"({n} upcoming, {len(blocks)} blocks)")
-            return 0
-        # An unprovisioned webhook is a DEGRADED sub-unit, not an aborted phase:
-        # the seed above (the half that cannot be skipped) has already run and
-        # the calendar is intact — only the post is missing. So warn and carry
-        # the warning into the weekly heartbeat, which renders it as `partial`,
-        # rather than raising. Raising here would turn one missing secret into a
-        # red Monday cron every week, burying real failures behind a known one.
-        # It is still not silent: `partial` plus a named warning lands in
-        # #status-reports on every run until the secret exists.
-        if not os.environ.get(slack_out.CONFERENCES_WEBHOOK_ENV, "").strip():
-            blocks, n = slack_out.build_conferences_blocks(conn, today)
-            warning = (f"{slack_out.CONFERENCES_WEBHOOK_ENV} not set - seeded {n} "
-                       f"upcoming conferences but skipped the #conferences post")
+        today = date.today()
+        missing = []
+        for channel in ("industry", "wallst"):
+            text, n = cal.build_weekly(channel, today, conn)
+            env = cal.CHANNEL_ENV[channel]
+            if args.dry_run:
+                print(f"[dry-run] would post the look-ahead to {cal.CHANNEL_NAME[channel]} "
+                      f"({n} upcoming, {len(text)} chars)")
+                continue
+            # An unprovisioned channel is a DEGRADED sub-unit, not an aborted phase:
+            # the seed above (the half that cannot be skipped) has already run. Warn,
+            # carry the warning into the weekly heartbeat (=> `partial`) and go on,
+            # rather than turning one missing secret into a red Monday cron.
+            if not slack_bot.configured(env):
+                missing.append(f"{cal.CHANNEL_NAME[channel]} ({n} upcoming)")
+                continue
+            slack_bot.post(env, text, f"Conferences: {n} upcoming")
+            print(f"Look-ahead posted to {cal.CHANNEL_NAME[channel]}  ({n} upcoming)")
+        if missing:
+            warning = (f"{slack_bot.TOKEN_ENV} or a conference channel id not set - seeded "
+                       f"the calendar but skipped the post to " + ", ".join(missing))
             # ASCII only: this line lands on a cp1252 console and in CI logs.
             print(f"WARNING: {warning}")
             args.health_conferences_warning = warning
-            return 0
-        n = slack_out.post_conferences_digest(conn, today)
-        print(f"Conference calendar posted to #conferences  ({n} upcoming)")
         return 0
     finally:
         conn.close()
+
+
+def cmd_conference_briefs(args: argparse.Namespace) -> int:
+    """Research and post the pre-conference alerts and post-conference summaries
+    that are due (src/conference_briefs.py), then heartbeat."""
+    from src import conference_briefs as briefs
+
+    start = datetime.now(timezone.utc)
+    summary = briefs.run(dry_run=args.dry_run, only=getattr(args, "only", None),
+                         phase=getattr(args, "phase", None))
+    print(f"conference briefs: {summary}")
+    if args.dry_run:
+        return 0
+    warnings = list(summary["errors"])
+    if summary["deferred"]:
+        warnings.append("over the per-run limit, left for the next run: "
+                        + ", ".join(summary["deferred"]))
+    hb = health_mod.Heartbeat(
+        status="partial" if summary["errors"] else "ok",
+        cycle=f"{start.date().isoformat()} conference-briefs",
+        start_time=start,
+        end_time=datetime.now(timezone.utc),
+        next_expected="next Monday or Thursday (conference briefs)",
+        counters=[f"{summary['due']} due", f"{len(summary['posted'])} posted",
+                  f"{len(summary['quiet'])} quiet (pre-alert, nothing significant)",
+                  f"{len(summary['errors'])} errors"],
+        artifacts=summary["posted"],
+        warnings=warnings,
+        run_link=health_mod.run_link_from_env(),
+    )
+    health_mod.post_health(hb)
+    return 1 if summary["errors"] and not summary["posted"] and not summary["quiet"] else 0
+
+
+def cmd_conference_pins(args: argparse.Namespace) -> int:
+    """Refresh the pinned overview card and the inventory bookmark in both
+    conference channels. Run by hand after the coverage or cadence changes."""
+    from src import conference_calendar as cal
+
+    for channel in ("industry", "wallst"):
+        if args.dry_run:
+            print(f"--- {cal.CHANNEL_NAME[channel]} ---")
+            print(cal.overview_text(channel).encode("ascii", "replace").decode())
+            continue
+        ts = cal.refresh_pin(channel)
+        mark = cal.refresh_bookmark(channel)
+        print(f"{cal.CHANNEL_NAME[channel]}: pinned ts={ts}, bookmark {mark}")
+    return 0
 
 
 def cmd_monday_digest(args: argparse.Namespace) -> int:
@@ -1267,6 +1330,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_friday_digest(args)
     if args.conferences_digest:
         return cmd_conferences_digest(args)
+    if args.conference_briefs:
+        return cmd_conference_briefs(args)
+    if args.conference_pins:
+        return cmd_conference_pins(args)
     if args.monday_digest:
         return cmd_monday_digest(args)
     if args.slack_test:

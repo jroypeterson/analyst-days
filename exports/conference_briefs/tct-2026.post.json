@@ -1,0 +1,177 @@
+{
+  "conference": "TCT 2026",
+  "series": "tct",
+  "phase": "post",
+  "generated_on": "2026-11-17",
+  "brief": {
+    "summary": [
+      "Edwards' PROGRESS trial cut death or heart-failure events by 33% with early valve replacement in moderate aortic stenosis.",
+      "Analysts called PROGRESS a potential market expander, but TAVR patients had slightly higher two-year mortality.",
+      "Medtronic's real-world renal denervation study in 594 patients met its endpoint and won an FDA label update.",
+      "Abbott's Amulet 360 closed the left atrial appendage in 96.3% of patients, strengthening it against Boston Scientific's Watchman."
+    ],
+    "items": [
+      {
+        "title": "PROGRESS trial, SAPIEN 3 transcatheter aortic valve replacement (TAVR) in moderate aortic stenosis (Edwards Lifesciences)",
+        "tickers": [
+          "EW"
+        ],
+        "when": "",
+        "lines": [
+          "Death or heart failure (HF) event at 2 years: 16.7% vs 23.9% with surveillance; hazard ratio 0.67, 95% CI 0.48-0.93, p=0.02, n=744.",
+          "HF events 10.8% vs 19.0%, hazard ratio 0.55, p=0.002; HF hospitalization 7.4% vs 14.9%.",
+          "All-cause mortality at 2 years 8.4% TAVR vs 7.3% surveillance; Truist flagged possible initial investor concern.",
+          "57% of surveillance patients needed a delayed valve replacement within 2 years; quality-of-life score up 15.5 points at 30 days."
+        ],
+        "url": "https://www.edwards.com/newsroom/news/2026-11-02-progress-trial-demonstrates-edwards-tavr-is-superi"
+      },
+      {
+        "title": "SPYRAL AFFIRM, Symplicity Spyral radiofrequency renal denervation for uncontrolled hypertension (Medtronic)",
+        "tickers": [
+          "MDT"
+        ],
+        "when": "",
+        "lines": [
+          "FDA-required single-arm post-approval study, n=594 US patients; met primary blood-pressure endpoint versus a performance goal; mmHg reduction figures not reported in sources I opened.",
+          "Diverse population: 45% women, 27% Black, 11% Hispanic, 19% with type 2 diabetes.",
+          "Nearly 9 in 10 patients had at least 10 mmHg office systolic drop, at least 5 mmHg home drop and one fewer medication.",
+          "FDA approved a label update adding clinical data; device first approved late 2023."
+        ],
+        "url": "https://www.medtechdive.com/news/3-takeaways-from-tct-2026/873743/"
+      },
+      {
+        "title": "VERITAS pivotal study, Amulet 360 left atrial appendage (LAA) occluder (Abbott)",
+        "tickers": [
+          "ABT",
+          "BSX"
+        ],
+        "when": "",
+        "lines": [
+          "Complete LAA closure on transesophageal echocardiography in 96.3% of patients at 1 year; patient count not reported.",
+          "Ischemic stroke or systemic embolism 1.8%; all-cause mortality 3.9%; cardiovascular mortality 1.9%; major bleeding 6.6%.",
+          "Europe's CE mark granted in August 2026; under FDA review; BTIG sees better competition with Boston Scientific's market-leading Watchman."
+        ],
+        "url": "https://www.medtechdive.com/news/3-takeaways-from-tct-2026/873743/"
+      },
+      {
+        "title": "Ultrasound renal denervation abstracts, Paradise system (Recor Medical, Otsuka Holdings subsidiary)",
+        "tickers": [
+          "4578.T"
+        ],
+        "when": "",
+        "lines": [
+          "Seven Recor-sponsored abstracts at TCT 2026 on ultrasound renal denervation; outcome figures not reported.",
+          "Cardiovascular Business called real-world renal denervation benefit a hot topic of the meeting; figures not reported."
+        ],
+        "url": "https://www.hmpgloballearningnetwork.com/site/cathlab/meeting-update/tct-2026-late-breaking-trials-and-clinical-science-watch"
+      },
+      {
+        "title": "CLASP II TR tricuspid repair (PASCAL) and ENCIRCLE transcatheter mitral valve replacement (SAPIEN M3) (Edwards Lifesciences)",
+        "tickers": [
+          "EW"
+        ],
+        "when": "",
+        "lines": [
+          "CLASP II TR randomized results presented for an already FDA-approved tricuspid therapy; endpoint figures not reported.",
+          "ENCIRCLE 2-year mitral valve replacement outcomes published with JACC journals; figures not reported."
+        ],
+        "url": "https://www.jacc.org/events/conferences/tct"
+      },
+      {
+        "title": "TRANSFORM II, sirolimus-coated balloon vs drug-eluting stent in native coronaries (Concept Medical, private)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "Late-breaking randomized trial; primary endpoint accepted by The Lancet; effect size figures not reported.",
+          "Drug-coated balloon theme also included the 3-year SIRONA trial (sirolimus vs paclitaxel balloons, leg arteries); figures not reported."
+        ],
+        "url": "https://www.einpresswire.com/article/953923312/transform-ii-selected-as-a-late-breaking-clinical-trial-at-tct-2026"
+      },
+      {
+        "title": "P4 trial, coronary CT angiography-guided vs intravascular ultrasound-guided percutaneous coronary intervention (investigator trial, no sponsor identified)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "CT guidance matched intravascular-ultrasound guidance on 1-year clinical outcomes with shorter procedures; hazard ratio and patient numbers not reported.",
+          "Presented in the Sunday coronary late-breaking session run with The Lancet; figures not reported."
+        ],
+        "url": "https://www.eurekalert.org/news-releases/1141653"
+      }
+    ],
+    "expert_minds": [
+      "Treating aortic stenosis earlier: Philippe Genereux called PROGRESS a turning point; J.P. Morgan reported a very strong round of applause.",
+      "TAVR market expansion: Stifel said PROGRESS could change when valve disease is treated; J.P. Morgan sees a new standard of care.",
+      "Real-world renal denervation was a hot topic per Cardiovascular Business, backed by Medtronic and Recor data.",
+      "Coronary late-breakers centred on drug-coated balloons and CT-guided PCI planning, per TCTMD and CRF late-breaker lists."
+    ],
+    "new_topics": [
+      "Transcatheter aortic valve replacement for moderate aortic stenosis (PROGRESS), not in the TCT 2025 late-breaker coverage I found",
+      "Coronary CT angiography replacing intravascular imaging to plan percutaneous coronary intervention (P4)",
+      "Next-generation left atrial appendage occluder data (Abbott Amulet 360, VERITAS)",
+      "Real-world, post-approval renal denervation outcomes (SPYRAL AFFIRM, Recor abstracts)"
+    ],
+    "fading_topics": [
+      "Intravascular lithotripsy vs cheaper cutting or high-pressure balloons for calcified arteries (SHORT-CUT, VICTORY), prominent at TCT 2025, not seen in 2026 coverage",
+      "AI ECG cath-lab activation (PMcardio DIFOCCULT-3), a TCT 2025 late-breaking science item, not seen in 2026 coverage"
+    ],
+    "topics": [
+      "moderate aortic stenosis TAVR",
+      "early intervention valve disease",
+      "renal denervation real-world",
+      "ultrasound renal denervation",
+      "left atrial appendage occlusion next-gen",
+      "drug-coated balloons coronary",
+      "sirolimus-coated balloons",
+      "CT-guided PCI",
+      "tricuspid transcatheter repair",
+      "transcatheter mitral valve replacement",
+      "pulmonary embolism thrombectomy",
+      "functional coronary angiography"
+    ],
+    "sources": [
+      {
+        "label": "MedTech Dive, 3 takeaways from TCT 2026",
+        "url": "https://www.medtechdive.com/news/3-takeaways-from-tct-2026/873743/"
+      },
+      {
+        "label": "Edwards press release, PROGRESS",
+        "url": "https://www.edwards.com/newsroom/news/2026-11-02-progress-trial-demonstrates-edwards-tavr-is-superi"
+      },
+      {
+        "label": "SOLACI, PROGRESS hazard ratios",
+        "url": "https://solaci.org/en/2026/11/03/tct-2026-progress-trial-tavi-vs-clinical-surveillance-in-patients-with-moderate-aortic-stenosis-and-risk-factors/"
+      },
+      {
+        "label": "TCTMD, PROGRESS report",
+        "url": "https://www.tctmd.com/news/progress-tavi-effective-safe-moderate-risk-features"
+      },
+      {
+        "label": "NEJM, PROGRESS publication",
+        "url": "https://www.nejm.org/doi/full/10.1056/NEJMoa2607326"
+      },
+      {
+        "label": "Medtronic press release, SPYRAL AFFIRM",
+        "url": "https://news.medtronic.com/2026-11-03-TCT26-Medtronic-Symplicity-blood-pressure-procedure-shows-significant-blood-pressure-drops-in-SPYRAL-AFFIRM-real-world-study"
+      },
+      {
+        "label": "Healio, radiofrequency renal denervation largest US trial",
+        "url": "https://www.healio.com/news/cardiology/20261117/radiofrequency-renal-denervation-safe-effective-in-largest-us-trial"
+      },
+      {
+        "label": "Abbott press release, Amulet 360 VERITAS",
+        "url": "https://abbott.mediaroom.com/2026-11-02-Late-breaking-one-year-data-show-Abbotts-next-generation-Amulet-360-TM-device-continues-to-demonstrate-high-rates-of-left-atrial-appendage-closure-and-low-incidence-of-stroke"
+      }
+    ],
+    "caveat": "My tool budget ran out early, so I lack figures for CLASP II TR, P4, TRANSFORM II, ENCIRCLE and SPYRAL AFFIRM mmHg; one unnamed late-breaking device reportedly failed; stock moves unverified."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 28,
+    "output_tokens": 10204,
+    "cache_read_input_tokens": 263622,
+    "cache_creation_input_tokens": 31380
+  },
+  "posted_ts": "1794939125.404859",
+  "posted_on": "2026-11-17"
+}
