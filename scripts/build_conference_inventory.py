@@ -107,6 +107,7 @@ def build(today: date) -> str:
                 f'<article class="row" data-cat="{_slug(m.category)}">'
                 f'<div class="c-name"><h3>{name}</h3><p class="full">{_esc(m.full_name)}</p>'
                 f'<p class="org">{_esc(m.organizer)}</p></div>'
+                f'<div class="c-group"><span class="k">Group</span>{_esc(m.category)}</div>'
                 f'<div class="c-who"><p><span class="k">For</span>{_esc(m.audience)}</p>'
                 f'<p><span class="k">Standing</span>{_esc(m.standing)}</p></div>'
                 f'<div class="c-size"><span class="k">Size</span>'
@@ -127,8 +128,8 @@ def build(today: date) -> str:
 _PAGE = """<title>Healthcare Conference Circuit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-  /* Layout: a filter bar, then one band per group; each series is a four-column row
-     (name / who and standing / size / next date) that stacks on a phone. */
+  /* Layout: a filter bar, then one band per group; each series is a five-column row
+     (name / group / who and standing / size / next date) that stacks on a phone. */
   :root {{
     --ground:#F4F7F5; --surface:#FFFFFF; --surface-2:#EBF1EE;
     --ink:#0F1618; --ink-2:#3D4B4C; --ink-3:#6B7B79;
@@ -195,7 +196,7 @@ _PAGE = """<title>Healthcare Conference Circuit</title>
   .ch h2 {{ font-family:var(--display); font-weight:400; margin:0; font-size:1.3rem; }}
   .rows {{ background:var(--surface); border-radius:8px; box-shadow:var(--shadow); }}
   article.row {{ display:grid; gap:.3rem 1.2rem; padding:.7rem .85rem;
-                grid-template-columns:minmax(0,1.15fr) minmax(0,2fr) minmax(0,1fr) minmax(0,1.05fr);
+                grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr) minmax(0,2fr) minmax(0,.9fr) minmax(0,1.05fr);
                 border-top:1px solid var(--rule-2); }}
   article.row:first-child {{ border-top:0; }}
   article.row > div {{ min-width:0; }}
@@ -207,8 +208,9 @@ _PAGE = """<title>Healthcare Conference Circuit</title>
   .org {{ color:var(--ink-3) !important; font-size:.76rem !important; }}
   .c-who {{ display:flex; flex-direction:column; gap:.25rem; }}
   .k {{ display:inline-block; min-width:4.6rem; margin-right:.3rem; }}
-  .c-size, .c-when {{ font-size:.82rem; color:var(--ink-2); }}
-  .c-size .k, .c-when .k {{ display:block; margin-bottom:.1rem; }}
+  .c-group, .c-size, .c-when {{ font-size:.82rem; color:var(--ink-2); }}
+  .c-group .k, .c-size .k, .c-when .k {{ display:block; margin-bottom:.1rem; }}
+  .c-group {{ color:var(--accent-ink); font-weight:600; }}
   .when {{ display:block; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }}
   .when.now {{ color:var(--accent-ink); }}
   .loc {{ display:block; font-size:.76rem; color:var(--ink-3); }}
@@ -218,7 +220,7 @@ _PAGE = """<title>Healthcare Conference Circuit</title>
   footer code {{ font-family:var(--mono); font-size:.71rem; color:var(--ink-2); }}
   @media (max-width:52rem) {{
     article.row {{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }}
-    .c-name, .c-who {{ grid-column:1 / -1; }}
+    .c-name, .c-group, .c-who {{ grid-column:1 / -1; }}
     .tally {{ margin-left:0; width:100%; }}
   }}
 </style>
