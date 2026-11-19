@@ -1,0 +1,187 @@
+{
+  "conference": "ObesityWeek 2026",
+  "series": "obesityweek",
+  "phase": "post",
+  "generated_on": "2026-11-19",
+  "brief": {
+    "summary": [
+      "Lilly's retatrutide showed benefits beyond weight loss, cutting sleep apnea severity by up to 60.6% in Phase 3.",
+      "Novo's lower-dose CagriSema produced about 21% weight loss, ahead of an FDA decision expected in Q4 2026.",
+      "Amylin combinations are the new battleground; Lilly's EloraTZP reached up to 23.3% weight loss in Phase 2.",
+      "Access is the bottleneck: more than one in three first insurance requests for GLP-1 drugs were denied."
+    ],
+    "items": [
+      {
+        "title": "TRIUMPH-1, TRIUMPH-2, TRIUMPH-4 trials, retatrutide (Eli Lilly)",
+        "tickers": [
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "TRIUMPH-1: apnea-hypopnea index (AHI, breathing pauses per hour) fell up to 36.1 events/hour (60.6%) at 80 weeks; CI, p-value and n not reported.",
+          "TRIUMPH-2, patients who also have type 2 diabetes: AHI fell up to 28.4 events/hour (48.1%) at 80 weeks; CI and n not reported.",
+          "Knee osteoarthritis pain on the WOMAC (Western Ontario and McMaster Universities Osteoarthritis Index) scale: down up to 4.3 points (73.1%) at 80 weeks in TRIUMPH-1.",
+          "TRIUMPH-4: WOMAC pain down up to 4.5 points (75.8%) at 68 weeks; retatrutide is a GIP, GLP-1 and glucagon triple agonist, still investigational."
+        ],
+        "url": "https://investor.lilly.com/news-releases/news-release-details/lilly-present-new-data-across-zepbound-foundayo-eloratzp-and"
+      },
+      {
+        "title": "REDEFINE 9 and REDEFINE 1 analyses, CagriSema (Novo Nordisk)",
+        "tickers": [
+          "NVO"
+        ],
+        "when": "",
+        "lines": [
+          "REDEFINE 9 (Phase 3b): lower doses of 1.7mg/1.7mg and 1.0mg/1.0mg gave about 21% average weight loss; CI and n not reported; published in Lancet Diabetes & Endocrinology.",
+          "REDEFINE 1 post hoc analysis: 67.8% of patients on CagriSema 2.4mg/2.4mg were early responders and lost 25% of body weight on average (n=2,108 CagriSema vs 705 placebo).",
+          "Bone substudy (n=252; 154 CagriSema, 55 placebo): bone density fell but stayed in the normal range; size of the change not reported.",
+          "FDA application filed December 2025; decision expected Q4 2026."
+        ],
+        "url": "https://www.prnewswire.com/news-releases/novos-cagrisema-was-associated-with-25-mean-weight-loss-among-early-responders-in-a-post-hoc-analysis-of-redefine-1-presented-at-obesityweek-2026-302939681.html"
+      },
+      {
+        "title": "Phase 2 trial, EloraTZP (eloralintide plus tirzepatide) and eloralintide (Eli Lilly)",
+        "tickers": [
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "Weight loss up to 23.3% (54.1 lbs) at 48 weeks from a 232.4 lb baseline, in obesity or overweight with type 2 diabetes; CI and n not reported.",
+          "A1C (average blood sugar) fell by up to 2.9 percentage points; up to 77% reached normal blood sugar; up to 60% no longer met the BMI cutoff for obesity.",
+          "Eloralintide exit interviews: 74% reported fewer cravings, 52% less food noise; 41% of baseline drinkers drank less alcohol."
+        ],
+        "url": "https://investor.lilly.com/news-releases/news-release-details/lilly-present-new-data-across-zepbound-foundayo-eloratzp-and"
+      },
+      {
+        "title": "SURMOUNT-ADOLESCENTS trial, Zepbound (tirzepatide) (Eli Lilly)",
+        "tickers": [
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "Body mass index (BMI) fell 21.4% on average at 72 weeks in ages 12 to under 18; CI, p-value and n not reported.",
+          "More than half of adolescents no longer met the BMI criteria for obesity at 72 weeks; presented as a late-breaker on November 15, 2026."
+        ],
+        "url": "https://www.endocrinologyadvisor.com/reports/tirzepatide-weight-loss-adolescent-obesity/"
+      },
+      {
+        "title": "Oral GLP-1 pills in real-world use, Foundayo (orforglipron) (Eli Lilly) and Wegovy pill (Novo Nordisk)",
+        "tickers": [
+          "LLY",
+          "NVO"
+        ],
+        "when": "",
+        "lines": [
+          "FOUNDERS survey: 96-98% of Foundayo users said the daily pill was simple and easy; about 40% took it in the afternoon, evening or at bedtime; n not reported.",
+          "Novo presented 26 abstracts, including ORACLE, a cost comparison of oral semaglutide vs orforglipron; figures not reported."
+        ],
+        "url": "https://www.novonordisk-us.com/media/press-releases/novo-nordisk-obesityweek-2026-data.html"
+      },
+      {
+        "title": "Insurance access and payer evidence for GLP-1 drugs (AJMC coverage of late-breaking abstracts)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "More than 1 in 3 first prior-authorization (insurer pre-approval) requests for on-label GLP-1 weight-loss drugs denied, commercially insured adults aged 18-63, January-September 2025.",
+          "Persistence vs downstream spending study: 27,013 adults starting semaglutide or tirzepatide injections, Optum data 2020-2025; savings figures not reported."
+        ],
+        "url": "https://www.ajmc.com/view/obesityweek-2026-studies-map-glp-1-access-gaps-obesity-s-costs"
+      },
+      {
+        "title": "Rare-disease and early-stage drugs: setmelanotide (Rhythm), WVE-007 (Wave Life Sciences), IBIO-610 (iBio), SYNT-101 (Syntis Bio, private)",
+        "tickers": [
+          "RYTM",
+          "WVE",
+          "IBIO"
+        ],
+        "when": "",
+        "lines": [
+          "Rhythm TRANSCEND Phase 3, two-year data: continuous setmelanotide kept BMI down in acquired hypothalamic obesity; figures not reported; 17-expert panel proposed diagnostic criteria.",
+          "Wave WVE-007 (RNA drug targeting the INHBE gene): interim Phase 1 INLIGHT data shown; figures not reported.",
+          "iBio IBIO-610 (Activin E antibody): 2.3% weight reduction vs control at week 28 in obese monkeys.",
+          "Syntis SYNT-101 late-breaker: meal-triggered PYY up 5.1-fold, GLP-1 up 2.3-fold, ghrelin down 37%; zero discontinuations among 55 dosed people."
+        ],
+        "url": "https://www.biospace.com/press-releases/rhythm-pharmaceuticals-announces-presentation-of-new-data-at-obesityweek-2026"
+      }
+    ],
+    "expert_minds": [
+      "Pipeline beyond GLP-1 drugs (EloraTZP, CagriSema, retatrutide, amylin, RNA approaches) is diversifying fast, per the ConscienHealth wrap-up.",
+      "Health systems are ill-equipped to deliver the better treatments now available, per ConscienHealth; AJMC's denial data back this up.",
+      "Amylin is the next hot target and Lilly and Novo face off there, per BioSpace citing BMO's Evan Seigerman.",
+      "Focus is moving past the scale to fat vs muscle, organ outcomes and quality of life, per BioSpace and Lilly's Kenneth Custer."
+    ],
+    "new_topics": [
+      "Phase 3 data on obesity complications for retatrutide: sleep apnea and knee osteoarthritis",
+      "Combination of an amylin drug with tirzepatide (EloraTZP) in Phase 2",
+      "Real-world use of oral GLP-1 pills (Foundayo, Wegovy pill) after approval",
+      "Lower-dose CagriSema (REDEFINE 9) ahead of the FDA decision",
+      "Late-breaking Phase 3 trial of tirzepatide in adolescents",
+      "RNA-based obesity drugs (Wave WVE-007)"
+    ],
+    "fading_topics": [
+      "Pfizer vs Novo bidding war for Metsera, a 2025 side story not seen in the 2026 coverage reviewed",
+      "First Phase 2 data for eloralintide alone, replaced by combination data in 2026",
+      "Orforglipron Phase 3 completion, replaced by post-approval real-world data in 2026"
+    ],
+    "topics": [
+      "amylin combinations",
+      "retatrutide complication outcomes",
+      "CagriSema regulatory decision",
+      "oral GLP-1 real-world use",
+      "pediatric and adolescent obesity drugs",
+      "beyond-weight endpoints",
+      "insurance access and prior authorization",
+      "bone and lean-mass preservation",
+      "RNA and gene-based obesity therapies",
+      "hypothalamic obesity",
+      "telehealth and digital care",
+      "food noise and patient-reported outcomes",
+      "long-term phentermine (LEAP trial)"
+    ],
+    "sources": [
+      {
+        "label": "Lilly ObesityWeek 2026 press release",
+        "url": "https://investor.lilly.com/news-releases/news-release-details/lilly-present-new-data-across-zepbound-foundayo-eloratzp-and"
+      },
+      {
+        "label": "Novo REDEFINE 1 post hoc analysis release",
+        "url": "https://www.prnewswire.com/news-releases/novos-cagrisema-was-associated-with-25-mean-weight-loss-among-early-responders-in-a-post-hoc-analysis-of-redefine-1-presented-at-obesityweek-2026-302939681.html"
+      },
+      {
+        "label": "Novo REDEFINE 9 release (headline only)",
+        "url": "https://www.journalgazette.net/online_features/press_releases/novos-investigational-cagrisema-a-glp-1-and-amylin-analog-demonstrated-21-average-weight-loss-with/article_f39a3b42-51bd-55bd-837b-3a3d40fc536e.html"
+      },
+      {
+        "label": "Novo bone data release (BioSpace)",
+        "url": "https://www.biospace.com/press-releases/novo-presents-preclinical-and-human-data-suggesting-a-role-for-amylin-and-calcitonin-receptor-activation-in-preserving-bone-during-weight-loss-at-obesityweek"
+      },
+      {
+        "label": "Novo ObesityWeek 2026 abstract list",
+        "url": "https://www.novonordisk-us.com/media/press-releases/novo-nordisk-obesityweek-2026-data.html"
+      },
+      {
+        "label": "Endocrinology Advisor, SURMOUNT-ADOLESCENTS",
+        "url": "https://www.endocrinologyadvisor.com/reports/tirzepatide-weight-loss-adolescent-obesity/"
+      },
+      {
+        "label": "AJMC, GLP-1 access gaps",
+        "url": "https://www.ajmc.com/view/obesityweek-2026-studies-map-glp-1-access-gaps-obesity-s-costs"
+      },
+      {
+        "label": "ConscienHealth, five themes from ObesityWeek 2026",
+        "url": "https://conscienhealth.org/2026/11/18/still-processing-five-big-themes-from-ow2026/"
+      }
+    ],
+    "caveat": "Company releases gave 'up to' averages without CIs, p-values or n; I could not open the full REDEFINE 9 release or find stock reactions; the comparison with 2025 rests on a few wrap-ups."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 50,
+    "output_tokens": 15389,
+    "cache_read_input_tokens": 733391,
+    "cache_creation_input_tokens": 64504
+  },
+  "posted_ts": "1795127489.747779",
+  "posted_on": "2026-11-19"
+}
