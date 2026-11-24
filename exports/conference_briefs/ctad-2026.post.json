@@ -1,0 +1,191 @@
+{
+  "conference": "CTAD 2026",
+  "series": "ctad",
+  "phase": "post",
+  "generated_on": "2026-11-24",
+  "brief": {
+    "summary": [
+      "Biogen/Ionis tau drug diranersen was the meeting's headline, slowing decline 38% at two years, though the comparison is imperfect.",
+      "Five-year and real-world Leqembi data support durability and lower real-world brain-swelling rates, but against external, not placebo, controls.",
+      "BMS gave a first look at Cobenfy in Alzheimer's psychosis, open-label only; placebo-controlled pivotal readouts arrive in 2027.",
+      "Misses outnumbered wins: Acadia, Lilly mevidalen, Cognito and Priavoid fell short; AriBio's oral AR1001 succeeded only in a subgroup."
+    ],
+    "items": [
+      {
+        "title": "CELIA Phase 2 two-year data, diranersen tau antisense drug (Biogen; Ionis)",
+        "tickers": [
+          "BIIB",
+          "IONS"
+        ],
+        "when": "",
+        "lines": [
+          "Week 96: 60 mg twice-yearly slowed CDR-SB (Clinical Dementia Rating-Sum of Boxes) decline 38%, 1.09 points; n=60 vs 115 originally on placebo; p-value not reported.",
+          "Effect widened from 26% at week 76; ADAS-Cog13 (Alzheimer's Disease Assessment Scale-Cognitive, 13-item) slowing 54% at week 96.",
+          "Missed primary dose-response endpoint in May 2026; higher doses did worse; BMO Capital Markets called the control comparison imperfect.",
+          "Confusional states 14.8% on 60 mg vs 13.1% at July cut; spinal (intrathecal) dosing; no amyloid-related brain swelling; Phase 3 planned."
+        ],
+        "url": "https://investors.biogen.com/news-releases/news-release-details/biogens-diranersen-demonstrates-increasing-clinical-benefit-two"
+      },
+      {
+        "title": "Clarity AD five-year extension and LEADER real-world study, Leqembi lecanemab (Eisai; Biogen)",
+        "tickers": [
+          "4523.T",
+          "BIIB"
+        ],
+        "when": "",
+        "lines": [
+          "Five years: CDR-SB difference -2.05 points vs ADNI (Alzheimer's Disease Neuroimaging Initiative) and -2.54 vs BioFINDER observational cohorts; no confidence interval reported.",
+          "36% lower relative risk of progressing to next disease stage vs ADNI; only 351 of 1,795 enrolled had five continuous years.",
+          "ARIA-E (amyloid-related imaging abnormalities-edema) 13.5% in year one, below 1.5% per year afterwards; no new safety findings.",
+          "LEADER, n=560 at 13 US sites: 76% lower progression to moderate/severe dementia vs ADNI-weighted controls; ARIA-E 6.6%; 87.5% still treated."
+        ],
+        "url": "https://media-us.eisai.com/2026-11-16-New-Five-Year-Lecanemab-Data-from-Clarity-AD-Study-Long-Term-Extension-Presented-at-CTAD-2026"
+      },
+      {
+        "title": "ADEPT-1 and ADEPT-3 Phase 3 in Alzheimer's psychosis, Cobenfy (KarXT, xanomeline-trospium) (Bristol Myers Squibb)",
+        "tickers": [
+          "BMY"
+        ],
+        "when": "",
+        "lines": [
+          "ADEPT-1 12-week open-label, 273 completers: NPI-C H+D (Neuropsychiatric Inventory-Clinician Hallucinations and Delusions) -12.0 points; CGI-S (Clinical Global Impression-Severity) -1.9; uncontrolled.",
+          "ADEPT-1 safety: treatment-emergent adverse events 56.6%, serious 5%, discontinuation for adverse events 4.4%.",
+          "ADEPT-3 52-week extension, 401 enrolled: NPI-C H+D -5.1, CGI-S -0.8; adverse events 65%, serious 7.7%, discontinuation 4.7%.",
+          "Randomized relapse endpoint not reported; placebo-controlled readouts 2027; Cobenfy sales $176 million in first nine months of 2026."
+        ],
+        "url": "https://www.biospace.com/drug-development/CTAD-2026-bms-cobenfy-eases-alzheimer's-psychosis-as-expected-but-safety-events-raise-questions"
+      },
+      {
+        "title": "POLARIS-AD Phase 3, AR1001 oral PDE5 (phosphodiesterase-5) inhibitor (AriBio, private; Fosun Pharma statement)",
+        "tickers": [
+          "2196.HK"
+        ],
+        "when": "",
+        "lines": [
+          "n=1,535 early Alzheimer's patients randomized to once-daily AR1001 or placebo for 52 weeks.",
+          "Prespecified monotherapy group n=604: CDR-SB slowing 0.44 points (31% per AriBio), primary objective met; p-value figures not reported.",
+          "Full population including cholinesterase inhibitor or memantine users: 0.11-point difference, not significant; MMSE (Mini-Mental State Examination) nominal +0.7 points in monotherapy group.",
+          "No amyloid-related brain swelling; discontinuation for adverse events 5.2% vs 1.7% placebo; AriBio plans FDA discussion."
+        ],
+        "url": "https://www.biospace.com/press-releases/aribios-oral-ar1001-meets-primary-efficacy-objective-in-prespecified-monotherapy-population-in-phase-3-polaris-ad-trial"
+      },
+      {
+        "title": "Misses: remlifanserin (Acadia), mevidalen (Eli Lilly), Spectris device (Cognito, private), PRI-002 (Priavoid, private)",
+        "tickers": [
+          "ACAD",
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "Acadia RADIANT Phase 2 in Alzheimer's psychosis narrowly missed primary endpoint; 60 mg advancing to Phase 3, 30 mg dropped; figures not reported.",
+          "Lilly mevidalen PRESENCE-ALZ Phase 2, n=304: missed primary endpoint; no further development planned; effect figures not reported.",
+          "Cognito Spectris HOPE pivotal, n=673: missed primary and all overall secondary endpoints; mild subgroup favored on 5 of 5 measures, nominal only.",
+          "Priavoid PRImus-AD Phase 2, n=304: missed week-48 CDR-SB primary; ADAS-Cog13 slowing 35.9% per-protocol, 26.7% mITT (modified intention-to-treat), not significant."
+        ],
+        "url": "https://pharmaphorum.com/news/mixed-results-experimental-alzheimers-therapies-ctad"
+      },
+      {
+        "title": "Tau-lowering followers: ARO-MAPT (Arrowhead), NIO752 (Novartis), MK-2214 (Merck), VY7523 (Voyager), posdinemab (Johnson & Johnson)",
+        "tickers": [
+          "ARWR",
+          "NVS",
+          "MRK",
+          "VYGR",
+          "JNJ"
+        ],
+        "when": "",
+        "lines": [
+          "Arrowhead ARO-MAPT under-the-skin siRNA (small interfering RNA) Phase 1: mean tau reduction up to 73% at top dose (October data); possible quarterly dosing.",
+          "Novartis NIO752 tau antisense interim analysis presented; figures not reported.",
+          "Merck MK-2214 anti-phospho-tau antibody Phase 2 design targets enrollment of 340 early Alzheimer's patients.",
+          "J&J symposium dissected failed anti-tau antibody posdinemab; Voyager VY7523 Phase 1/2 baseline characteristics only; figures not reported."
+        ],
+        "url": "https://www.fiercebiotech.com/biotech/biogens-tau-therapy-drives-bigger-benefits-2-year-alzheimers-update"
+      },
+      {
+        "title": "Brainshuttle AD and PrevenTRON, trontinemab (Roche); real-world donanemab (Eli Lilly)",
+        "tickers": [
+          "ROG.SW",
+          "RHHBY",
+          "LLY"
+        ],
+        "when": "",
+        "lines": [
+          "Updated Phase Ib/IIa data showed rapid amyloid removal and biomarker changes, plus first human imaging of brain distribution; figures not reported.",
+          "Roche theory: transferrin-receptor shuttle spares blood-vessel amyloid, possibly explaining low brain-swelling rates; rates not reported in sources reviewed.",
+          "PrevenTRON Phase 3 prevention trial in people without symptoms is now enrolling; enrollment target not reported.",
+          "Lilly Kisunla real-world data on modified slower dosing from ALZ-NET registry; figures not reported."
+        ],
+        "url": "https://www.globenewswire.com/news-release/2026/11/10/3399142/0/en/roche-presents-new-data-across-pharmaceuticals-and-diagnostics-from-its-growing-alzheimer-s-disease-portfolio-at-ctad-2026.html"
+      }
+    ],
+    "expert_minds": [
+      "Field looking beyond amyloid to tau, oral drugs and psychosis, per BioSpace's preview and the Dementia Researcher wrap-up.",
+      "Antibody benefit still debated: Lon Schneider's talk; ARIA meta-analysis of about 5,000 patients found ARIA-E 4.0% vs 12.6% in trial.",
+      "Blood biomarkers in almost every session; keynotes by Susan Landau (biomarker integration) and Allan Levey (proteomics).",
+      "Combination therapy: Alzheimer's Drug Discovery Foundation called diranersen a natural antibody partner; Roche's Geoffrey Kerchner keynote on prevention."
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "tau antisense diranersen",
+      "tau siRNA and antibodies",
+      "Alzheimer's psychosis",
+      "oral small molecules",
+      "lecanemab long-term extension",
+      "real-world ARIA rates",
+      "subcutaneous maintenance dosing",
+      "brain-shuttle antibodies",
+      "prevention trials",
+      "blood biomarkers",
+      "combination therapy",
+      "neuromodulation devices",
+      "failed trial post-mortems"
+    ],
+    "sources": [
+      {
+        "label": "Dementia Researcher (NIHR) CTAD 2026 round-up",
+        "url": "https://www.dementiaresearcher.nihr.ac.uk/ctad-2026-alzheimers-trial-news-round-up/"
+      },
+      {
+        "label": "Biogen diranersen two-year press release",
+        "url": "https://investors.biogen.com/news-releases/news-release-details/biogens-diranersen-demonstrates-increasing-clinical-benefit-two"
+      },
+      {
+        "label": "Fierce Biotech on diranersen and analyst views",
+        "url": "https://www.fiercebiotech.com/biotech/biogens-tau-therapy-drives-bigger-benefits-2-year-alzheimers-update"
+      },
+      {
+        "label": "Eisai five-year lecanemab press release",
+        "url": "https://media-us.eisai.com/2026-11-16-New-Five-Year-Lecanemab-Data-from-Clarity-AD-Study-Long-Term-Extension-Presented-at-CTAD-2026"
+      },
+      {
+        "label": "BioSpace on BMS Cobenfy ADEPT data",
+        "url": "https://www.biospace.com/drug-development/CTAD-2026-bms-cobenfy-eases-alzheimer's-psychosis-as-expected-but-safety-events-raise-questions"
+      },
+      {
+        "label": "Fierce Pharma on Cobenfy ADEPT",
+        "url": "https://www.fiercepharma.com/pharma/bms-ph-3-alzheimers-agitation-teaser-builds-confidence-cobenfy-expansion-plan"
+      },
+      {
+        "label": "AriBio AR1001 POLARIS-AD press release",
+        "url": "https://www.biospace.com/press-releases/aribios-oral-ar1001-meets-primary-efficacy-objective-in-prespecified-monotherapy-population-in-phase-3-polaris-ad-trial"
+      },
+      {
+        "label": "Pharmaphorum CTAD mixed-results wrap-up",
+        "url": "https://pharmaphorum.com/news/mixed-results-experimental-alzheimers-therapies-ctad"
+      }
+    ],
+    "caveat": "Share-price reactions and most p-values or confidence intervals were not found; Acadia, Lilly and AriBio figures come from trade press and a secondary wrap-up, not primary releases."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 36,
+    "output_tokens": 14631,
+    "cache_read_input_tokens": 370688,
+    "cache_creation_input_tokens": 39507
+  },
+  "posted_ts": "1795485791.841879",
+  "posted_on": "2026-11-24"
+}

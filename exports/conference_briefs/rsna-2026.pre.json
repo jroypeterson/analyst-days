@@ -1,0 +1,133 @@
+{
+  "conference": "RSNA 2026",
+  "series": "rsna",
+  "phase": "pre",
+  "generated_on": "2026-11-24",
+  "brief": {
+    "significant": false,
+    "why_now": [
+      "Photon-counting CT is becoming a multi-vendor market: Canon unveils Ultimion (pending FDA 510(k) clearance) as PCCT is expected to dominate the RSNA CT program",
+      "Radiology AI is shifting to real-world proof: 52,000 sq ft AI Showcase with more than 100 companies, plus large deployment studies from RadNet DeepHealth and Median",
+      "Demand backdrop is strong: RadNet Q3 2026 advanced imaging volume up 19.9% (8.9% same-center), revenue up 22.1% to $638.3 million"
+    ],
+    "watch": [
+      {
+        "title": "Photon-counting CT competition, Ultimion PCCT (Canon Medical Systems) and installed PCCT base",
+        "tickers": [
+          "7751.T"
+        ],
+        "when": "Stanford real-world PCCT talk Wednesday Dec 2, 8:00-9:00 a.m. CT, W1-SSMS03-6",
+        "lines": [
+          "Canon Ultimion photon-counting CT announced Nov 20, 2026, pending FDA 510(k) clearance; launch timing and pricing figures not reported",
+          "Stanford real-world benchmark: over 16,000 PCCT scans; use mostly cardiovascular 31.8% and abdominal 29.1%",
+          "Low-dose PCCT lung screening cuts radiation-induced cancer risk by up to 60% vs conventional low-dose CT; patient count not reported"
+        ],
+        "url": "https://www.auntminnie.com/resources/conference/rsna/2026/ct-preview/article/16541710/road-to-rsna-2026-ct"
+      },
+      {
+        "title": "Lung-RADS reader study, eyonis LCS lung screening AI (Median Technologies)",
+        "tickers": [
+          "ALMDT.PA"
+        ],
+        "when": "Tuesday Dec 1, 12:15-12:45 p.m. CT, session T5A-SPCH-12, Learning Center",
+        "lines": [
+          "New reader study on whether AI detection plus malignancy scoring improves Lung-RADS consistency; effect size and n not reported",
+          "Prior standalone data: sensitivity 93.3% (95.8% stage 1), specificity 92.4%, n=2,163 patients",
+          "Prior reader study: 16 radiologists, 480 cases, statistically significant AUC gain (p-value not reported); FDA cleared Feb 2026, CE mark Jul 2026"
+        ],
+        "url": "https://www.webdisclosure.com/press-release/median-technologies-epa-almdt-inside-information-other-news-releases-7pcniKyjhrT"
+      },
+      {
+        "title": "Late-breaking DBT prior-screen AI study and thyroid AI at scale, DeepHealth (RadNet)",
+        "tickers": [
+          "RDNT"
+        ],
+        "when": "",
+        "lines": [
+          "Late-breaking: AI flags cancer breast on prior DBT; n=1,361 women from 2,762-patient cohort, 109 US sites; effect size not reported",
+          "Thyroid ultrasound AI: 95,464 studies, 187,292 nodules; 88.7% of AI TI-RADS descriptors kept unmodified, per-descriptor agreement 94.7%-97.9%",
+          "Q3 2026 Digital Health ARR $112.6 million; company revenue $638.3 million, up 22.1% year over year"
+        ],
+        "url": "https://deephealth.com/rsna-2026/"
+      },
+      {
+        "title": "Imaging 360 AI assistant and AI-assisted protocoling (GE HealthCare)",
+        "tickers": [
+          "GEHC"
+        ],
+        "when": "Booth 7330 showcase Nov 29 and Nov 30, 11:00 a.m. CT",
+        "lines": [
+          "Targets protocol workload estimated at 1.3 hours per radiologist per day; time-saving and revenue figures not reported",
+          "Vendor-agnostic protocoling decision support built into the radiology information system (RIS), covering CT and MR; pricing figures not reported"
+        ],
+        "url": "https://hitconsultant.net/2026/11/20/ge-healthcare-introduces-imaging-360-ai-assistant-protocoling-rsna-2026/"
+      },
+      {
+        "title": "Nanox.ARC X tomosynthesis and Nanox.AI aortic valve calcification preview (Nanox)",
+        "tickers": [
+          "NNOX"
+        ],
+        "when": "Company presentation Nov 30, 10:30 a.m. CT; AVC AI talk Dec 1, 11:00 a.m. CT",
+        "lines": [
+          "AVC assessment and body composition AI are in development and not cleared; performance figures not reported",
+          "ARC X is FDA-cleared multi-source digital tomosynthesis; booth 1759; placement and revenue figures not reported"
+        ],
+        "url": "https://www.globenewswire.com/news-release/2026/11/18/3405617/0/en/nanox-to-showcase-its-innovative-technology-and-advances-across-nanox-arc-x-and-nanox-ai-at-rsna-2026.html"
+      },
+      {
+        "title": "Radiology AI commercialization theme, AI Showcase and Knee AI Challenge (RSNA)",
+        "tickers": [],
+        "when": "Knee Abnormality Detection AI Challenge winners Wednesday Dec 2, 3:00 p.m. CT",
+        "lines": [
+          "AI Showcase covers 52,000 square feet with more than 100 AI and machine-learning exhibitors",
+          "Program focus: real-world AI performance, AI for early pancreatic cancer detection, metabolic liver disease; figures not reported"
+        ],
+        "url": "https://www.appliedradiology.com/news/rsna-2026-technical-exhibits-to-showcase-innovations-in-radiology"
+      }
+    ],
+    "sources": [
+      {
+        "label": "RSNA 2026 Trending Topics (RSNA)",
+        "url": "https://www.rsna.org/news/2026/november/rsna-2026-trending-topics"
+      },
+      {
+        "label": "RSNA Technical Exhibits press release, Oct 6 2026",
+        "url": "https://www.rsna.org/media/press/2026/2677"
+      },
+      {
+        "label": "AuntMinnie Road to RSNA 2026: CT",
+        "url": "https://www.auntminnie.com/resources/conference/rsna/2026/ct-preview/article/16541710/road-to-rsna-2026-ct"
+      },
+      {
+        "label": "AuntMinnie PCCT supports precision radiology",
+        "url": "https://www.auntminnie.com/resources/conference/rsna/2026/ct-preview/article/16541698/pcct-supports-precision-radiology"
+      },
+      {
+        "label": "AuntMinnie Road to RSNA 2026: AI Preview",
+        "url": "https://www.auntminnie.com/resources/conference/rsna/2026/artificial-intelligence-preview/article/16425187/road-to-rsna-2026-ai-preview"
+      },
+      {
+        "label": "Canon Ultimion PCCT announcement",
+        "url": "https://www.manilatimes.net/2026/11/20/tmt-newswire/globenewswire/canon-medical-systems-usa-inc-announces-ultimion-photon-counting-ct-system-at-rsna-2026/2475026"
+      },
+      {
+        "label": "Median Technologies RSNA 2026 press release",
+        "url": "https://www.webdisclosure.com/press-release/median-technologies-epa-almdt-inside-information-other-news-releases-7pcniKyjhrT"
+      },
+      {
+        "label": "DeepHealth RSNA 2026 page",
+        "url": "https://deephealth.com/rsna-2026/"
+      }
+    ],
+    "caveat": "I hit my search limit before I could check Philips, Siemens Healthineers product launches, Hologic, Lunit, contrast-agent makers or the full RSNA abstract program, so a late-breaking item there may be missing."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 50,
+    "output_tokens": 10902,
+    "cache_read_input_tokens": 573929,
+    "cache_creation_input_tokens": 44120
+  },
+  "skipped_reason": "nothing significant expected"
+}

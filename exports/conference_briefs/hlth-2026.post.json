@@ -1,0 +1,188 @@
+{
+  "conference": "HLTH 2026",
+  "series": "hlth",
+  "phase": "post",
+  "generated_on": "2026-11-24",
+  "brief": {
+    "summary": [
+      "Oura agreed to buy AI primary-care startup Counsel Health for $625 million cash, the show's defining wearables-to-care deal.",
+      "Teladoc launched employer co-pay funding for GLP-1 weight-loss drugs outside the pharmacy benefit, with clients starting January 1, 2027.",
+      "Buyers now demand proof of return on investment from AI; vendors face shorter contracts, and 72% of companies still lead with 'AI-powered'.",
+      "Medicaid cuts and rising uninsured volumes were flagged as threats to hospital and community health center margins; figures not reported."
+    ],
+    "items": [
+      {
+        "title": "Oura to acquire Counsel Health, AI-native primary care (Oura, private)",
+        "tickers": [],
+        "when": "",
+        "lines": [
+          "Purchase price $625 million cash, subject to purchase-price adjustments; expected to close before end of 2026.",
+          "Oura fiscal fourth-quarter revenue $533 million, up 153% year over year; adjusted EBITDA (earnings before interest, taxes, depreciation, amortization) $87 million, 16% margin.",
+          "Oura has more than 6 million members; Counsel was integrated into the Oura app in June 2026.",
+          "Deal came weeks after Oura postponed an initial public offering (IPO) of up to $2.2 billion indefinitely, citing IPO-market uncertainty."
+        ],
+        "url": "https://techcrunch.com/2026/11/10/oura-to-acquire-ai-native-primary-care-startup-counsel-health-for-625m/"
+      },
+      {
+        "title": "Comprehensive Weight Care employer contribution option for glucagon-like peptide-1 (GLP-1) drugs (Teladoc Health)",
+        "tickers": [
+          "TDOC",
+          "LLY",
+          "NVO"
+        ],
+        "when": "",
+        "lines": [
+          "Employer sets a fixed payment per employee per fill each plan year; employee pays the balance; dollar amounts not reported.",
+          "Covers FDA-approved GLP-1s from Eli Lilly and Novo Nordisk, outside traditional pharmacy benefit design; available now, first clients launch January 1, 2027.",
+          "Contribution can be tied to engagement such as food logging and weigh-ins; Lilly Employer Connect is a named channel.",
+          "Related: Withings/Calibrate real-world study of nearly 5,000 GLP-1 patients reported about 60% greater weight loss with support program."
+        ],
+        "url": "https://www.fiercehealthcare.com/health-tech/hlth-2026-teladoc-health-expands-weight-care-program-new-employer-offering"
+      },
+      {
+        "title": "Acquisition of AgileMD clinical decision support and eCART surveillance (Wolters Kluwer)",
+        "tickers": [
+          "WKL"
+        ],
+        "when": "",
+        "lines": [
+          "Up to $100 million: $40 million upfront cash plus up to $60 million performance-based deferred consideration; announced November 13, 2026.",
+          "AgileMD projected annual recurring revenue (ARR) $7 million at year-end 2026: 5.7x ARR upfront, 14.3x at full price.",
+          "Adds FDA-cleared eCART deterioration surveillance and electronic health record (EHR) pathways to UpToDate Expert AI.",
+          "Wolters Kluwer survey at HLTH: only 27% of consumers trust AI to flag drug interactions without a human involved."
+        ],
+        "url": "https://hitconsultant.net/2026/11/13/wolters-kluwer-to-acquire-ai-clinical-decision-support-platform-agilemd/"
+      },
+      {
+        "title": "Agentic AI launches: Amazon Health Connect (Amazon Web Services), ChatGPT for Healthcare (OpenAI, private), Suki OS (Suki, private)",
+        "tickers": [
+          "AMZN"
+        ],
+        "when": "",
+        "lines": [
+          "Amazon Web Services (AWS) said UC San Diego cut 630 staff phone hours per week using its identity-verification agent capability.",
+          "HLTH newsroom: AWS launched a $100 million initiative to expand AI-powered healthcare access globally; timing details not reported.",
+          "OpenAI added over 20 plugins and is piloting computer-use agents for prior authorization and discharge planning; figures not reported.",
+          "Suki OS agents target prior authorization and coding gaps affecting revenue cycle management (RCM); figures not reported."
+        ],
+        "url": "https://www.yahoo.com/news/us/articles/ai-affordability-steal-show-6-161553264.html"
+      },
+      {
+        "title": "AI spending and return on investment scrutiny (Google Cloud, Ambience Healthcare)",
+        "tickers": [
+          "GOOGL"
+        ],
+        "when": "",
+        "lines": [
+          "Healthcare AI spending reported at $3.7 billion in 2026, up 250% in one year (figure from an unnamed company, via Vistatec).",
+          "Google Cloud: 40% of healthcare organizations see unpredictable costs as a risk to AI projects.",
+          "SolComms/HLTH report on 1,600 applicant companies: 72% lead with 'AI-powered'; no surveyed venture capitalists said it raised confidence.",
+          "Ambience inpatient AI: Onvida needed 1.5% case mix index (CMI) gain to justify cost and saw 6.5%."
+        ],
+        "url": "https://www.vistatec.com/what-hlth-usa-2026-revealed-about-ai-trust-and-life-sciences/"
+      },
+      {
+        "title": "Consumer wearables as front door: Whoop (private) with Grail, Quest and Novo Nordisk; Apple Health AI Usage Study",
+        "tickers": [
+          "GRAL",
+          "DGX",
+          "NVO",
+          "AAPL"
+        ],
+        "when": "",
+        "lines": [
+          "Whoop integrated Grail's multi-cancer early detection test and expanded Quest blood testing to non-members; partnered in Novo Nordisk's relaunched NovoCare direct-to-consumer program.",
+          "Whoop has raised over $900 million including a $575 million Series G in March 2026, at a $10 billion valuation.",
+          "Apple's virtual study with OpenEvidence will observe about 200,000 people using conversational health AI; requires iPhone 15 Pro or newer.",
+          "Noom Band wearable launches early 2027 for employer and health-plan clients at no added upfront cost; pricing not reported."
+        ],
+        "url": "https://www.fiercehealthcare.com/health-tech/hlth-2026-how-whoop-aims-play-bigger-role-healthcare"
+      },
+      {
+        "title": "Clinical AI distribution into provider systems: Doximity at NewYork-Presbyterian; Abridge (private) at community health centers",
+        "tickers": [
+          "DOCS",
+          "CVS"
+        ],
+        "when": "",
+        "lines": [
+          "Doximity expanded its NewYork-Presbyterian deal to put its Ask decision-support and Scribe documentation tools system-wide; contract figures not reported.",
+          "Abridge Assistant offered at no cost to 108,000 clinicians at National Association of Community Health Centers (NACHC) members.",
+          "NACHC represents 1,534 community health centers serving over 52 million patients; held an Aetna (CVS Health) partnership session.",
+          "Medicaid cuts and rising uninsured volumes flagged as margin threats to hospitals and health centers; figures not reported."
+        ],
+        "url": "https://digitalhealthwire.com/hlth-2026-recap-and-major-announcements/"
+      }
+    ],
+    "expert_minds": [
+      "AI is commoditized; buyers want validated outcomes, shorter contracts and return-on-investment milestones, and physician groups reject replacement narratives (Chief Healthcare Executive wrap-up).",
+      "AI versus affordability: agentic AI and GLP-1 access dominated; the path to affordable access is still a work in progress (Healthcare Dive takeaways).",
+      "Prevention moving to continuous, wearable-led care, and women's health becoming a core strategy (Forrester); ARPA-H CMO Rafid Fadul urged faster clinical research.",
+      "Buzzwords were agentic harness, AI infrastructure, compounding pharmacy and trust layer; providers and insurers said AI is raising spending (Digital Health Wire; Modern Healthcare)."
+    ],
+    "new_topics": [],
+    "fading_topics": [],
+    "topics": [
+      "agentic AI",
+      "computer-use agents",
+      "AI return on investment and procurement",
+      "AI trust and governance",
+      "GLP-1 affordability and employer coverage",
+      "wearables as care front door",
+      "AI-native primary care",
+      "clinical decision support M&A",
+      "Medicaid cuts and uninsured",
+      "community health centers",
+      "women's health",
+      "prevention and longevity",
+      "AgeTech",
+      "payer-provider collaboration",
+      "diagnostics"
+    ],
+    "sources": [
+      {
+        "label": "HLTH USA 2026 official event page",
+        "url": "https://hlthus.hlth.com/events/usa/"
+      },
+      {
+        "label": "HLTH newsroom",
+        "url": "https://hlth.com/insights/news"
+      },
+      {
+        "label": "HLTH session page: Dr. Mehmet Oz virtual remarks",
+        "url": "https://hlth.com/event-recordings/hlth26/sessions/virtual-live-remarks-from-dr-mehmet-oz-administrator-of-cms"
+      },
+      {
+        "label": "Digital Health Wire HLTH 2026 recap",
+        "url": "https://digitalhealthwire.com/hlth-2026-recap-and-major-announcements/"
+      },
+      {
+        "label": "MedCity News: 7 HLTH 2026 announcements",
+        "url": "https://medcitynews.com/2026/11/7-hlth-2026-announcements-you-dont-want-to-miss/"
+      },
+      {
+        "label": "Chief Healthcare Executive: 8 takeaways",
+        "url": "https://www.chiefhealthcareexecutive.com/view/hlth-2026-everything-seems-to-be-ai-enabled-and-7-other-takeaways"
+      },
+      {
+        "label": "Healthcare Dive via Yahoo: AI and affordability takeaways",
+        "url": "https://www.yahoo.com/news/us/articles/ai-affordability-steal-show-6-161553264.html"
+      },
+      {
+        "label": "Modern Healthcare: 4 takeaways on AI",
+        "url": "https://www.modernhealthcare.com/providers/mh-hlth-2026-takeaways-ai-reimbursement-guardrails/"
+      }
+    ],
+    "caveat": "Tool limits stopped me from reading Dr. Oz's CMS remarks, the full Modern Healthcare and Healthcare Dive wrap-ups, or any Medicaid figure; the Oura deal predates the show, and the $3.7 billion AI-spend figure is from an unnamed company."
+  },
+  "model": "claude-opus-5-5",
+  "searches": 10,
+  "usage": {
+    "input_tokens": 38,
+    "output_tokens": 11149,
+    "cache_read_input_tokens": 490668,
+    "cache_creation_input_tokens": 49520
+  },
+  "posted_ts": "1795485633.665499",
+  "posted_on": "2026-11-24"
+}
